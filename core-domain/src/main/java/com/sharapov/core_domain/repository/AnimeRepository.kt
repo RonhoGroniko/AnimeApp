@@ -6,4 +6,6 @@ import kotlinx.coroutines.flow.Flow
 interface AnimeRepository {
 
     fun getAnimeList(): Flow<List<Anime>>
+
+    suspend fun loadAnimeList()
 }

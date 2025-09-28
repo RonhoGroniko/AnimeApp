@@ -1,9 +1,20 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.ksp)
 }
+
+private val keystorePropertiesFile = rootProject.file("keystore.properties")
+private val keystoreProperties = keystorePropertiesFile.inputStream().use { inputStream ->
+    Properties().apply {
+        load(inputStream)
+    }
+}
+
+private val apiKey = keystoreProperties.getProperty("MAL_CLIENT_ID")
 
 android {
     namespace = "com.sharapov.core_data"
@@ -14,6 +25,7 @@ android {
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles("consumer-rules.pro")
+        buildConfigField("String", "MAL_CLIENT_ID", apiKey)
     }
 
     buildTypes {
@@ -29,26 +41,30 @@ android {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
-        packaging {
-            resources {
-                excludes += "/META-INF/{AL2.0,LGPL2.1}"
-            }
+    buildFeatures {
+        buildConfig = true
+    }
+    packaging {
+        resources {
+            excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
     }
+}
 
-    kotlin {
-        jvmToolchain(17)
-        compilerOptions {
-            jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17)
-            freeCompilerArgs.addAll(
-                "-Xcontext-parameters",
-                "-opt-in=kotlin.RequiresOptIn"
-            )
-        }
+kotlin {
+    jvmToolchain(17)
+    compilerOptions {
+        jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17)
+        freeCompilerArgs.addAll(
+            "-Xcontext-parameters",
+            "-opt-in=kotlin.RequiresOptIn"
+        )
     }
+}
 
 dependencies {
 
+    implementation(project(":core-domain"))
 
     implementation(libs.kotlinx.coroutines.core)
     compileOnly(libs.javax.inject)
