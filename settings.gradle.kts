@@ -21,4 +21,8 @@ dependencyResolutionManagement {
 
 rootProject.name = "AnimeApp"
 include(":app")
- 
+include(":core-ui")
+include(":core-domain")
+include(":core-data")
+include(":core-di")
+include(":core-navigation")
