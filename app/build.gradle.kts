@@ -58,7 +58,6 @@ kotlin {
 dependencies {
 
     implementation(project(":core-ui"))
-    implementation(project(":core-domain"))
     implementation(project(":core-data"))
     implementation(project(":core-di"))
     implementation(project(":core-navigation"))
