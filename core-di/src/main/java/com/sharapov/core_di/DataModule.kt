@@ -1,6 +1,10 @@
 package com.sharapov.core_di
 
+import android.content.Context
+import androidx.room.Room
 import com.sharapov.core_data.BuildConfig
+import com.sharapov.core_data.local.database.AnimeDao
+import com.sharapov.core_data.local.database.AnimeDatabase
 import com.sharapov.core_data.remote.retrofit.AnimeApiService
 import com.sharapov.core_data.remote.retrofit.MalInterceptor
 import com.sharapov.core_data.repository.AnimeRepositoryImpl
@@ -9,6 +13,7 @@ import dagger.Binds
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
+import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import kotlinx.serialization.json.Json
 import okhttp3.Interceptor
@@ -89,6 +94,26 @@ interface DataModule {
             retrofit: Retrofit
         ): AnimeApiService {
             return retrofit.create(AnimeApiService::class.java)
+        }
+
+        @Provides
+        @Singleton
+        fun provideAnimeDatabase(
+            @ApplicationContext context: Context
+        ): AnimeDatabase {
+            return Room.databaseBuilder(
+                context = context,
+                klass = AnimeDatabase::class.java,
+                name = "anime.db"
+            ).build()
+        }
+
+        @Provides
+        @Singleton
+        fun provideAnimeDao(
+            database: AnimeDatabase
+        ): AnimeDao {
+            return database.animeDao()
         }
     }
 }

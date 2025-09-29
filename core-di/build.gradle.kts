@@ -53,6 +53,10 @@ dependencies {
     implementation(project(":core-domain"))
     implementation(project(":core-data"))
 
+    implementation(libs.androidx.room.runtime)
+    ksp(libs.androidx.room.compiler)
+    implementation(libs.androidx.room.ktx)
+
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.retrofit)
     implementation(libs.converter.kotlinx.serialization)

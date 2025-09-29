@@ -1,7 +1,9 @@
 package com.sharapov.core_data.local.dbmodel
 
+import androidx.room.Entity
 import androidx.room.PrimaryKey
 
+@Entity(tableName = "anime")
 data class AnimeDbModel(
     @PrimaryKey
     val id: Int,
@@ -9,7 +11,6 @@ data class AnimeDbModel(
     val imageUrl: String,
     val rating: Double,
     val rank: Int,
-    val genres: List<GenreDbModel>,
     val createdAt: String, // "2022-09-09T10:01:30+00:00"
-    val studios: List<StudioDbModel>
+    val rankingType: String
 )
