@@ -38,6 +38,16 @@ interface AnimeDao {
 
     @Transaction
     suspend fun upsertFullAnime(animeFullDbModelList: List<AnimeFullDbModel>) {
-
+        upsertAnime(animeFullDbModelList.map { it.anime })
+        upsertGenres(animeFullDbModelList.flatMap { it.genres }.distinctBy { it.id })
+        upsertStudios(animeFullDbModelList.flatMap { it.studios }.distinctBy { it.id })
+        val genreRefs = animeFullDbModelList.flatMap { full ->
+            full.genres.map { g -> AnimeGenreCrossRef(animeId = full.anime.id, genreId = g.id) }
+        }
+        val studioRefs = animeFullDbModelList.flatMap { full ->
+            full.studios.map { s -> AnimeStudioCrossRef(animeId = full.anime.id, studioId = s.id) }
+        }
+        if (genreRefs.isNotEmpty())  insertAnimeGenreRefs(genreRefs)
+        if (studioRefs.isNotEmpty()) insertAnimeStudioRefs(studioRefs)
     }
 }

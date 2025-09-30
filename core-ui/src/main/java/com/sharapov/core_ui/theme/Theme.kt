@@ -1,7 +1,6 @@
 package com.sharapov.core_ui.theme
 
 import android.os.Build
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.dynamicDarkColorScheme
@@ -9,24 +8,17 @@ import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
-import com.sharapov.animeapp.ui.theme.Pink40
-import com.sharapov.animeapp.ui.theme.Pink80
-import com.sharapov.animeapp.ui.theme.Purple40
-import com.sharapov.animeapp.ui.theme.Purple80
-import com.sharapov.animeapp.ui.theme.PurpleGrey40
-import com.sharapov.animeapp.ui.theme.PurpleGrey80
 import com.sharapov.animeapp.ui.theme.Typography
 
 private val DarkColorScheme = darkColorScheme(
-    primary = Purple80,
-    secondary = PurpleGrey80,
-    tertiary = Pink80
+
 )
 
 private val LightColorScheme = lightColorScheme(
-    primary = Purple40,
-    secondary = PurpleGrey40,
-    tertiary = Pink40
+    primary = White,
+    secondary = Yellow100,
+    tertiary = Pink40,
+    background = Blue100
 
     /* Other default colors to override
     background = Color(0xFFFFFBFE),
@@ -41,9 +33,9 @@ private val LightColorScheme = lightColorScheme(
 
 @Composable
 fun AnimeAppTheme(
-    darkTheme: Boolean = isSystemInDarkTheme(),
+    darkTheme: Boolean = false,
     // Dynamic color is available on Android 12+
-    dynamicColor: Boolean = true,
+    dynamicColor: Boolean = false,
     content: @Composable () -> Unit
 ) {
     val colorScheme = when {

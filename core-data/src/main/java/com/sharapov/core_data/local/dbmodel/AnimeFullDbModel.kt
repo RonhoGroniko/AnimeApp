@@ -9,14 +9,22 @@ data class AnimeFullDbModel(
     @Relation(
         parentColumn = "id",
         entityColumn = "id",
-        associateBy = Junction(AnimeGenreCrossRef::class)
+        associateBy = Junction(
+            value = AnimeGenreCrossRef::class,
+            parentColumn = "animeId",
+            entityColumn = "genreId"
+        )
     )
     val genres: List<GenreDbModel>,
 
     @Relation(
         parentColumn = "id",
         entityColumn = "id",
-        associateBy = Junction(AnimeStudioCrossRef::class)
+        associateBy = Junction(
+            value = AnimeStudioCrossRef::class,
+            parentColumn = "animeId",
+            entityColumn = "studioId"
+        )
     )
     val studios: List<StudioDbModel>
 )
