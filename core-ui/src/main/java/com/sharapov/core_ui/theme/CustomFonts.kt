@@ -9,7 +9,8 @@ object CustomFonts {
 
     val Poppins = FontFamily(
         Font(R.font.poppins_regular, weight = FontWeight.Normal),
-        Font(R.font.poppins_semibold, weight = FontWeight.SemiBold)
+        Font(R.font.poppins_semibold, weight = FontWeight.SemiBold),
+        Font(R.font.poppins_extrabold, weight = FontWeight.ExtraBold)
     )
 }
 

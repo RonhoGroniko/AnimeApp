@@ -9,6 +9,9 @@ import com.sharapov.core_domain.usecases.UpdateAnimeListUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.onStart
@@ -19,30 +22,46 @@ import javax.inject.Inject
 class ScreenViewModel @Inject constructor(
     private val getAnimeListUseCase: GetAnimeListUseCase,
     private val updateAnimeListUseCase: UpdateAnimeListUseCase
-): ViewModel() {
+) : ViewModel() {
 
     private val _state = MutableStateFlow<MainScreenState>(MainScreenState.Initial)
     val state = _state.asStateFlow()
 
     init {
-        getAnimeListUseCase(RankingType.UPCOMING)
+        val upcomingFlow = getAnimeListUseCase(RankingType.UPCOMING)
+            .distinctUntilChanged()
+
+        val airingFlow = getAnimeListUseCase(RankingType.AIRING)
+            .distinctUntilChanged()
+
+        combine(upcomingFlow, airingFlow) { upcoming, airing ->
+            upcoming to airing
+        }
             .onStart { _state.value = MainScreenState.Loading }
-            .onEach { animeList ->
-                if (animeList.isEmpty()) {
-                    updateAnimeListUseCase(RankingType.UPCOMING)
+            .onEach { (upcoming, airing) ->
+                if (upcoming.isEmpty()) {
+                    viewModelScope.launch { updateAnimeListUseCase(RankingType.UPCOMING) }
                 }
-                _state.value = MainScreenState.Content(animeList)
+                if (airing.isEmpty()) { updateAnimeListUseCase(RankingType.AIRING) }
+                _state.value = MainScreenState.Content(
+                    upcomingList = upcoming,
+                    airingList = airing
+                )
+            }
+            .catch { e ->
+                _state.value = MainScreenState.Error(e.message ?: "Unknown error")
             }
             .launchIn(viewModelScope)
     }
 
     fun processCommand(command: MainScreenCommand) {
         viewModelScope.launch {
-            when(command) {
+            when (command) {
                 MainScreenCommand.RefreshData -> {
                     Log.d("ScreenViewModel", command.toString())
                     _state.value = MainScreenState.Loading
                     updateAnimeListUseCase(RankingType.UPCOMING)
+                    updateAnimeListUseCase(RankingType.AIRING)
                 }
             }
         }

@@ -10,24 +10,40 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Bookmark
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.outlined.BookmarkBorder
+import androidx.compose.material.icons.outlined.Home
+import androidx.compose.material.icons.outlined.Person
+import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -48,7 +64,8 @@ fun MainScreen(
     when (val currentState = state.value) {
         is MainScreenState.Content -> {
             MainScreenContent(
-                animeList = currentState.animeList,
+                upcomingList = currentState.upcomingList,
+                airingList = currentState.airingList,
                 onLoadDataClick = {
                     viewModel.processCommand(MainScreenCommand.RefreshData)
                 }
@@ -71,13 +88,18 @@ fun MainScreen(
                 )
             }
         }
+
+        is MainScreenState.Error -> {
+
+        }
     }
 }
 
 @Composable
 fun MainScreenContent(
     modifier: Modifier = Modifier,
-    animeList: List<Anime>,
+    upcomingList: List<Anime>,
+    airingList: List<Anime>,
     onLoadDataClick: () -> Unit
 ) {
     Scaffold(
@@ -86,16 +108,16 @@ fun MainScreenContent(
             TopMainScreenBar(
                 onSettingsClick = { onLoadDataClick() }
             )
-        }
+        },
+        bottomBar = { NavigationMainScreenBar() }
     ) { innerPadding ->
         LazyColumn(
             contentPadding = innerPadding
         ) {
             item {
-                if (animeList.isNotEmpty()) {
+                if (upcomingList.isNotEmpty()) {
                     Subtitle(
-                        modifier = Modifier.padding(start = 24.dp),
-                        text = "New releases"
+                        text = "Upcoming"
                     )
                 } else {
                     Spacer(modifier = Modifier.height(16.dp))
@@ -105,7 +127,30 @@ fun MainScreenContent(
                 LazyRow(
                     modifier = Modifier.fillMaxWidth(),
                 ) {
-                    animeList.forEach { anime ->
+                    upcomingList.forEach { anime ->
+                        item(key = anime.id) {
+                            AnimeCard(
+                                imageUrl = anime.imageUrl,
+                                title = anime.title
+                            )
+                        }
+                    }
+                }
+            }
+            item {
+                if (airingList.isNotEmpty()) {
+                    Subtitle(
+                        text = "Top Airing"
+                    )
+                } else {
+                    Spacer(modifier = Modifier.height(16.dp))
+                }
+            }
+            item {
+                LazyRow(
+                    modifier = Modifier.fillMaxWidth(),
+                ) {
+                    airingList.forEach { anime ->
                         item(key = anime.id) {
                             AnimeCard(
                                 imageUrl = anime.imageUrl,
@@ -129,9 +174,10 @@ private fun TopMainScreenBar(
         title = {
             Text(
                 text = "Tsundoku",
-                color = MaterialTheme.colorScheme.primary,
+                color = MaterialTheme.colorScheme.secondary,
                 fontSize = 24.sp,
-                fontWeight = FontWeight.SemiBold
+                fontFamily = CustomFonts.Poppins,
+                fontWeight = FontWeight.ExtraBold
             )
         },
         actions = {
@@ -140,13 +186,63 @@ private fun TopMainScreenBar(
                     onSettingsClick()
                 },
                 imageVector = Icons.Default.Settings,
-                contentDescription = "Setting button"
+                contentDescription = "Setting button",
+                tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.5f)
             )
         },
         colors = TopAppBarDefaults.topAppBarColors(
             containerColor = MaterialTheme.colorScheme.background
         )
     )
+}
+
+@Composable
+private fun NavigationMainScreenBar(
+    modifier: Modifier = Modifier
+) {
+    var selectedItem by remember { mutableIntStateOf(0) }
+    val items = listOf("Home", "Search", "Favorites", "Profile")
+    val selectedIcons =
+        listOf(Icons.Filled.Home, Icons.Filled.Search, Icons.Filled.Bookmark, Icons.Filled.Person)
+    val unselectedIcons =
+        listOf(
+            Icons.Outlined.Home,
+            Icons.Outlined.Search,
+            Icons.Outlined.BookmarkBorder,
+            Icons.Outlined.Person
+        )
+
+    NavigationBar(
+        modifier = modifier,
+        containerColor = MaterialTheme.colorScheme.surface
+    ) {
+        items.forEachIndexed { index, item ->
+            NavigationBarItem(
+                icon = {
+                    Icon(
+                        modifier = Modifier.size(24.dp),
+                        imageVector = if (selectedItem == index) selectedIcons[index] else unselectedIcons[index],
+                        contentDescription = item,
+                    )
+                },
+                label = {
+                    Text(
+                        text = item,
+                        fontFamily = CustomFonts.Poppins,
+                        fontSize = 12.sp
+                    )
+                },
+                selected = selectedItem == index,
+                onClick = { selectedItem = index },
+                colors = NavigationBarItemDefaults.colors(
+                    selectedIconColor = MaterialTheme.colorScheme.secondary,
+                    unselectedIconColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.5f),
+                    unselectedTextColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.5f),
+                    indicatorColor = MaterialTheme.colorScheme.background,
+                )
+            )
+        }
+    }
 }
 
 @Composable
@@ -188,7 +284,7 @@ private fun Subtitle(
     text: String
 ) {
     Text(
-        modifier = modifier,
+        modifier = modifier.padding(start = 24.dp),
         text = text,
         fontFamily = CustomFonts.Poppins,
         fontWeight = FontWeight.SemiBold,

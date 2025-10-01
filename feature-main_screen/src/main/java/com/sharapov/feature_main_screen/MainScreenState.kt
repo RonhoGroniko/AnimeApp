@@ -4,7 +4,12 @@ import com.sharapov.core_domain.entity.Anime
 
 sealed interface MainScreenState {
 
-    data object Initial: MainScreenState
-    data object Loading: MainScreenState
-    data class Content(val animeList: List<Anime>): MainScreenState
+    data object Initial : MainScreenState
+    data object Loading : MainScreenState
+    data class Content(
+        val upcomingList: List<Anime>,
+        val airingList: List<Anime>
+    ) : MainScreenState
+
+    data class Error(val message: String) : MainScreenState
 }
