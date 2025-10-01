@@ -5,6 +5,7 @@ package com.sharapov.feature_main_screen
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -14,11 +15,13 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Bookmark
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.outlined.BookmarkBorder
@@ -60,37 +63,45 @@ import com.sharapov.core_ui.theme.CustomFonts
 fun MainScreen(
     viewModel: ScreenViewModel = hiltViewModel()
 ) {
-    val state = viewModel.state.collectAsState()
-    when (val currentState = state.value) {
-        is MainScreenState.Content -> {
-            MainScreenContent(
-                upcomingList = currentState.upcomingList,
-                airingList = currentState.airingList,
-                onLoadDataClick = {
-                    viewModel.processCommand(MainScreenCommand.RefreshData)
-                }
+    Scaffold(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background),
+        topBar = {
+            TopMainScreenBar(
+                onSettingsClick = { /*TODO:*/ },
+                onRefreshDataClick = { viewModel.processCommand(MainScreenCommand.RefreshData) }
             )
-        }
+        },
+        bottomBar = { NavigationMainScreenBar() }
+    ) { innerPadding ->
+        val state = viewModel.state.collectAsState()
 
-        MainScreenState.Initial -> {
-
-        }
-
-        MainScreenState.Loading -> {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(MaterialTheme.colorScheme.background),
-                contentAlignment = Alignment.Center
-            ) {
-                CircularProgressIndicator(
-                    color = MaterialTheme.colorScheme.secondary
+        when (val currentState = state.value) {
+            is MainScreenState.Content -> {
+                MainScreenContent(
+                    upcomingList = currentState.upcomingList,
+                    airingList = currentState.airingList,
+                    innerPadding = innerPadding
                 )
             }
-        }
 
-        is MainScreenState.Error -> {
+            MainScreenState.Initial -> {}
 
+            MainScreenState.Loading -> {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator(
+                        color = MaterialTheme.colorScheme.secondary
+                    )
+                }
+            }
+
+            is MainScreenState.Error -> {
+                /*TODO:*/
+            }
         }
     }
 }
@@ -100,65 +111,65 @@ fun MainScreenContent(
     modifier: Modifier = Modifier,
     upcomingList: List<Anime>,
     airingList: List<Anime>,
-    onLoadDataClick: () -> Unit
+    innerPadding: PaddingValues
 ) {
-    Scaffold(
-        modifier = modifier.background(MaterialTheme.colorScheme.background),
-        topBar = {
-            TopMainScreenBar(
-                onSettingsClick = { onLoadDataClick() }
-            )
-        },
-        bottomBar = { NavigationMainScreenBar() }
-    ) { innerPadding ->
-        LazyColumn(
-            contentPadding = innerPadding
-        ) {
-            item {
-                if (upcomingList.isNotEmpty()) {
-                    Subtitle(
-                        text = "Upcoming"
-                    )
-                } else {
-                    Spacer(modifier = Modifier.height(16.dp))
-                }
+    LazyColumn(
+        modifier = modifier,
+        contentPadding = innerPadding
+    ) {
+        item {
+            if (upcomingList.isNotEmpty()) {
+                Subtitle(
+                    text = "Upcoming"
+                )
+            } else {
+                Spacer(modifier = Modifier.height(16.dp))
             }
-            item {
-                LazyRow(
-                    modifier = Modifier.fillMaxWidth(),
-                ) {
-                    upcomingList.forEach { anime ->
-                        item(key = anime.id) {
-                            AnimeCard(
-                                imageUrl = anime.imageUrl,
-                                title = anime.title
-                            )
-                        }
-                    }
-                }
+        }
+        item {
+            AnimeCardsRow(animeList = upcomingList)
+        }
+        item {
+            if (airingList.isNotEmpty()) {
+                Subtitle(
+                    text = "Top Airing"
+                )
+            } else {
+                Spacer(modifier = Modifier.height(16.dp))
             }
-            item {
-                if (airingList.isNotEmpty()) {
-                    Subtitle(
-                        text = "Top Airing"
-                    )
-                } else {
-                    Spacer(modifier = Modifier.height(16.dp))
-                }
+        }
+        item {
+            AnimeCardsRow(animeList = airingList)
+        }
+        item {
+            if (airingList.isNotEmpty()) {
+                Subtitle(
+                    text = "Top Airing"
+                )
+            } else {
+                Spacer(modifier = Modifier.height(16.dp))
             }
-            item {
-                LazyRow(
-                    modifier = Modifier.fillMaxWidth(),
-                ) {
-                    airingList.forEach { anime ->
-                        item(key = anime.id) {
-                            AnimeCard(
-                                imageUrl = anime.imageUrl,
-                                title = anime.title
-                            )
-                        }
-                    }
-                }
+        }
+        item {
+            AnimeCardsRow(animeList = airingList)
+        }
+    }
+}
+
+@Composable
+private fun AnimeCardsRow(
+    modifier: Modifier = Modifier,
+    animeList: List<Anime>
+) {
+    LazyRow(
+        modifier = modifier.fillMaxWidth(),
+    ) {
+        animeList.forEach { anime ->
+            item(key = anime.id) {
+                AnimeCard(
+                    anime = anime,
+                    onCardClick = { /*TODO:*/ }
+                )
             }
         }
     }
@@ -167,12 +178,14 @@ fun MainScreenContent(
 @Composable
 private fun TopMainScreenBar(
     modifier: Modifier = Modifier,
-    onSettingsClick: () -> Unit
+    onSettingsClick: () -> Unit,
+    onRefreshDataClick: () -> Unit
 ) {
     TopAppBar(
-        modifier = modifier.padding(horizontal = 16.dp),
+        modifier = modifier,
         title = {
             Text(
+                modifier = Modifier.padding(start = 16.dp),
                 text = "Tsundoku",
                 color = MaterialTheme.colorScheme.secondary,
                 fontSize = 24.sp,
@@ -182,9 +195,23 @@ private fun TopMainScreenBar(
         },
         actions = {
             Icon(
-                modifier = Modifier.clickable {
-                    onSettingsClick()
-                },
+                modifier = Modifier
+                    .clip(CircleShape)
+                    .clickable {
+                        onRefreshDataClick()
+                    },
+                imageVector = Icons.Default.Refresh,
+                contentDescription = "Setting button",
+                tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.5f)
+            )
+            Spacer(modifier = modifier.width(16.dp))
+            Icon(
+                modifier = Modifier
+                    .padding(end = 16.dp)
+                    .clip(CircleShape)
+                    .clickable {
+                        onSettingsClick()
+                    },
                 imageVector = Icons.Default.Settings,
                 contentDescription = "Setting button",
                 tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.5f)
@@ -248,14 +275,18 @@ private fun NavigationMainScreenBar(
 @Composable
 private fun AnimeCard(
     modifier: Modifier = Modifier,
-    imageUrl: String,
-    title: String
+    anime: Anime,
+    onCardClick: (Int) -> Unit
 ) {
     Card(
         modifier = modifier
             .padding(8.dp)
             .height(240.dp)
-            .width(120.dp),
+            .width(120.dp)
+            .clip(RoundedCornerShape(8.dp))
+            .clickable {
+                onCardClick(anime.id)
+            },
         colors = CardDefaults.cardColors(
             contentColor = MaterialTheme.colorScheme.primary,
             containerColor = MaterialTheme.colorScheme.background
@@ -264,14 +295,14 @@ private fun AnimeCard(
         AsyncImage(
             modifier = Modifier
                 .fillMaxWidth()
-                .clip(RoundedCornerShape(8.dp)),
-            model = imageUrl,
+                .clip(RoundedCornerShape(bottomEnd = 8.dp, bottomStart = 8.dp)),
+            model = anime.imageUrl,
             contentDescription = "Anime image",
         )
         Spacer(modifier = Modifier.weight(1f))
         Text(
             modifier = Modifier.padding(bottom = 8.dp, end = 8.dp, start = 8.dp),
-            text = title,
+            text = anime.title,
             overflow = TextOverflow.Ellipsis,
             fontFamily = CustomFonts.Poppins
         )
