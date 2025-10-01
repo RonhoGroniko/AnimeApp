@@ -2,9 +2,14 @@
 
 package com.sharapov.feature_main_screen
 
+import android.content.Context
+import android.net.ConnectivityManager
+import android.net.Network
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -33,6 +38,8 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
@@ -42,15 +49,19 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -58,11 +69,35 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import coil3.compose.AsyncImage
 import com.sharapov.core_domain.entity.Anime
 import com.sharapov.core_ui.theme.CustomFonts
+import com.sharapov.feature_main_screen.utils.isInternetAvailable
 
 @Composable
 fun MainScreen(
     viewModel: ScreenViewModel = hiltViewModel()
 ) {
+    val context = LocalContext.current
+    var isOnline by remember { mutableStateOf(isInternetAvailable(context)) }
+
+    DisposableEffect(Unit) {
+        val connectivityManager =
+            context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+
+        val callback = object : ConnectivityManager.NetworkCallback() {
+            override fun onAvailable(network: Network) {
+                isOnline = true
+            }
+
+            override fun onLost(network: Network) {
+                isOnline = false
+            }
+        }
+
+        connectivityManager.registerDefaultNetworkCallback(callback)
+        onDispose {
+            connectivityManager.unregisterNetworkCallback(callback)
+        }
+    }
+
     Scaffold(
         modifier = Modifier
             .fillMaxSize()
@@ -70,7 +105,8 @@ fun MainScreen(
         topBar = {
             TopMainScreenBar(
                 onSettingsClick = { /*TODO:*/ },
-                onRefreshDataClick = { viewModel.processCommand(MainScreenCommand.RefreshData) }
+                onRefreshDataClick = { viewModel.processCommand(MainScreenCommand.RefreshData) },
+                isOnline = isOnline
             )
         },
         bottomBar = { NavigationMainScreenBar() }
@@ -100,7 +136,11 @@ fun MainScreen(
             }
 
             is MainScreenState.Error -> {
-                /*TODO:*/
+                NetworkProblemField(
+                    modifier = Modifier.fillMaxSize(),
+                    onRefreshDataClick = { viewModel.processCommand(MainScreenCommand.RefreshData) },
+                    isOnline = isOnline
+                )
             }
         }
     }
@@ -179,7 +219,8 @@ private fun AnimeCardsRow(
 private fun TopMainScreenBar(
     modifier: Modifier = Modifier,
     onSettingsClick: () -> Unit,
-    onRefreshDataClick: () -> Unit
+    onRefreshDataClick: () -> Unit,
+    isOnline: Boolean
 ) {
     TopAppBar(
         modifier = modifier,
@@ -194,15 +235,10 @@ private fun TopMainScreenBar(
             )
         },
         actions = {
-            Icon(
-                modifier = Modifier
-                    .clip(CircleShape)
-                    .clickable {
-                        onRefreshDataClick()
-                    },
-                imageVector = Icons.Default.Refresh,
-                contentDescription = "Setting button",
-                tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.5f)
+            RefreshIconButton(
+                modifier = Modifier.size(24.dp),
+                onRefreshDataClick = onRefreshDataClick,
+                isOnline = isOnline
             )
             Spacer(modifier = modifier.width(16.dp))
             Icon(
@@ -214,7 +250,7 @@ private fun TopMainScreenBar(
                     },
                 imageVector = Icons.Default.Settings,
                 contentDescription = "Setting button",
-                tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.5f)
+                tint = MaterialTheme.colorScheme.secondary
             )
         },
         colors = TopAppBarDefaults.topAppBarColors(
@@ -322,4 +358,64 @@ private fun Subtitle(
         color = MaterialTheme.colorScheme.primary,
         fontSize = 16.sp
     )
+}
+
+@Composable
+private fun RefreshIconButton(
+    modifier: Modifier = Modifier,
+    onRefreshDataClick: () -> Unit,
+    isOnline: Boolean
+) {
+    IconButton(
+        modifier = modifier,
+        onClick = onRefreshDataClick,
+        enabled = isOnline,
+        colors = IconButtonDefaults.iconButtonColors(
+            contentColor = MaterialTheme.colorScheme.secondary,
+            disabledContentColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.5f)
+        ),
+        shape = CircleShape
+    ) {
+        Icon(
+            modifier = modifier,
+            imageVector = Icons.Default.Refresh,
+            contentDescription = "Setting button"
+        )
+    }
+}
+
+
+@Composable
+private fun NetworkProblemField(
+    modifier: Modifier = Modifier,
+    onRefreshDataClick: () -> Unit,
+    isOnline: Boolean
+) {
+    Column(
+        modifier = modifier,
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        RefreshIconButton(
+            modifier = Modifier.size(96.dp),
+            onRefreshDataClick = onRefreshDataClick,
+            isOnline = isOnline
+        )
+        if (isOnline) {
+            Text(
+                text = "You are back online!\nClick to refresh",
+                fontFamily = CustomFonts.Poppins,
+                textAlign = TextAlign.Center,
+                color = MaterialTheme.colorScheme.primary.copy(alpha = 0.5f)
+            )
+        } else {
+            Text(
+                text = "Check your Internet connection",
+                fontFamily = CustomFonts.Poppins,
+                textAlign = TextAlign.Center,
+                color = MaterialTheme.colorScheme.primary.copy(alpha = 0.5f)
+            )
+        }
+
+    }
 }

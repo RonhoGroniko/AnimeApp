@@ -40,9 +40,25 @@ class ScreenViewModel @Inject constructor(
             .onStart { _state.value = MainScreenState.Loading }
             .onEach { (upcoming, airing) ->
                 if (upcoming.isEmpty()) {
-                    viewModelScope.launch { updateAnimeListUseCase(RankingType.UPCOMING) }
+                    val result = updateAnimeListUseCase(RankingType.UPCOMING)
+                    if (result.isFailure) {
+                        _state.value = MainScreenState.Error(
+                            result.exceptionOrNull()?.message
+                                ?: "Unable to download Upcoming anime"
+                        )
+                        return@onEach
+                    }
                 }
-                if (airing.isEmpty()) { updateAnimeListUseCase(RankingType.AIRING) }
+                if (airing.isEmpty()) {
+                    val result = updateAnimeListUseCase(RankingType.AIRING)
+                    if (result.isFailure) {
+                        _state.value = MainScreenState.Error(
+                            result.exceptionOrNull()?.message
+                                ?: "Unable to download Airing anime"
+                        )
+                        return@onEach
+                    }
+                }
                 _state.value = MainScreenState.Content(
                     upcomingList = upcoming,
                     airingList = airing
@@ -60,8 +76,20 @@ class ScreenViewModel @Inject constructor(
                 MainScreenCommand.RefreshData -> {
                     Log.d("ScreenViewModel", command.toString())
                     _state.value = MainScreenState.Loading
-                    updateAnimeListUseCase(RankingType.UPCOMING)
-                    updateAnimeListUseCase(RankingType.AIRING)
+                    val upcomingResult = updateAnimeListUseCase(RankingType.UPCOMING)
+                    if (upcomingResult.isFailure) {
+                        _state.value = MainScreenState.Error(
+                            upcomingResult.exceptionOrNull()?.message
+                                ?: "Unable to download Upcoming anime"
+                        )
+                    }
+                    val airingResult = updateAnimeListUseCase(RankingType.AIRING)
+                    if (airingResult.isFailure) {
+                        _state.value = MainScreenState.Error(
+                            airingResult.exceptionOrNull()?.message
+                                ?: "Unable to download Airing anime"
+                        )
+                    }
                 }
             }
         }

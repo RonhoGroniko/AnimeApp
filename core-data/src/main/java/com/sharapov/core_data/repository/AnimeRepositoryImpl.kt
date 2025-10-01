@@ -1,10 +1,10 @@
 package com.sharapov.core_data.repository
 
-import android.util.Log
 import com.sharapov.core_data.local.database.AnimeDao
 import com.sharapov.core_data.local.dbmodel.AnimeFullDbModel
 import com.sharapov.core_data.mapper.toEntities
 import com.sharapov.core_data.mapper.toFullDbModels
+import com.sharapov.core_data.remote.DataException
 import com.sharapov.core_data.remote.retrofit.AnimeApiService
 import com.sharapov.core_domain.entity.Anime
 import com.sharapov.core_domain.entity.RankingType
@@ -12,6 +12,8 @@ import com.sharapov.core_domain.repository.AnimeRepository
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import retrofit2.HttpException
+import java.io.IOException
 import javax.inject.Inject
 
 class AnimeRepositoryImpl @Inject constructor(
@@ -37,12 +39,14 @@ class AnimeRepositoryImpl @Inject constructor(
     private suspend fun loadAnimeList(rankingType: RankingType): List<AnimeFullDbModel> {
         return try {
             animeApiService.getAnimeRankingList(rankingType.query, 40).toFullDbModels(rankingType)
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: IOException) {
+            throw DataException.Network(e)
+        } catch (e: HttpException) {
+            throw DataException.Server(e)
         } catch (e: Exception) {
-            if (e is CancellationException) {
-                throw e
-            }
-            Log.e("AnimeRepository", e.stackTraceToString())
-            listOf()
+            throw DataException.Unknown(e)
         }
     }
 }
