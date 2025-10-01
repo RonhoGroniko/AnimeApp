@@ -282,15 +282,15 @@ private fun AnimeCard(
         modifier = modifier
             .padding(8.dp)
             .height(240.dp)
-            .width(120.dp)
-            .clip(RoundedCornerShape(8.dp))
-            .clickable {
-                onCardClick(anime.id)
-            },
+            .width(120.dp),
         colors = CardDefaults.cardColors(
             contentColor = MaterialTheme.colorScheme.primary,
             containerColor = MaterialTheme.colorScheme.background
-        )
+        ),
+        onClick = {
+            onCardClick(anime.id)
+        },
+        shape = RoundedCornerShape(8.dp)
     ) {
         AsyncImage(
             modifier = Modifier
