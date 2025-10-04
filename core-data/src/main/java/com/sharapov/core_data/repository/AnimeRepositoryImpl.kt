@@ -3,11 +3,13 @@ package com.sharapov.core_data.repository
 import com.sharapov.core_data.local.database.AnimeDao
 import com.sharapov.core_data.local.dbmodel.AnimeFullDbModel
 import com.sharapov.core_data.mapper.toEntities
+import com.sharapov.core_data.mapper.toEntity
 import com.sharapov.core_data.mapper.toFullDbModels
 import com.sharapov.core_data.remote.DataException
 import com.sharapov.core_data.remote.retrofit.AnimeApiService
 import com.sharapov.core_domain.entity.Anime
 import com.sharapov.core_domain.entity.RankingType
+import com.sharapov.core_domain.entity.details.AnimeWithDetails
 import com.sharapov.core_domain.repository.AnimeRepository
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.Flow
@@ -25,9 +27,23 @@ class AnimeRepositoryImpl @Inject constructor(
         return animeDao.getAnimeList(rankingType.name).map { it.toEntities() }
     }
 
-    override suspend fun updateAnimeList(rankingType: RankingType) {
-        val animeList = loadAnimeList(rankingType)
+    override suspend fun updateAnimeList(rankingType: RankingType, limit: Int) {
+        val animeList = loadAnimeList(rankingType, limit)
         addAnimeList(animeList)
+    }
+
+    override suspend fun getAnimeById(animeId: Int): AnimeWithDetails {
+        return try {
+            animeApiService.getAnimeById(animeId).toEntity()
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: IOException) {
+            throw DataException.Network(e)
+        } catch (e: HttpException) {
+            throw DataException.Server(e)
+        } catch (e: Exception) {
+            throw DataException.Unknown(e)
+        }
     }
 
     private suspend fun addAnimeList(
@@ -36,9 +52,9 @@ class AnimeRepositoryImpl @Inject constructor(
         animeDao.upsertFullAnime(animeList)
     }
 
-    private suspend fun loadAnimeList(rankingType: RankingType): List<AnimeFullDbModel> {
+    private suspend fun loadAnimeList(rankingType: RankingType, limit: Int): List<AnimeFullDbModel> {
         return try {
-            animeApiService.getAnimeRankingList(rankingType.query, 40).toFullDbModels(rankingType)
+            animeApiService.getAnimeRankingList(rankingType.query, limit).toFullDbModels(rankingType)
         } catch (e: CancellationException) {
             throw e
         } catch (e: IOException) {

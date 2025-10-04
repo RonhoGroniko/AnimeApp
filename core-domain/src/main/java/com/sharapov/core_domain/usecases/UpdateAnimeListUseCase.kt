@@ -8,7 +8,7 @@ class UpdateAnimeListUseCase @Inject constructor(
     private val animeRepository: AnimeRepository
 ) {
 
-    suspend operator fun invoke(rankingType: RankingType): Result<Unit> {
-        return runCatching { animeRepository.updateAnimeList(rankingType) }
+    suspend operator fun invoke(rankingType: RankingType, limit: Int): Result<Unit> {
+        return runCatching { animeRepository.updateAnimeList(rankingType, limit) }
     }
 }

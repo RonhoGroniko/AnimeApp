@@ -40,7 +40,7 @@ class ScreenViewModel @Inject constructor(
             .onStart { _state.value = MainScreenState.Loading }
             .onEach { (upcoming, airing) ->
                 if (upcoming.isEmpty()) {
-                    val result = updateAnimeListUseCase(RankingType.UPCOMING)
+                    val result = updateAnimeListUseCase(RankingType.UPCOMING, 40)
                     if (result.isFailure) {
                         _state.value = MainScreenState.Error(
                             result.exceptionOrNull()?.message
@@ -50,7 +50,7 @@ class ScreenViewModel @Inject constructor(
                     }
                 }
                 if (airing.isEmpty()) {
-                    val result = updateAnimeListUseCase(RankingType.AIRING)
+                    val result = updateAnimeListUseCase(RankingType.AIRING, 40)
                     if (result.isFailure) {
                         _state.value = MainScreenState.Error(
                             result.exceptionOrNull()?.message
@@ -76,14 +76,14 @@ class ScreenViewModel @Inject constructor(
                 MainScreenCommand.RefreshData -> {
                     Log.d("ScreenViewModel", command.toString())
                     _state.value = MainScreenState.Loading
-                    val upcomingResult = updateAnimeListUseCase(RankingType.UPCOMING)
+                    val upcomingResult = updateAnimeListUseCase(RankingType.UPCOMING, 40)
                     if (upcomingResult.isFailure) {
                         _state.value = MainScreenState.Error(
                             upcomingResult.exceptionOrNull()?.message
                                 ?: "Unable to download Upcoming anime"
                         )
                     }
-                    val airingResult = updateAnimeListUseCase(RankingType.AIRING)
+                    val airingResult = updateAnimeListUseCase(RankingType.AIRING, 40)
                     if (airingResult.isFailure) {
                         _state.value = MainScreenState.Error(
                             airingResult.exceptionOrNull()?.message

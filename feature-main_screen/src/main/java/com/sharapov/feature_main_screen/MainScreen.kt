@@ -23,16 +23,8 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Bookmark
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Refresh
-import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material.icons.outlined.BookmarkBorder
-import androidx.compose.material.icons.outlined.Home
-import androidx.compose.material.icons.outlined.Person
-import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -41,10 +33,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.NavigationBar
-import androidx.compose.material3.NavigationBarItem
-import androidx.compose.material3.NavigationBarItemDefaults
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
@@ -55,6 +43,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -69,14 +58,19 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import coil3.compose.AsyncImage
 import com.sharapov.core_domain.entity.Anime
 import com.sharapov.core_ui.theme.CustomFonts
+import com.sharapov.core_ui.theme.composable.BasePane
 import com.sharapov.feature_main_screen.utils.isInternetAvailable
 
 @Composable
 fun MainScreen(
-    viewModel: ScreenViewModel = hiltViewModel()
+    viewModel: ScreenViewModel = hiltViewModel(),
+    onCardClick: (Int) -> Unit,
+    onSettingsClick: () -> Unit
 ) {
     val context = LocalContext.current
     var isOnline by remember { mutableStateOf(isInternetAvailable(context)) }
+
+    var selectedTab by rememberSaveable { mutableIntStateOf(0) }
 
     DisposableEffect(Unit) {
         val connectivityManager =
@@ -97,20 +91,17 @@ fun MainScreen(
             connectivityManager.unregisterNetworkCallback(callback)
         }
     }
-
-    Scaffold(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background),
-        topBar = {
-            TopMainScreenBar(
-                onSettingsClick = { /*TODO:*/ },
-                onRefreshDataClick = { viewModel.processCommand(MainScreenCommand.RefreshData) },
-                isOnline = isOnline
-            )
-        },
-        bottomBar = { NavigationMainScreenBar() }
+    BasePane(
+        selectedTab = selectedTab,
+        onTabSelected = { selectedTab = it } ,
+        modifier = Modifier.background(MaterialTheme.colorScheme.background),
+        topBar = { TopMainScreenBar(
+            onSettingsClick = onSettingsClick,
+            onRefreshDataClick = { viewModel.processCommand(MainScreenCommand.RefreshData) },
+            isOnline = isOnline
+        ) }
     ) { innerPadding ->
+
         val state = viewModel.state.collectAsState()
 
         when (val currentState = state.value) {
@@ -118,7 +109,8 @@ fun MainScreen(
                 MainScreenContent(
                     upcomingList = currentState.upcomingList,
                     airingList = currentState.airingList,
-                    innerPadding = innerPadding
+                    innerPadding = innerPadding,
+                    onCardClick = onCardClick
                 )
             }
 
@@ -151,7 +143,8 @@ fun MainScreenContent(
     modifier: Modifier = Modifier,
     upcomingList: List<Anime>,
     airingList: List<Anime>,
-    innerPadding: PaddingValues
+    innerPadding: PaddingValues,
+    onCardClick: (Int) -> Unit
 ) {
     LazyColumn(
         modifier = modifier,
@@ -167,7 +160,10 @@ fun MainScreenContent(
             }
         }
         item {
-            AnimeCardsRow(animeList = upcomingList)
+            AnimeCardsRow(
+                animeList = upcomingList,
+                onCardClick = onCardClick
+            )
         }
         item {
             if (airingList.isNotEmpty()) {
@@ -179,7 +175,10 @@ fun MainScreenContent(
             }
         }
         item {
-            AnimeCardsRow(animeList = airingList)
+            AnimeCardsRow(
+                animeList = airingList,
+                onCardClick = onCardClick
+            )
         }
         item {
             if (airingList.isNotEmpty()) {
@@ -191,7 +190,10 @@ fun MainScreenContent(
             }
         }
         item {
-            AnimeCardsRow(animeList = airingList)
+            AnimeCardsRow(
+                animeList = airingList,
+                onCardClick = onCardClick
+            )
         }
     }
 }
@@ -199,7 +201,8 @@ fun MainScreenContent(
 @Composable
 private fun AnimeCardsRow(
     modifier: Modifier = Modifier,
-    animeList: List<Anime>
+    animeList: List<Anime>,
+    onCardClick: (Int) -> Unit
 ) {
     LazyRow(
         modifier = modifier.fillMaxWidth(),
@@ -208,7 +211,7 @@ private fun AnimeCardsRow(
             item(key = anime.id) {
                 AnimeCard(
                     anime = anime,
-                    onCardClick = { /*TODO:*/ }
+                    onCardClick = { onCardClick(anime.id) }
                 )
             }
         }
@@ -259,54 +262,6 @@ private fun TopMainScreenBar(
     )
 }
 
-@Composable
-private fun NavigationMainScreenBar(
-    modifier: Modifier = Modifier
-) {
-    var selectedItem by remember { mutableIntStateOf(0) }
-    val items = listOf("Home", "Search", "Favorites", "Profile")
-    val selectedIcons =
-        listOf(Icons.Filled.Home, Icons.Filled.Search, Icons.Filled.Bookmark, Icons.Filled.Person)
-    val unselectedIcons =
-        listOf(
-            Icons.Outlined.Home,
-            Icons.Outlined.Search,
-            Icons.Outlined.BookmarkBorder,
-            Icons.Outlined.Person
-        )
-
-    NavigationBar(
-        modifier = modifier,
-        containerColor = MaterialTheme.colorScheme.surface
-    ) {
-        items.forEachIndexed { index, item ->
-            NavigationBarItem(
-                icon = {
-                    Icon(
-                        modifier = Modifier.size(24.dp),
-                        imageVector = if (selectedItem == index) selectedIcons[index] else unselectedIcons[index],
-                        contentDescription = item,
-                    )
-                },
-                label = {
-                    Text(
-                        text = item,
-                        fontFamily = CustomFonts.Poppins,
-                        fontSize = 12.sp
-                    )
-                },
-                selected = selectedItem == index,
-                onClick = { selectedItem = index },
-                colors = NavigationBarItemDefaults.colors(
-                    selectedIconColor = MaterialTheme.colorScheme.secondary,
-                    unselectedIconColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.5f),
-                    unselectedTextColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.5f),
-                    indicatorColor = MaterialTheme.colorScheme.background,
-                )
-            )
-        }
-    }
-}
 
 @Composable
 private fun AnimeCard(
