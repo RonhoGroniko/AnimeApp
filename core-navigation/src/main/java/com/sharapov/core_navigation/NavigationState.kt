@@ -8,7 +8,6 @@ class NavigationState(
     val navController: NavHostController
 ) {
 
-
     fun navigateTo(route: String) {
         navController.navigate(route) {
             launchSingleTop = true
