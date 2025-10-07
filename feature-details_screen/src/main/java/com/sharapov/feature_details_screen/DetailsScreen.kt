@@ -1,11 +1,71 @@
 package com.sharapov.feature_details_screen
 
+import android.util.Log
+import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ElevatedSuggestionChip
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonDefaults
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SuggestionChipDefaults
+import androidx.compose.material3.Text
+import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import coil3.compose.AsyncImage
+import com.sharapov.core_domain.entity.Anime
+import com.sharapov.core_ui.R
+import com.sharapov.core_ui.theme.CustomFonts
+import com.sharapov.core_ui.theme.composable.BasePane
+import com.sharapov.feature_details_screen.model.AnimeWithDetailsUiModel
+import com.sharapov.feature_details_screen.model.RelatedAnimeUiModel
 
 @Composable
 fun DetailsScreen(
@@ -13,10 +73,647 @@ fun DetailsScreen(
     viewModel: DetailsViewModel = hiltViewModel { factory: DetailsViewModel.Factory ->
         factory.create(id)
     },
+    onBackClick: () -> Unit,
+    onCardClick: (Int) -> Unit
 ) {
-    Scaffold { innerPadding ->
-        Box(modifier = Modifier.padding(innerPadding)) {
-            viewModel.toString()
+    BasePane(
+        modifier = Modifier.background(MaterialTheme.colorScheme.background),
+    ) { innerPadding ->
+        val state = viewModel.state.collectAsState()
+        when (val currentState = state.value) {
+            is DetailsScreenState.Content -> {
+                DetailsScreenContent(
+                    innerPadding = innerPadding,
+                    anime = currentState.anime,
+                    onBackClick = onBackClick,
+                    onCardClick = onCardClick
+                )
+            }
+
+            is DetailsScreenState.Error -> {
+                Log.d("ERROR", currentState.message)
+            }
+
+            DetailsScreenState.Initial -> {}
+            DetailsScreenState.Loading -> {
+
+            }
         }
+    }
+}
+
+@Composable
+fun DetailsScreenContent(
+    modifier: Modifier = Modifier,
+    innerPadding: PaddingValues,
+    anime: AnimeWithDetailsUiModel,
+    onBackClick: () -> Unit,
+    onCardClick: (Int) -> Unit
+) {
+    LazyColumn(
+        modifier = modifier.fillMaxWidth(),
+        contentPadding = innerPadding
+    ) {
+        item {
+            HeaderCard(
+                imageUrl = anime.mainPicture,
+                title = anime.title,
+                studios = anime.studios,
+                releaseDate = anime.startDate,
+                mean = anime.mean,
+                onBackClick = onBackClick
+            )
+        }
+        item {
+            GenreChips(
+                genres = anime.genres,
+                onGenreClick = { }
+            )
+        }
+        item {
+            InfoRow(
+                status = anime.status,
+                rating = anime.rating,
+                numEpisodes = anime.numEpisodes,
+                episodeDuration = anime.averageEpisodeDuration,
+                mediaType = anime.mediaType
+            )
+        }
+        if (anime.synopsis.isNotBlank()) {
+            item {
+                Spacer(modifier = Modifier.height(16.dp))
+            }
+            item {
+                Subtitle(modifier = Modifier.padding(horizontal = 16.dp), text = "Description")
+            }
+            item {
+                Spacer(modifier = Modifier.height(8.dp))
+            }
+            item {
+                ExpandableDescription(
+                    modifier = Modifier.padding(horizontal = 8.dp),
+                    text = anime.synopsis
+                )
+            }
+        }
+        if (anime.pictures.isNotEmpty()) {
+            item {
+                Spacer(modifier = Modifier.height(16.dp))
+            }
+            item {
+                Subtitle(modifier = Modifier.padding(horizontal = 16.dp), text = "Pictures")
+            }
+            item {
+                PictureCardRow(
+                    pictureUrls = anime.pictures
+                )
+            }
+        }
+        if (anime.background.isNotBlank()) {
+            item {
+                Subtitle(modifier = Modifier.padding(horizontal = 16.dp), text = "Background")
+            }
+            item {
+                Spacer(modifier = Modifier.height(8.dp))
+            }
+            item {
+                ExpandableDescription(
+                    modifier = Modifier.padding(horizontal = 8.dp),
+                    text = anime.background
+                )
+            }
+        }
+        if (anime.relatedAnime.isNotEmpty()) {
+            item {
+                Spacer(modifier = Modifier.height(8.dp))
+            }
+            item {
+                Subtitle(modifier = Modifier.padding(horizontal = 16.dp), text = "Related Anime")
+            }
+            item {
+                Spacer(modifier = Modifier.height(8.dp))
+            }
+            item {
+                RelatedAnimeCardsRow(
+                    relatedAnimeList = anime.relatedAnime,
+                    onCardClick = onCardClick
+                )
+            }
+        }
+        if (anime.recommendations.isNotEmpty()) {
+            item {
+                Subtitle(modifier = Modifier.padding(horizontal = 16.dp), text = "Recommendations")
+            }
+            item {
+                Spacer(modifier = Modifier.height(8.dp))
+            }
+            item {
+                AnimeCardsRow(
+                    animeList = anime.recommendations,
+                    onCardClick = onCardClick
+                )
+            }
+        }
+    }
+}
+
+
+@Composable
+fun HeaderCard(
+    modifier: Modifier = Modifier,
+    imageUrl: String,
+    title: String,
+    studios: List<String>,
+    releaseDate: String,
+    mean: Double,
+    onBackClick: () -> Unit
+) {
+    Card(
+        modifier = modifier
+            .padding(horizontal = 8.dp),
+        shape = RoundedCornerShape(8.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceVariant,
+        )
+    ) {
+        Column(
+            modifier = Modifier
+                .padding(8.dp)
+        ) {
+            Box() {
+                AsyncImage(
+                    model = imageUrl,
+                    contentDescription = "Image for selected card",
+                    modifier = Modifier
+                        .heightIn(max = 480.dp)
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(8.dp)),
+                    contentScale = ContentScale.FillWidth
+                )
+                IconButton(
+                    onClick = onBackClick,
+                    modifier = Modifier
+                        .align(Alignment.TopStart),
+                    colors = IconButtonDefaults.iconButtonColors(
+                        containerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.35f)
+                    ),
+                    shape = RoundedCornerShape(8.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Default.ArrowBack,
+                        contentDescription = "Back",
+                        tint = MaterialTheme.colorScheme.primary
+                    )
+                }
+            }
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text = title,
+                fontFamily = CustomFonts.Poppins,
+                fontWeight = FontWeight.ExtraBold,
+                color = MaterialTheme.colorScheme.primary,
+                fontSize = 24.sp
+            )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Column(modifier = Modifier.weight(0.6f)) {
+                    Text(
+                        text = "Studios: ${studios.joinToString()}",
+                        fontFamily = CustomFonts.Poppins,
+                        color = MaterialTheme.colorScheme.primary.copy(alpha = 0.8f),
+                        fontStyle = FontStyle.Italic,
+                        fontSize = 14.sp
+                    )
+                    Text(
+                        text = "Release date: $releaseDate",
+                        fontFamily = CustomFonts.Poppins,
+                        color = MaterialTheme.colorScheme.primary.copy(alpha = 0.8f),
+                        fontStyle = FontStyle.Italic,
+                        fontSize = 14.sp
+                    )
+                }
+                StarsRating(
+                    modifier = Modifier.weight(0.4f),
+                    mean = mean
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun StarsRating(
+    modifier: Modifier = Modifier,
+    mean: Double
+) {
+    val stars = calculateStars(mean)
+    Column(
+        modifier = modifier.fillMaxWidth(),
+        horizontalAlignment = Alignment.End
+    ) {
+        Text(
+            text = "Rating: $mean",
+            fontFamily = CustomFonts.Poppins,
+            color = MaterialTheme.colorScheme.primary,
+            fontSize = 14.sp,
+            textAlign = TextAlign.End
+        )
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(4.dp)
+        ) {
+            repeat(stars.fullStars) {
+                Icon(
+                    modifier = Modifier.size(24.dp),
+                    painter = painterResource(R.drawable.ic_star),
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.secondary
+                )
+            }
+
+            repeat(stars.halfStars) {
+                Icon(
+                    modifier = Modifier.size(24.dp),
+                    painter = painterResource(R.drawable.ic_star_half),
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.secondary
+                )
+            }
+
+            repeat(stars.emptyStars) {
+                Icon(
+                    modifier = Modifier.size(24.dp),
+                    painter = painterResource(R.drawable.ic_star),
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.secondary.copy(alpha = 0.5f)
+                )
+            }
+        }
+    }
+
+}
+
+data class StarState(
+    val fullStars: Int,
+    val halfStars: Int,
+    val emptyStars: Int
+)
+
+private fun calculateStars(mean: Double): StarState {
+    val starValue = (mean / 2.0).coerceIn(0.0, 5.0)
+
+    val fullStars = starValue.toInt()
+    val hasHalfStar = (starValue - fullStars) >= 0.5
+
+    val halfStars = if (hasHalfStar) 1 else 0
+    val emptyStars = 5 - fullStars - halfStars
+
+    return StarState(
+        fullStars = fullStars,
+        halfStars = halfStars,
+        emptyStars = emptyStars
+    )
+}
+
+@Composable
+fun GenreChips(
+    modifier: Modifier = Modifier,
+    genres: List<String>,
+    onGenreClick: (String) -> Unit
+) {
+    LazyRow(
+        modifier = modifier
+            .fillMaxWidth(),
+        contentPadding = PaddingValues(horizontal = 8.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        genres.forEach { genre ->
+            item {
+                ElevatedSuggestionChip(
+                    onClick = {
+                        onGenreClick(genre)
+                    },
+                    label = {
+                        Text(
+                            text = genre,
+                            fontFamily = CustomFonts.Poppins,
+                            color = MaterialTheme.colorScheme.primary,
+                            fontSize = 14.sp
+                        )
+                    },
+                    colors = SuggestionChipDefaults.suggestionChipColors(
+                        containerColor = MaterialTheme.colorScheme.surfaceVariant
+                    )
+                )
+            }
+        }
+
+    }
+}
+
+@Composable
+fun InfoRow(
+    modifier: Modifier = Modifier,
+    status: String,
+    rating: String,
+    numEpisodes: String,
+    episodeDuration: String,
+    mediaType: String
+) {
+    Row(
+        modifier = modifier
+            .padding(horizontal = 8.dp)
+            .fillMaxWidth()
+            .height(IntrinsicSize.Min),
+        horizontalArrangement = Arrangement.SpaceAround,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        InfoColumn(
+            modifier = Modifier.weight(1f),
+            label = "Status",
+            content = status
+        )
+        VerticalDivider(
+            modifier = Modifier.fillMaxHeight(),
+            thickness = 4.dp,
+            color = MaterialTheme.colorScheme.background
+        )
+        InfoColumn(
+            modifier = Modifier.weight(1f),
+            label = "Type",
+            content = mediaType
+        )
+        VerticalDivider(
+            modifier = Modifier.fillMaxHeight(),
+            thickness = 4.dp,
+            color = MaterialTheme.colorScheme.background
+        )
+        InfoColumn(
+            modifier = Modifier.weight(1f),
+            label = "Rating",
+            content = rating
+        )
+        VerticalDivider(
+            modifier = Modifier.fillMaxHeight(),
+            thickness = 4.dp,
+            color = MaterialTheme.colorScheme.background
+        )
+        InfoColumn(
+            modifier = Modifier.weight(1f),
+            label = "Episodes",
+            content = numEpisodes
+        )
+        VerticalDivider(
+            modifier = Modifier.fillMaxHeight(),
+            thickness = 4.dp,
+            color = MaterialTheme.colorScheme.background
+        )
+        InfoColumn(
+            modifier = Modifier.weight(1f),
+            label = "Duration",
+            content = episodeDuration
+        )
+    }
+}
+
+@Composable
+private fun InfoColumn(
+    modifier: Modifier = Modifier,
+    label: String,
+    content: String
+) {
+    Column(
+        modifier = modifier
+            .heightIn(min = 56.dp)
+            .clip(RoundedCornerShape(8.dp))
+            .background(MaterialTheme.colorScheme.surfaceVariant),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(
+            text = label,
+            textAlign = TextAlign.Center,
+            fontWeight = FontWeight.SemiBold,
+            fontFamily = CustomFonts.Poppins,
+            color = MaterialTheme.colorScheme.primary,
+            fontSize = 14.sp
+        )
+        Box(
+            modifier = Modifier.weight(1f),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(
+                modifier = Modifier,
+                text = content,
+                textAlign = TextAlign.Center,
+                fontFamily = CustomFonts.Poppins,
+                fontStyle = FontStyle.Italic,
+                color = MaterialTheme.colorScheme.primary,
+                fontSize = 12.sp
+            )
+        }
+    }
+}
+
+
+@Composable
+fun Subtitle(
+    modifier: Modifier = Modifier,
+    text: String
+) {
+    Text(
+        modifier = modifier,
+        text = text,
+        color = MaterialTheme.colorScheme.primary,
+        fontSize = 20.sp,
+        fontWeight = FontWeight.SemiBold,
+        fontFamily = CustomFonts.Poppins
+    )
+}
+
+@Composable
+fun ExpandableDescription(
+    text: String,
+    modifier: Modifier = Modifier,
+    collapsedMaxLines: Int = 4
+) {
+    var expanded by rememberSaveable { mutableStateOf(false) }
+    var hasOverflow by remember { mutableStateOf(false) }
+
+    val fadeBg = MaterialTheme.colorScheme.surfaceVariant
+    val fadeHeight = 48.dp
+    val rotation by animateFloatAsState(if (expanded) 180f else 0f, label = "arrow_rotation")
+
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(8.dp))
+            .background(color = MaterialTheme.colorScheme.surfaceVariant)
+            .animateContentSize()
+    ) {
+        Box(Modifier.fillMaxWidth()) {
+            Text(
+                text = text,
+                modifier = Modifier
+                    .padding(8.dp)
+                    .fillMaxWidth()
+                    .graphicsLayer { alpha = 0.99f }
+                    .drawWithContent {
+                        drawContent()
+                        if (!expanded && hasOverflow) {
+                            val h = fadeHeight.toPx()
+                            drawRect(
+                                brush = Brush.verticalGradient(
+                                    colors = listOf(Color.Transparent, fadeBg),
+                                    startY = size.height - h,
+                                    endY = size.height
+                                )
+                            )
+                        }
+                    },
+                maxLines = if (expanded) Int.MAX_VALUE else collapsedMaxLines,
+                overflow = TextOverflow.Ellipsis,
+                onTextLayout = { hasOverflow = it.hasVisualOverflow },
+                color = MaterialTheme.colorScheme.primary,
+                fontSize = 14.sp,
+                fontFamily = CustomFonts.Poppins
+            )
+
+            if (hasOverflow || expanded) {
+                val interaction = remember { MutableInteractionSource() }
+                Icon(
+                    imageVector = Icons.Default.KeyboardArrowDown,
+                    contentDescription = if (expanded) "Collapse" else "Expand",
+                    tint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier
+                        .align(Alignment.BottomCenter)
+                        .graphicsLayer { rotationZ = rotation }
+                        .size(24.dp)
+                        .clickable(
+                            interactionSource = interaction,
+                        ) { expanded = !expanded }
+                        .padding(bottom = 2.dp)
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun PictureCardRow(
+    modifier: Modifier = Modifier,
+    pictureUrls: List<String>
+) {
+    LazyRow(
+        modifier = modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        item {
+            pictureUrls.forEach { imageUrl ->
+                AsyncImage(
+                    modifier = Modifier
+                        .padding(horizontal = 8.dp)
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(8.dp))
+                        .heightIn(max = 200.dp),
+                    model = imageUrl,
+                    contentDescription = "Anime picture",
+                )
+            }
+
+        }
+    }
+}
+
+
+@Composable
+private fun RelatedAnimeCardsRow(
+    modifier: Modifier = Modifier,
+    relatedAnimeList: List<RelatedAnimeUiModel>,
+    onCardClick: (Int) -> Unit
+) {
+    LazyRow(
+        modifier = modifier.fillMaxWidth()
+    ) {
+        relatedAnimeList.forEach { relatedAnime ->
+            item(key = relatedAnime.anime.id) {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(
+                        text = relatedAnime.relation,
+                        textAlign = TextAlign.Center,
+                        color = MaterialTheme.colorScheme.primary,
+                        fontFamily = CustomFonts.Poppins
+                    )
+                    AnimeCard(
+                        anime = relatedAnime.anime,
+                        onCardClick = { onCardClick(relatedAnime.anime.id) }
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun AnimeCardsRow(
+    modifier: Modifier = Modifier,
+    animeList: List<Anime>,
+    onCardClick: (Int) -> Unit
+) {
+    LazyRow(
+        modifier = modifier.fillMaxWidth(),
+    ) {
+        animeList.forEach { anime ->
+            item(key = anime.id) {
+                AnimeCard(
+                    anime = anime,
+                    onCardClick = { onCardClick(anime.id) }
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun AnimeCard(
+    modifier: Modifier = Modifier,
+    anime: Anime,
+    onCardClick: (Int) -> Unit
+) {
+    Card(
+        modifier = modifier
+            .padding(8.dp)
+            .height(240.dp)
+            .width(120.dp),
+        colors = CardDefaults.cardColors(
+            contentColor = MaterialTheme.colorScheme.primary,
+            containerColor = MaterialTheme.colorScheme.background
+        ),
+        onClick = {
+            onCardClick(anime.id)
+        },
+        shape = RoundedCornerShape(8.dp)
+    ) {
+        AsyncImage(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(bottomEnd = 8.dp, bottomStart = 8.dp))
+                .heightIn(max = 200.dp),
+            model = anime.imageUrl,
+            contentDescription = "Anime image",
+        )
+        Spacer(modifier = Modifier.weight(1f))
+        Text(
+            modifier = Modifier
+                .fillMaxWidth(),
+            text = anime.title,
+            overflow = TextOverflow.Ellipsis,
+            fontFamily = CustomFonts.Poppins,
+            textAlign = TextAlign.Center
+        )
     }
 }

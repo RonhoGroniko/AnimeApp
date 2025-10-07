@@ -26,7 +26,7 @@ class MainActivity : ComponentActivity() {
             AnimeAppTheme {
                 NavGraph(
                     navigationState = navigationState,
-                    mainScreenContent = { _ ->
+                    mainScreenContent = {
                         MainScreen(
                             onCardClick = {
                                 navigationState.navigateTo(Screen.Details.createRoute(it))
@@ -36,9 +36,15 @@ class MainActivity : ComponentActivity() {
                             }
                         )
                     },
-                    detailsScreenContent = { _, id ->
+                    detailsScreenContent = { id ->
                         DetailsScreen(
-                            id = id
+                            id = id,
+                            onBackClick = {
+                                navigationState.navController.popBackStack()
+                            },
+                            onCardClick = {
+                                navigationState.navigateTo(Screen.Details.createRoute(it))
+                            }
                         )
                     },
                     profileScreenContent = { Text("Placeholder profile") },

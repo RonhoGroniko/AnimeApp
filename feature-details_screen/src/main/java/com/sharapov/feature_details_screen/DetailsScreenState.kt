@@ -1,6 +1,6 @@
 package com.sharapov.feature_details_screen
 
-import com.sharapov.core_domain.entity.details.AnimeWithDetails
+import com.sharapov.feature_details_screen.model.AnimeWithDetailsUiModel
 
 sealed interface DetailsScreenState {
 
@@ -10,5 +10,5 @@ sealed interface DetailsScreenState {
 
     data class Error(val message: String): DetailsScreenState
 
-    data class Content(val anime: AnimeWithDetails): DetailsScreenState
+    data class Content(val anime: AnimeWithDetailsUiModel): DetailsScreenState
 }

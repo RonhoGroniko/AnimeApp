@@ -2,6 +2,7 @@ package com.sharapov.core_ui.theme.composable
 
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -11,8 +12,6 @@ import androidx.compose.ui.Modifier
 
 @Composable
 fun BasePane(
-    selectedTab: Int,
-    onTabSelected: (Int) -> Unit,
     modifier: Modifier = Modifier,
     topBar: @Composable (() -> Unit)? = null,
     floatingActionButton: @Composable (() -> Unit)? = null,
@@ -23,7 +22,8 @@ fun BasePane(
         modifier = modifier.fillMaxSize(),
         topBar = { topBar?.invoke() },
         floatingActionButton = { floatingActionButton?.invoke() },
-        snackbarHost = { SnackbarHost(snackbarHostState) }
+        snackbarHost = { SnackbarHost(snackbarHostState) },
+        bottomBar = { BottomAppBar(content = {}) }
     ) { innerPadding ->
         content(innerPadding)
     }
