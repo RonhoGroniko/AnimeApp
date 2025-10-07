@@ -9,7 +9,7 @@ data class RelatedAnimeSoloDto(
     @SerialName("node")
     val node: NodeSoloDto = NodeSoloDto(),
     @SerialName("relation_type")
-    val relationType: String = "",
+    val relationType: RelationTypeDto = RelationTypeDto.UNKNOWN,
     @SerialName("relation_type_formatted")
     val relationTypeFormatted: String = ""
 )

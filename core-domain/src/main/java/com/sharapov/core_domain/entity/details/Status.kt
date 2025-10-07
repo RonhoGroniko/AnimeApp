@@ -1,9 +1,8 @@
 package com.sharapov.core_domain.entity.details
 
-data class Status(
-    val completed: Int,
-    val dropped: Int,
-    val onHold: Int,
-    val planToWatch: Int,
-    val watching: Int
-)
+enum class Status {
+    FINISHED,
+    AIRING,
+    NOT_YET_AIRED,
+    UNKNOWN
+}

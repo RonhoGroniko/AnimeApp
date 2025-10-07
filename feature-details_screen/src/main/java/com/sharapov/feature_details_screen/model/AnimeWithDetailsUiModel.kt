@@ -1,40 +1,39 @@
-package com.sharapov.core_domain.entity.details
+package com.sharapov.feature_details_screen.model
 
 import com.sharapov.core_domain.entity.Anime
-import com.sharapov.core_domain.entity.Genre
-import com.sharapov.core_domain.entity.Studio
+import com.sharapov.core_domain.entity.details.AlternativeTitles
+import com.sharapov.core_domain.entity.details.StartSeason
+import com.sharapov.core_domain.entity.details.Statistics
 
-data class AnimeWithDetails(
-
+data class AnimeWithDetailsUiModel(
     val alternativeTitles: AlternativeTitles,
-    val averageEpisodeDuration: Int,
+    val averageEpisodeDuration: String,
     val background: String,
     val createdAt: String,
     val endDate: String,
-    val genres: List<Genre>,
+    val genres: List<String>,
     val id: Int,
     val mainPicture: String,
     val mean: Double,
-    val mediaType: MediaType,
+    val mediaType: String,
     val nsfw: String,
-    val numEpisodes: Int,
+    val numEpisodes: String,
     val numListUsers: Int,
     val numScoringUsers: Int,
     val pictures: List<String>,
     val popularity: Int,
     val rank: Int,
-    val rating: AgeRating,
+    val rating: String,
     val recommendations: List<Anime>,
-    val relatedAnime: List<RelatedAnime>,
+    val relatedAnime: List<RelatedAnimeUiModel>,
 //       val relatedManga: List<Any?>
-    val source: Source,
+    val source: String,
     val startDate: String,
     val startSeason: StartSeason,
     val statistics: Statistics,
-    val status: Status,
-    val studios: List<Studio>,
+    val status: String,
+    val studios: List<String>,
     val synopsis: String,
     val title: String,
     val updatedAt: String
-
 )

@@ -28,7 +28,7 @@ data class AnimeSoloResponseDto(
     @SerialName("mean")
     val mean: Double = 0.0,
     @SerialName("media_type")
-    val mediaType: String = "",
+    val mediaType: MediaTypeDto = MediaTypeDto.UNKNOWN,
     @SerialName("nsfw")
     val nsfw: String = "",
     @SerialName("num_episodes")
@@ -44,7 +44,7 @@ data class AnimeSoloResponseDto(
     @SerialName("rank")
     val rank: Int = 0,
     @SerialName("rating")
-    val rating: String = "",
+    val rating: AgeRatingDto = AgeRatingDto.UNKNOWN,
     @SerialName("recommendations")
     val recommendations: List<RecommendationSoloDto> = listOf(),
     @SerialName("related_anime")
@@ -52,7 +52,7 @@ data class AnimeSoloResponseDto(
 //    @SerialName("related_manga")
 //    val relatedManga: List<Any?> = listOf(),
     @SerialName("source")
-    val source: String = "",
+    val source: SourceDto = SourceDto.UNKNOWN,
     @SerialName("start_date")
     val startDate: String = "",
     @SerialName("start_season")
@@ -60,7 +60,7 @@ data class AnimeSoloResponseDto(
     @SerialName("statistics")
     val statistics: StatisticsSoloDto = StatisticsSoloDto(),
     @SerialName("status")
-    val status: String = "",
+    val status: StatusDto = StatusDto.UNKNOWN,
     @SerialName("studios")
     val studios: List<StudioDto> = listOf(),
     @SerialName("synopsis")

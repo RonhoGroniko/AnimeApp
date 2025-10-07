@@ -4,5 +4,5 @@ import com.sharapov.core_domain.entity.Anime
 
 data class RelatedAnime(
     val anime: Anime,
-    val relation: String
+    val relation: RelationType
 )
