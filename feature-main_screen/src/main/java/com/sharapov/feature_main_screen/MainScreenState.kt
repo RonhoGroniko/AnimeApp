@@ -8,7 +8,8 @@ sealed interface MainScreenState {
     data object Loading : MainScreenState
     data class Content(
         val upcomingList: List<Anime>,
-        val airingList: List<Anime>
+        val airingList: List<Anime>,
+        val popularList: List<Anime>
     ) : MainScreenState
 
     data class Error(val message: String) : MainScreenState

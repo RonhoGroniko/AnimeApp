@@ -4,5 +4,6 @@ enum class RankingType(val query: String) {
 
     ALL("all"),
     UPCOMING("upcoming"),
-    AIRING("airing")
+    AIRING("airing"),
+    BY_POPULARITY("bypopularity")
 }

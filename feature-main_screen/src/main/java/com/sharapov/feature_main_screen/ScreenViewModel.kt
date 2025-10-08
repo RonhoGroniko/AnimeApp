@@ -1,6 +1,5 @@
 package com.sharapov.feature_main_screen
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.sharapov.core_domain.entity.RankingType
@@ -28,45 +27,50 @@ class ScreenViewModel @Inject constructor(
     val state = _state.asStateFlow()
 
     init {
-        val upcomingFlow = getAnimeListUseCase(RankingType.UPCOMING)
-            .distinctUntilChanged()
+        val upcomingFlow = getAnimeListUseCase(RankingType.UPCOMING).distinctUntilChanged()
+        val airingFlow = getAnimeListUseCase(RankingType.AIRING).distinctUntilChanged()
+        val popularityFlow = getAnimeListUseCase(RankingType.BY_POPULARITY).distinctUntilChanged()
 
-        val airingFlow = getAnimeListUseCase(RankingType.AIRING)
-            .distinctUntilChanged()
-
-        combine(upcomingFlow, airingFlow) { upcoming, airing ->
-            upcoming to airing
+        combine(upcomingFlow, airingFlow, popularityFlow) { upcoming, airing, popularity ->
+            Triple(upcoming, airing, popularity)
         }
             .onStart { _state.value = MainScreenState.Loading }
-            .onEach { (upcoming, airing) ->
+            .onEach { (upcoming, airing, popularity) ->
                 if (upcoming.isEmpty()) {
-                    val result = updateAnimeListUseCase(RankingType.UPCOMING, 40)
-                    if (result.isFailure) {
+                    val r = updateAnimeListUseCase(RankingType.UPCOMING, 40)
+                    if (r.isFailure) {
                         _state.value = MainScreenState.Error(
-                            result.exceptionOrNull()?.message
-                                ?: "Unable to download Upcoming anime"
+                            r.exceptionOrNull()?.message ?: "Unable to download Upcoming anime"
                         )
                         return@onEach
                     }
                 }
                 if (airing.isEmpty()) {
-                    val result = updateAnimeListUseCase(RankingType.AIRING, 40)
-                    if (result.isFailure) {
+                    val r = updateAnimeListUseCase(RankingType.AIRING, 40)
+                    if (r.isFailure) {
                         _state.value = MainScreenState.Error(
-                            result.exceptionOrNull()?.message
-                                ?: "Unable to download Airing anime"
+                            r.exceptionOrNull()?.message ?: "Unable to download Airing anime"
                         )
                         return@onEach
                     }
                 }
+                if (popularity.isEmpty()) {
+                    val r = updateAnimeListUseCase(RankingType.BY_POPULARITY, 40)
+                    if (r.isFailure) {
+                        _state.value = MainScreenState.Error(
+                            r.exceptionOrNull()?.message ?: "Unable to download Popular anime"
+                        )
+                        return@onEach
+                    }
+                }
+
                 _state.value = MainScreenState.Content(
                     upcomingList = upcoming,
-                    airingList = airing
+                    airingList = airing,
+                    popularList = popularity
                 )
             }
-            .catch { e ->
-                _state.value = MainScreenState.Error(e.message ?: "Unknown error")
-            }
+            .catch { e -> _state.value = MainScreenState.Error(e.message ?: "Unknown error") }
             .launchIn(viewModelScope)
     }
 
@@ -74,20 +78,23 @@ class ScreenViewModel @Inject constructor(
         viewModelScope.launch {
             when (command) {
                 MainScreenCommand.RefreshData -> {
-                    Log.d("ScreenViewModel", command.toString())
                     _state.value = MainScreenState.Loading
-                    val upcomingResult = updateAnimeListUseCase(RankingType.UPCOMING, 40)
-                    if (upcomingResult.isFailure) {
+                    val up = updateAnimeListUseCase(RankingType.UPCOMING, 40)
+                    if (up.isFailure) {
                         _state.value = MainScreenState.Error(
-                            upcomingResult.exceptionOrNull()?.message
-                                ?: "Unable to download Upcoming anime"
+                            up.exceptionOrNull()?.message ?: "Unable to download Upcoming anime"
                         )
                     }
-                    val airingResult = updateAnimeListUseCase(RankingType.AIRING, 40)
-                    if (airingResult.isFailure) {
+                    val air = updateAnimeListUseCase(RankingType.AIRING, 40)
+                    if (air.isFailure) {
                         _state.value = MainScreenState.Error(
-                            airingResult.exceptionOrNull()?.message
-                                ?: "Unable to download Airing anime"
+                            air.exceptionOrNull()?.message ?: "Unable to download Airing anime"
+                        )
+                    }
+                    val pop = updateAnimeListUseCase(RankingType.BY_POPULARITY, 40)
+                    if (pop.isFailure) {
+                        _state.value = MainScreenState.Error(
+                            pop.exceptionOrNull()?.message ?: "Unable to download Popular anime"
                         )
                     }
                 }

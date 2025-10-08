@@ -104,10 +104,9 @@ fun MainScreen(
         when (val currentState = state.value) {
             is MainScreenState.Content -> {
                 MainScreenContent(
-                    upcomingList = currentState.upcomingList,
-                    airingList = currentState.airingList,
                     innerPadding = innerPadding,
-                    onCardClick = onCardClick
+                    onCardClick = onCardClick,
+                    state = currentState
                 )
             }
 
@@ -138,8 +137,7 @@ fun MainScreen(
 @Composable
 fun MainScreenContent(
     modifier: Modifier = Modifier,
-    upcomingList: List<Anime>,
-    airingList: List<Anime>,
+    state: MainScreenState.Content,
     innerPadding: PaddingValues,
     onCardClick: (Int) -> Unit
 ) {
@@ -148,7 +146,7 @@ fun MainScreenContent(
         contentPadding = innerPadding
     ) {
         item {
-            if (upcomingList.isNotEmpty()) {
+            if (state.upcomingList.isNotEmpty()) {
                 Subtitle(
                     text = "Upcoming"
                 )
@@ -158,12 +156,12 @@ fun MainScreenContent(
         }
         item {
             AnimeCardsRow(
-                animeList = upcomingList,
+                animeList = state.upcomingList,
                 onCardClick = onCardClick
             )
         }
         item {
-            if (airingList.isNotEmpty()) {
+            if (state.airingList.isNotEmpty()) {
                 Subtitle(
                     text = "Top Airing"
                 )
@@ -173,14 +171,14 @@ fun MainScreenContent(
         }
         item {
             AnimeCardsRow(
-                animeList = airingList,
+                animeList = state.airingList,
                 onCardClick = onCardClick
             )
         }
         item {
-            if (airingList.isNotEmpty()) {
+            if (state.popularList.isNotEmpty()) {
                 Subtitle(
-                    text = "Top Airing"
+                    text = "Most Popular"
                 )
             } else {
                 Spacer(modifier = Modifier.height(16.dp))
@@ -188,7 +186,7 @@ fun MainScreenContent(
         }
         item {
             AnimeCardsRow(
-                animeList = airingList,
+                animeList = state.popularList,
                 onCardClick = onCardClick
             )
         }
