@@ -57,10 +57,6 @@ dependencies {
     implementation(project(":core-domain"))
     implementation(project(":core-data"))
 
-    implementation(libs.coil.compose)
-    implementation(libs.coil.network.okhttp)
-    implementation(libs.androidx.navigation.compose)
-
     implementation(libs.hilt.android)
     ksp(libs.hilt.android.compiler)
     implementation(libs.androidx.hilt.navigation.compose)
