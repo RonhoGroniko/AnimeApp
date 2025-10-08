@@ -32,13 +32,13 @@ fun NavGraph(
                 settingsScreenContent = settingsScreenContent
             )
             composable(Screen.Search.route) {
-                profileScreenContent()
+                searchScreenContent()
             }
             composable(Screen.Favorites.route) {
                 favoritesScreenContent()
             }
             composable(Screen.Profile.route) {
-                searchScreenContent()
+                profileScreenContent()
             }
         }
     }
