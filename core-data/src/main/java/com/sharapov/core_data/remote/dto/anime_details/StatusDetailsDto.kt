@@ -6,7 +6,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class StatusSoloDto(
+data class StatusDetailsDto(
     @SerialName("completed")
     @Serializable(with = FlexibleIntNullableSerializer::class)
     val completed: Int? = 0,

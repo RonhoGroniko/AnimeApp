@@ -6,7 +6,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class NodeSoloDto(
+data class NodeDetailsDto(
     @SerialName("id")
     val id: Int = 0,
     @SerialName("main_picture")

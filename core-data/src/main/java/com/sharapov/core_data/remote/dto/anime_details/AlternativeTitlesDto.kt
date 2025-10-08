@@ -5,7 +5,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class AlternativeTitlesSoloDto(
+data class AlternativeTitlesDto(
     @SerialName("en")
     val en: String = "",
     @SerialName("ja")

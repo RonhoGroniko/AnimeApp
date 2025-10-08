@@ -10,18 +10,18 @@ import com.sharapov.core_data.remote.dto.GenreDto
 import com.sharapov.core_data.remote.dto.NodeDto
 import com.sharapov.core_data.remote.dto.StudioDto
 import com.sharapov.core_data.remote.dto.anime_details.AgeRatingDto
-import com.sharapov.core_data.remote.dto.anime_details.AlternativeTitlesSoloDto
-import com.sharapov.core_data.remote.dto.anime_details.AnimeSoloResponseDto
+import com.sharapov.core_data.remote.dto.anime_details.AlternativeTitlesDto
+import com.sharapov.core_data.remote.dto.anime_details.AnimeDetailsResponseDto
 import com.sharapov.core_data.remote.dto.anime_details.MediaTypeDto
-import com.sharapov.core_data.remote.dto.anime_details.PictureSoloDto
-import com.sharapov.core_data.remote.dto.anime_details.RecommendationSoloDto
-import com.sharapov.core_data.remote.dto.anime_details.RelatedAnimeSoloDto
+import com.sharapov.core_data.remote.dto.anime_details.PictureDto
+import com.sharapov.core_data.remote.dto.anime_details.RecommendationDto
+import com.sharapov.core_data.remote.dto.anime_details.RelatedAnimeDto
 import com.sharapov.core_data.remote.dto.anime_details.RelationTypeDto
 import com.sharapov.core_data.remote.dto.anime_details.SourceDto
-import com.sharapov.core_data.remote.dto.anime_details.StartSeasonSoloDto
-import com.sharapov.core_data.remote.dto.anime_details.StatisticsSoloDto
+import com.sharapov.core_data.remote.dto.anime_details.StartSeasonDto
+import com.sharapov.core_data.remote.dto.anime_details.StatisticsDto
 import com.sharapov.core_data.remote.dto.anime_details.StatusDto
-import com.sharapov.core_data.remote.dto.anime_details.StatusSoloDto
+import com.sharapov.core_data.remote.dto.anime_details.StatusDetailsDto
 import com.sharapov.core_domain.entity.Anime
 import com.sharapov.core_domain.entity.Genre
 import com.sharapov.core_domain.entity.RankingType
@@ -121,7 +121,7 @@ fun StudioDto.toEntity(): Studio {
 
 // TODO: PICTURE null
 
-fun AnimeSoloResponseDto.toEntity(): AnimeWithDetails {
+fun AnimeDetailsResponseDto.toEntity(): AnimeWithDetails {
     return AnimeWithDetails(
         alternativeTitles = alternativeTitles.toEntity(),
         averageEpisodeDuration = averageEpisodeDuration,
@@ -207,7 +207,7 @@ fun StatusDto.toEntity(): Status {
     }
 }
 
-fun AlternativeTitlesSoloDto.toEntity(): AlternativeTitles {
+fun AlternativeTitlesDto.toEntity(): AlternativeTitles {
     return AlternativeTitles(
         en = en,
         ja = ja,
@@ -215,13 +215,13 @@ fun AlternativeTitlesSoloDto.toEntity(): AlternativeTitles {
     )
 }
 
-fun PictureSoloDto.toEntity(): String {
+fun PictureDto.toEntity(): String {
     return this.large
 }
 
 
 // TODO REFACTOR THIS SHIT
-fun RecommendationSoloDto.toEntity(): Anime {
+fun RecommendationDto.toEntity(): Anime {
     return Anime(
         id = node.id,
         title = node.title,
@@ -234,7 +234,7 @@ fun RecommendationSoloDto.toEntity(): Anime {
     )
 }
 
-fun RelatedAnimeSoloDto.toEntity(): RelatedAnime {
+fun RelatedAnimeDto.toEntity(): RelatedAnime {
     return RelatedAnime(
         anime = Anime(
             id = node.id,
@@ -267,21 +267,21 @@ fun RelationTypeDto.toEntity(): RelationType {
         RelationTypeDto.UNKNOWN -> RelationType.UNKNOWN
     }
 }
-fun StartSeasonSoloDto.toEntity(): StartSeason {
+fun StartSeasonDto.toEntity(): StartSeason {
     return StartSeason(
         season = season,
         year = year
     )
 }
 
-fun StatisticsSoloDto.toEntity(): Statistics {
+fun StatisticsDto.toEntity(): Statistics {
     return Statistics(
         numListUsers = numListUsers,
         status = status.toEntity()
     )
 }
 
-fun StatusSoloDto.toEntity(): ViewersStatus {
+fun StatusDetailsDto.toEntity(): ViewersStatus {
     return ViewersStatus(
         completed = completed ?: 0,
         dropped = dropped ?: 0,

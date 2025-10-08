@@ -8,9 +8,9 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class AnimeSoloResponseDto(
+data class AnimeDetailsResponseDto(
     @SerialName("alternative_titles")
-    val alternativeTitles: AlternativeTitlesSoloDto = AlternativeTitlesSoloDto(),
+    val alternativeTitles: AlternativeTitlesDto = AlternativeTitlesDto(),
     @SerialName("average_episode_duration")
     val averageEpisodeDuration: Int = 0,
     @SerialName("background")
@@ -38,7 +38,7 @@ data class AnimeSoloResponseDto(
     @SerialName("num_scoring_users")
     val numScoringUsers: Int = 0,
     @SerialName("pictures")
-    val pictures: List<PictureSoloDto> = listOf(),
+    val pictures: List<PictureDto> = listOf(),
     @SerialName("popularity")
     val popularity: Int = 0,
     @SerialName("rank")
@@ -46,9 +46,9 @@ data class AnimeSoloResponseDto(
     @SerialName("rating")
     val rating: AgeRatingDto = AgeRatingDto.UNKNOWN,
     @SerialName("recommendations")
-    val recommendations: List<RecommendationSoloDto> = listOf(),
+    val recommendations: List<RecommendationDto> = listOf(),
     @SerialName("related_anime")
-    val relatedAnime: List<RelatedAnimeSoloDto> = listOf(),
+    val relatedAnime: List<RelatedAnimeDto> = listOf(),
 //    @SerialName("related_manga")
 //    val relatedManga: List<Any?> = listOf(),
     @SerialName("source")
@@ -56,9 +56,9 @@ data class AnimeSoloResponseDto(
     @SerialName("start_date")
     val startDate: String = "",
     @SerialName("start_season")
-    val startSeason: StartSeasonSoloDto = StartSeasonSoloDto(),
+    val startSeason: StartSeasonDto = StartSeasonDto(),
     @SerialName("statistics")
-    val statistics: StatisticsSoloDto = StatisticsSoloDto(),
+    val statistics: StatisticsDto = StatisticsDto(),
     @SerialName("status")
     val status: StatusDto = StatusDto.UNKNOWN,
     @SerialName("studios")

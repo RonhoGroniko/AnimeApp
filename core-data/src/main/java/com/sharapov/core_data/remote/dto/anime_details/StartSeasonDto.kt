@@ -5,7 +5,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class StartSeasonSoloDto(
+data class StartSeasonDto(
     @SerialName("season")
     val season: String = "",
     @SerialName("year")
