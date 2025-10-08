@@ -264,6 +264,7 @@ private fun AnimeCard(
     anime: Anime,
     onCardClick: (Int) -> Unit
 ) {
+    var backEnabled by remember { mutableStateOf(true) }
     Card(
         modifier = modifier
             .padding(8.dp)
@@ -274,8 +275,12 @@ private fun AnimeCard(
             containerColor = MaterialTheme.colorScheme.background
         ),
         onClick = {
-            onCardClick(anime.id)
+            if (backEnabled) {
+                backEnabled = false
+                onCardClick(anime.id)
+            }
         },
+        enabled = backEnabled,
         shape = RoundedCornerShape(8.dp)
     ) {
         AsyncImage(
