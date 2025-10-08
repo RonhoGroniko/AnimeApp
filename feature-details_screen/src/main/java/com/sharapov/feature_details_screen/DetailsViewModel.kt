@@ -24,6 +24,7 @@ class DetailsViewModel @AssistedInject constructor(
 
     init {
         viewModelScope.launch {
+            _state.value = DetailsScreenState.Loading
             try {
                 val anime = getAnimeByIdUseCase(id)
                 _state.value = DetailsScreenState.Content(anime.toUiModel())

@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
@@ -28,6 +29,7 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ElevatedSuggestionChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -96,7 +98,14 @@ fun DetailsScreen(
 
             DetailsScreenState.Initial -> {}
             DetailsScreenState.Loading -> {
-
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator(
+                        color = MaterialTheme.colorScheme.secondary
+                    )
+                }
             }
         }
     }
@@ -234,6 +243,8 @@ fun HeaderCard(
     mean: Double,
     onBackClick: () -> Unit
 ) {
+    var backEnabled by remember { mutableStateOf(true) }
+
     Card(
         modifier = modifier
             .padding(horizontal = 8.dp),
@@ -257,7 +268,13 @@ fun HeaderCard(
                     contentScale = ContentScale.FillWidth
                 )
                 IconButton(
-                    onClick = onBackClick,
+                    onClick = {
+                        if (backEnabled) {
+                            backEnabled = false
+                            onBackClick()
+                        }
+                    },
+                    enabled = backEnabled,
                     modifier = Modifier
                         .align(Alignment.TopStart),
                     colors = IconButtonDefaults.iconButtonColors(
@@ -690,6 +707,7 @@ private fun AnimeCard(
     anime: Anime,
     onCardClick: (Int) -> Unit
 ) {
+    var backEnabled by remember { mutableStateOf(true) }
     Card(
         modifier = modifier
             .padding(8.dp)
@@ -700,8 +718,12 @@ private fun AnimeCard(
             containerColor = MaterialTheme.colorScheme.background
         ),
         onClick = {
-            onCardClick(anime.id)
+            if (backEnabled) {
+                backEnabled = false
+                onCardClick(anime.id)
+            }
         },
+        enabled = backEnabled,
         shape = RoundedCornerShape(8.dp)
     ) {
         AsyncImage(
