@@ -14,6 +14,13 @@ class NavigationState(
             restoreState = true
         }
     }
+
+    fun navigateToDetails(id: Int) {
+        navController.navigate(Screen.Details.createRoute(id)) {
+            launchSingleTop = false
+            restoreState = false
+        }
+    }
 }
 
 @Composable

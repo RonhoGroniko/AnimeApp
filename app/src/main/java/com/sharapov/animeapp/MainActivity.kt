@@ -29,7 +29,7 @@ class MainActivity : ComponentActivity() {
                     mainScreenContent = {
                         MainScreen(
                             onCardClick = {
-                                navigationState.navigateTo(Screen.Details.createRoute(it))
+                                navigationState.navigateToDetails(it)
                             },
                             onSettingsClick = {
                                 navigationState.navigateTo(Screen.Settings.route)
@@ -43,7 +43,7 @@ class MainActivity : ComponentActivity() {
                                 navigationState.navController.popBackStack()
                             },
                             onCardClick = {
-                                navigationState.navigateTo(Screen.Details.createRoute(it))
+                                navigationState.navigateToDetails(it)
                             }
                         )
                     },

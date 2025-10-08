@@ -164,12 +164,18 @@ fun DetailsScreenContent(
                 Subtitle(modifier = Modifier.padding(horizontal = 16.dp), text = "Pictures")
             }
             item {
+                Spacer(modifier = Modifier.height(4.dp))
+            }
+            item {
                 PictureCardRow(
                     pictureUrls = anime.pictures
                 )
             }
         }
         if (anime.background.isNotBlank()) {
+            item {
+                Spacer(modifier = Modifier.height(4.dp))
+            }
             item {
                 Subtitle(modifier = Modifier.padding(horizontal = 16.dp), text = "Background")
             }
