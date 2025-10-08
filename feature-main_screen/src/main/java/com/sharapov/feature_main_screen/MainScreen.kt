@@ -265,7 +265,7 @@ private fun Subtitle(
         text = text,
         fontFamily = CustomFonts.Poppins,
         fontWeight = FontWeight.SemiBold,
-        color = MaterialTheme.colorScheme.primary,
+        color = MaterialTheme.colorScheme.secondary,
         fontSize = 16.sp
     )
 }

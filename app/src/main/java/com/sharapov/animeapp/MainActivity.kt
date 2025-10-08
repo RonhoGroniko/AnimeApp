@@ -12,6 +12,7 @@ import com.sharapov.core_navigation.rememberNavigationState
 import com.sharapov.core_ui.theme.AnimeAppTheme
 import com.sharapov.feature_details_screen.DetailsScreen
 import com.sharapov.feature_main_screen.MainScreen
+import com.sharapov.feature_search_screen.SearchScreen
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -48,7 +49,9 @@ class MainActivity : ComponentActivity() {
                         )
                     },
                     profileScreenContent = { Text("Placeholder profile") },
-                    searchScreenContent = { Text("Placeholder search") },
+                    searchScreenContent = {
+                        SearchScreen()
+                    },
                     favoritesScreenContent = { Text("Placeholder favorites") },
                     settingsScreenContent = { Text("Placeholder settings") }
                 )

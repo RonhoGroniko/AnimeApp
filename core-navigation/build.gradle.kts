@@ -52,8 +52,6 @@ kotlin {
 dependencies {
 
 
-    implementation(project(":feature-main_screen"))
-    implementation(project(":feature-details_screen"))
     implementation(project(":core-ui"))
 
     implementation(libs.androidx.navigation.compose)
