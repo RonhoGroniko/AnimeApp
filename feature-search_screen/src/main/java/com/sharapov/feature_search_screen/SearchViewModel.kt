@@ -3,7 +3,6 @@ package com.sharapov.feature_search_screen
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.sharapov.core_domain.entity.Genre
 import com.sharapov.core_domain.entity.RankingType
 import com.sharapov.core_domain.usecases.AnimeFilter
 import com.sharapov.core_domain.usecases.GetAnimeListUseCase
@@ -19,7 +18,6 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.update
-import javax.inject.Inject
 
 @HiltViewModel(assistedFactory = SearchViewModel.Factory::class)
 class SearchViewModel @AssistedInject constructor(

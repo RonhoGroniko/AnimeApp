@@ -3,6 +3,7 @@ package com.sharapov.feature_details_screen
 import android.util.Log
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -297,7 +298,7 @@ fun HeaderCard(
                 text = title,
                 fontFamily = CustomFonts.Poppins,
                 fontWeight = FontWeight.ExtraBold,
-                color = MaterialTheme.colorScheme.primary,
+                color = MaterialTheme.colorScheme.secondary,
                 fontSize = 24.sp
             )
             Row(
@@ -426,12 +427,21 @@ fun GenreChips(
                         Text(
                             text = genre,
                             fontFamily = CustomFonts.Poppins,
+                            fontWeight = FontWeight.SemiBold,
                             color = MaterialTheme.colorScheme.primary,
                             fontSize = 14.sp
                         )
                     },
                     colors = SuggestionChipDefaults.suggestionChipColors(
                         containerColor = MaterialTheme.colorScheme.surfaceVariant
+                    ),
+                    elevation = SuggestionChipDefaults.elevatedSuggestionChipElevation(
+                        elevation = 4.dp,
+                        pressedElevation = 8.dp,
+                    ),
+                    border = BorderStroke(
+                        width = 0.5.dp,
+                        color = MaterialTheme.colorScheme.secondary.copy(alpha = 0.5f)
                     )
                 )
             }
@@ -552,7 +562,7 @@ fun Subtitle(
     Text(
         modifier = modifier,
         text = text,
-        color = MaterialTheme.colorScheme.primary,
+        color = MaterialTheme.colorScheme.secondary,
         fontSize = 20.sp,
         fontWeight = FontWeight.SemiBold,
         fontFamily = CustomFonts.Poppins
