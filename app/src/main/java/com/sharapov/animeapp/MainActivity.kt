@@ -45,6 +45,9 @@ class MainActivity : ComponentActivity() {
                             },
                             onCardClick = {
                                 navigationState.navigateToDetails(it)
+                            },
+                            onGenreClick = { genre ->
+                                navigationState.navigateToSearch(genre)
                             }
                         )
                     },
@@ -57,7 +60,15 @@ class MainActivity : ComponentActivity() {
                         )
                     },
                     favoritesScreenContent = { Text("Placeholder favorites") },
-                    settingsScreenContent = { Text("Placeholder settings") }
+                    settingsScreenContent = { Text("Placeholder settings") },
+                    searchScreenWithGenreContent = { genre ->
+                        SearchScreen(
+                            genre = genre,
+                            onCardClick = { id ->
+                                navigationState.navigateToDetails(id)
+                            }
+                        )
+                    }
                 )
             }
         }

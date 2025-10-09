@@ -11,6 +11,7 @@ import com.sharapov.core_domain.entity.Anime
 import com.sharapov.core_domain.entity.RankingType
 import com.sharapov.core_domain.entity.details.AnimeWithDetails
 import com.sharapov.core_domain.repository.AnimeRepository
+import com.sharapov.core_domain.usecases.AnimeFilter
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -23,8 +24,12 @@ class AnimeRepositoryImpl @Inject constructor(
     private val animeDao: AnimeDao
 ) : AnimeRepository {
 
-    override fun getAnimeList(rankingType: RankingType): Flow<List<Anime>> {
-        return animeDao.getAnimeList(rankingType.name).map { it.toEntities() }
+    override fun getAnimeList(filter: AnimeFilter): Flow<List<Anime>> {
+        return when(filter) {
+            AnimeFilter.All -> animeDao.getAnimeList().map { it.toEntities() }
+            is AnimeFilter.ByGenre -> animeDao.getAnimeListForGenre(filter.genre).map { it.toEntities() }
+            is AnimeFilter.ByRankingType -> animeDao.getAnimeListForRankingType(filter.rankingType.name).map { it.toEntities() }
+        }
     }
 
     override suspend fun updateAnimeList(rankingType: RankingType, limit: Int) {

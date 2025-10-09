@@ -14,32 +14,28 @@ fun NavGraph(
     mainScreenContent: @Composable () -> Unit,
     settingsScreenContent: @Composable () -> Unit,
     detailsScreenContent: @Composable (Int) -> Unit,
+    searchScreenWithGenreContent: @Composable (String) -> Unit,
     profileScreenContent: @Composable () -> Unit,
     searchScreenContent: @Composable () -> Unit,
     favoritesScreenContent: @Composable () -> Unit,
 ) {
-
-    Scaffold(
-        bottomBar = { BaseNavigationBar(navigationState) }
-    ) {
+    Scaffold(bottomBar = { BaseNavigationBar(navigationState) }) {
         NavHost(
             navController = navigationState.navController,
             startDestination = Screen.Main.route
         ) {
             mainScreenNavGraph(
                 mainScreenContent = mainScreenContent,
+                settingsScreenContent = settingsScreenContent,
                 detailsScreenContent = detailsScreenContent,
-                settingsScreenContent = settingsScreenContent
+                searchScreenWithGenreContent = searchScreenWithGenreContent
             )
-            composable(Screen.Search.route) {
+
+            composable(Screen.Search.route) { // search (без жанра)
                 searchScreenContent()
             }
-            composable(Screen.Favorites.route) {
-                favoritesScreenContent()
-            }
-            composable(Screen.Profile.route) {
-                profileScreenContent()
-            }
+            composable(Screen.Favorites.route) { favoritesScreenContent() }
+            composable(Screen.Profile.route) { profileScreenContent() }
         }
     }
 }

@@ -21,6 +21,13 @@ class NavigationState(
             restoreState = false
         }
     }
+
+    fun navigateToSearch(genre: String) {
+        navController.navigate(Screen.SearchWithGenre.createRoute(genre)) {
+            launchSingleTop = false
+            restoreState = false
+        }
+    }
 }
 
 @Composable

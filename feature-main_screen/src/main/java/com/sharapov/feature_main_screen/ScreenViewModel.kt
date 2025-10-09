@@ -3,6 +3,7 @@ package com.sharapov.feature_main_screen
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.sharapov.core_domain.entity.RankingType
+import com.sharapov.core_domain.usecases.AnimeFilter
 import com.sharapov.core_domain.usecases.GetAnimeListUseCase
 import com.sharapov.core_domain.usecases.UpdateAnimeListUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -27,9 +28,9 @@ class ScreenViewModel @Inject constructor(
     val state = _state.asStateFlow()
 
     init {
-        val upcomingFlow = getAnimeListUseCase(RankingType.UPCOMING).distinctUntilChanged()
-        val airingFlow = getAnimeListUseCase(RankingType.AIRING).distinctUntilChanged()
-        val popularityFlow = getAnimeListUseCase(RankingType.BY_POPULARITY).distinctUntilChanged()
+        val upcomingFlow = getAnimeListUseCase(AnimeFilter.ByRankingType(RankingType.UPCOMING)).distinctUntilChanged()
+        val airingFlow = getAnimeListUseCase(AnimeFilter.ByRankingType(RankingType.AIRING)).distinctUntilChanged()
+        val popularityFlow = getAnimeListUseCase(AnimeFilter.ByRankingType(RankingType.BY_POPULARITY)).distinctUntilChanged()
 
         combine(upcomingFlow, airingFlow, popularityFlow) { upcoming, airing, popularity ->
             Triple(upcoming, airing, popularity)

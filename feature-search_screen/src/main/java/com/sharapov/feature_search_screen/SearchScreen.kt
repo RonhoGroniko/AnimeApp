@@ -38,7 +38,10 @@ import com.sharapov.core_ui.theme.composable.BasePane
 
 @Composable
 fun SearchScreen(
-    viewModel: SearchViewModel = hiltViewModel(),
+    genre: String = "",
+    viewModel: SearchViewModel = hiltViewModel { factory: SearchViewModel.Factory ->
+        factory.create(genre)
+    },
     onCardClick: (Int) -> Unit
 ) {
     BasePane { innerPadding ->

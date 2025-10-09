@@ -76,7 +76,8 @@ fun DetailsScreen(
         factory.create(id)
     },
     onBackClick: () -> Unit,
-    onCardClick: (Int) -> Unit
+    onCardClick: (Int) -> Unit,
+    onGenreClick: (String) -> Unit
 ) {
     BasePane(
         modifier = Modifier.background(MaterialTheme.colorScheme.background),
@@ -88,7 +89,8 @@ fun DetailsScreen(
                     innerPadding = innerPadding,
                     anime = currentState.anime,
                     onBackClick = onBackClick,
-                    onCardClick = onCardClick
+                    onCardClick = onCardClick,
+                    onGenreClick = onGenreClick
                 )
             }
 
@@ -117,7 +119,8 @@ fun DetailsScreenContent(
     innerPadding: PaddingValues,
     anime: AnimeWithDetailsUiModel,
     onBackClick: () -> Unit,
-    onCardClick: (Int) -> Unit
+    onCardClick: (Int) -> Unit,
+    onGenreClick: (String) -> Unit
 ) {
     LazyColumn(
         modifier = modifier.fillMaxWidth(),
@@ -136,7 +139,7 @@ fun DetailsScreenContent(
         item {
             GenreChips(
                 genres = anime.genres,
-                onGenreClick = { }
+                onGenreClick = onGenreClick
             )
         }
         item {

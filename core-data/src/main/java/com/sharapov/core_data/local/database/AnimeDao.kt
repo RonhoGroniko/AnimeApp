@@ -29,7 +29,29 @@ interface AnimeDao {
         ORDER BY a.rating DESC
     """
     )
-    fun getAnimeList(rankingType: String): Flow<List<AnimeFullDbModel>>
+    fun getAnimeListForRankingType(rankingType: String): Flow<List<AnimeFullDbModel>>
+
+    @Transaction
+    @Query(
+        """
+    SELECT * 
+    FROM anime 
+    ORDER BY rating DESC
+    """
+    )
+    fun getAnimeList(): Flow<List<AnimeFullDbModel>>
+
+    @Transaction
+    @Query(
+        """
+    SELECT a.* FROM anime a
+    JOIN anime_genre_cross_ref genre ON genre.animeId = a.id
+    JOIN genre g ON g.id = genre.genreId
+    WHERE g.name = :genre
+    ORDER BY rating DESC
+    """
+    )
+    fun getAnimeListForGenre(genre: String): Flow<List<AnimeFullDbModel>>
 
     @Upsert
     suspend fun upsertAnime(animeList: List<AnimeDbModel>)

@@ -10,7 +10,13 @@ class GetAnimeListUseCase @Inject constructor(
     private val repository: AnimeRepository
 ) {
 
-    operator fun invoke(rankingType: RankingType): Flow<List<Anime>> {
-        return repository.getAnimeList(rankingType)
+    operator fun invoke(filter: AnimeFilter): Flow<List<Anime>> {
+        return repository.getAnimeList(filter)
     }
+}
+
+sealed interface AnimeFilter {
+    data object All : AnimeFilter
+    data class ByGenre(val genre: String) : AnimeFilter
+    data class ByRankingType(val rankingType: RankingType) : AnimeFilter
 }
