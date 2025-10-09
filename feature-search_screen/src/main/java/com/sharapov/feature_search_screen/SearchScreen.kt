@@ -1,10 +1,15 @@
 package com.sharapov.feature_search_screen
 
 import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.GridItemSpan
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
@@ -24,11 +29,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.sharapov.core_ui.theme.CustomFonts
+import com.sharapov.core_ui.theme.composable.AnimeCard
 import com.sharapov.core_ui.theme.composable.BasePane
 
 @Composable
 fun SearchScreen(
-    viewModel: SearchViewModel = hiltViewModel()
+    viewModel: SearchViewModel = hiltViewModel(),
+    onCardClick: (Int) -> Unit
 ) {
     BasePane { innerPadding ->
 
@@ -43,7 +50,8 @@ fun SearchScreen(
                     },
                     onSearchCLick = {
                         viewModel.processCommand(SearchScreenCommand.Search(it))
-                    }
+                    },
+                    onCardClick = onCardClick
                 )
             }
 
@@ -68,17 +76,32 @@ private fun SearchScreenContent(
     innerPadding: PaddingValues,
     state: SearchScreenState.Content,
     onQueryChange: (String) -> Unit,
-    onSearchCLick: (String) -> Unit
+    onSearchCLick: (String) -> Unit,
+    onCardClick: (Int) -> Unit
 ) {
-    LazyColumn(
-        modifier = modifier,
-        contentPadding = innerPadding
+    LazyVerticalGrid(
+        columns = GridCells.Fixed(3),
+        modifier = modifier.fillMaxWidth(),
+        contentPadding = innerPadding,
+        verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
-        item {
+        item(span = { GridItemSpan(maxLineSpan) }) {
             SearchBar(
+                modifier = Modifier.padding(horizontal = 16.dp),
                 query = state.query,
                 onQueryChange = onQueryChange,
                 onSearchClick = onSearchCLick
+            )
+        }
+
+        items(state.animeList, key = { it.id }) { anime ->
+            AnimeCard(
+                modifier = Modifier
+                    .padding(horizontal = 4.dp)
+                    .fillMaxWidth()
+                    .aspectRatio(0.72f),
+                anime = anime,
+                onCardClick = onCardClick
             )
         }
     }
@@ -93,7 +116,6 @@ private fun SearchBar(
 ) {
     TextField(
         modifier = modifier
-            .padding(horizontal = 16.dp)
             .fillMaxWidth()
             .border(
                 width = 1.dp,

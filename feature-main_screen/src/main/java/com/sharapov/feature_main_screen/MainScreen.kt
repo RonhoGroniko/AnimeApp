@@ -200,6 +200,7 @@ fun AnimeCardsRow(
         animeList.forEach { anime ->
             item(key = anime.id) {
                 AnimeCard(
+                    modifier = Modifier.padding(8.dp),
                     anime = anime,
                     onCardClick = { onCardClick(anime.id) }
                 )

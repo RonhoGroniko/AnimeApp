@@ -50,7 +50,11 @@ class MainActivity : ComponentActivity() {
                     },
                     profileScreenContent = { Text("Placeholder profile") },
                     searchScreenContent = {
-                        SearchScreen()
+                        SearchScreen(
+                            onCardClick = {
+                                navigationState.navigateToDetails(it)
+                            }
+                        )
                     },
                     favoritesScreenContent = { Text("Placeholder favorites") },
                     settingsScreenContent = { Text("Placeholder settings") }

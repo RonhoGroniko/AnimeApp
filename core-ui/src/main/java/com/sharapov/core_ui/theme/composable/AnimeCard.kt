@@ -43,7 +43,6 @@ fun AnimeCard(
 
     Card(
         modifier = modifier
-            .padding(8.dp)
             .width(160.dp)
             .height(240.dp),
         shape = RoundedCornerShape(8.dp),
