@@ -5,6 +5,7 @@ package com.sharapov.feature_main_screen
 import android.content.Context
 import android.net.ConnectivityManager
 import android.net.Network
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -119,6 +120,7 @@ fun MainScreen(
             }
 
             is MainScreenState.Error -> {
+                Log.d("TEST", currentState.message)
                 NetworkProblemField(
                     modifier = Modifier.fillMaxSize(),
                     onRefreshDataClick = { viewModel.processCommand(MainScreenCommand.RefreshData) },

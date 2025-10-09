@@ -10,7 +10,5 @@ data class AnimeDbModel(
     val title: String,
     val imageUrl: String,
     val rating: Double,
-    val rank: Int,
     val createdAt: String, // "2022-09-09T10:01:30+00:00"
-    val rankingType: String
 )

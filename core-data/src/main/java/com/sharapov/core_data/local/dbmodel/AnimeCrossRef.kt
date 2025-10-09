@@ -51,3 +51,27 @@ data class AnimeStudioCrossRef(
     val animeId: Int,
     val studioId: Int
 )
+
+@Entity(
+    tableName = "anime_ranking_type",
+    primaryKeys = ["animeId", "rankingTypeId"],
+    foreignKeys = [
+        ForeignKey(
+            entity = AnimeDbModel::class,
+            parentColumns = ["id"],
+            childColumns = ["animeId"],
+            onDelete = ForeignKey.CASCADE
+        ),
+        ForeignKey(
+            entity = RankingTypeDbModel::class,
+            parentColumns = ["id"],
+            childColumns = ["rankingTypeId"],
+            onDelete = ForeignKey.CASCADE
+        )
+    ],
+    indices = [Index("rankingTypeId")]
+)
+data class AnimeRankingTypeCrossRef(
+    val animeId: Int,
+    val rankingTypeId: Int
+)

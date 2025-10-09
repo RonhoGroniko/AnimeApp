@@ -3,6 +3,7 @@ package com.sharapov.core_data.mapper
 import com.sharapov.core_data.local.dbmodel.AnimeDbModel
 import com.sharapov.core_data.local.dbmodel.AnimeFullDbModel
 import com.sharapov.core_data.local.dbmodel.GenreDbModel
+import com.sharapov.core_data.local.dbmodel.RankingTypeDbModel
 import com.sharapov.core_data.local.dbmodel.StudioDbModel
 import com.sharapov.core_data.remote.dto.AnimeResponseDto
 import com.sharapov.core_data.remote.dto.DataDto
@@ -45,21 +46,26 @@ fun AnimeResponseDto.toFullDbModels(rankingType: RankingType): List<AnimeFullDbM
 
 fun DataDto.toFullDbModel(rankingType: RankingType): AnimeFullDbModel {
     return AnimeFullDbModel(
-        anime = node.toDbModel(rankingType),
+        anime = node.toDbModel(),
         genres = node.genres.map { it.toDbModel() },
-        studios = node.studios.map { it.toDbModel() }
+        studios = node.studios.map { it.toDbModel() },
+        rankingTypes = listOf(rankingType.toDbModel())
     )
 }
 
-fun NodeDto.toDbModel(rankingType: RankingType): AnimeDbModel {
+fun RankingType.toDbModel(): RankingTypeDbModel {
+    return RankingTypeDbModel(
+        name = name
+    )
+}
+
+fun NodeDto.toDbModel(): AnimeDbModel {
     return AnimeDbModel(
         id = id,
         title = title,
         imageUrl = mainPicture.medium,
         rating = mean,
-        rank = rank,
-        createdAt = createdAt,
-        rankingType = rankingType.name
+        createdAt = createdAt
     )
 }
 
@@ -88,7 +94,6 @@ fun AnimeFullDbModel.toEntity(): Anime {
         title = anime.title,
         imageUrl = anime.imageUrl,
         rating = anime.rating,
-        rank = anime.rank,
         genres = genres.map { it.toEntity() },
         createdAt = anime.createdAt,
         studios = studios.map { it.toEntity() }
@@ -227,7 +232,6 @@ fun RecommendationDto.toEntity(): Anime {
         title = node.title,
         imageUrl = node.mainPicture.large,
         rating = 0.0,
-        rank = 0,
         genres = listOf(),
         createdAt = "",
         studios = listOf()
@@ -241,7 +245,6 @@ fun RelatedAnimeDto.toEntity(): RelatedAnime {
             title = node.title,
             imageUrl = node.mainPicture.large,
             rating = 0.0,
-            rank = 0,
             genres = listOf(),
             createdAt = "",
             studios = listOf()

@@ -111,7 +111,8 @@ interface DataModule {
                 context = context,
                 klass = AnimeDatabase::class.java,
                 name = "anime.db"
-            ).build()
+            ).fallbackToDestructiveMigration(true)
+                .build()
         }
 
         @Provides

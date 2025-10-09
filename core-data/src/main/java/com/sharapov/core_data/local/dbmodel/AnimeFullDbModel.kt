@@ -26,5 +26,16 @@ data class AnimeFullDbModel(
             entityColumn = "studioId"
         )
     )
-    val studios: List<StudioDbModel>
+    val studios: List<StudioDbModel>,
+
+    @Relation(
+        parentColumn = "id",
+        entityColumn = "id",
+        associateBy = Junction(
+            value = AnimeRankingTypeCrossRef::class,
+            parentColumn = "animeId",
+            entityColumn = "rankingTypeId"
+        )
+    )
+    val rankingTypes: List<RankingTypeDbModel>
 )
