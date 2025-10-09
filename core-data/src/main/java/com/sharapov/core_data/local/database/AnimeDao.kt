@@ -18,7 +18,7 @@ import kotlinx.coroutines.flow.Flow
 interface AnimeDao {
 
     @Transaction
-    @Query("SELECT * FROM anime WHERE rankingType=:rankingType")
+    @Query("SELECT * FROM anime WHERE rankingType=:rankingType ORDER BY rating DESC")
     fun getAnimeList(rankingType: String): Flow<List<AnimeFullDbModel>>
 
     @Upsert
