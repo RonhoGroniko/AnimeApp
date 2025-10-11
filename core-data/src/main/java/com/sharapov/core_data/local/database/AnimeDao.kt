@@ -238,4 +238,16 @@ interface AnimeDao {
         clearPictures(details.id)
         if (pictures.isNotEmpty()) insertPictures(pictures)
     }
+
+    @Query(
+        """
+    SELECT DISTINCT a.* FROM anime a
+    LEFT JOIN alternative_titles altT ON a.id = altT.animeId
+    LEFT JOIN alternative_title_synonyms syn ON altT.animeId = syn.animeId
+    WHERE a.title LIKE '%' || :query || '%' OR altT.en LIKE '%' || :query || '%'
+       OR altT.ja LIKE '%' || :query || '%'
+       OR syn.value LIKE '%' || :query || '%'
+    """
+    )
+    suspend fun searchAnime(query: String): List<AnimeDbModel>
 }

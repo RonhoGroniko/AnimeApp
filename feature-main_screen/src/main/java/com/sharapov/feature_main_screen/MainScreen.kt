@@ -58,7 +58,7 @@ import com.sharapov.feature_main_screen.utils.isInternetAvailable
 
 @Composable
 fun MainScreen(
-    viewModel: ScreenViewModel = hiltViewModel(),
+    viewModel: MainScreenViewModel = hiltViewModel(),
     onCardClick: (Int) -> Unit,
     onSettingsClick: () -> Unit
 ) {

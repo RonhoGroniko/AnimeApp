@@ -19,7 +19,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class ScreenViewModel @Inject constructor(
+class MainScreenViewModel @Inject constructor(
     private val getAnimeListUseCase: GetAnimeListUseCase,
     private val updateAnimeListUseCase: UpdateAnimeListUseCase
 ) : ViewModel() {

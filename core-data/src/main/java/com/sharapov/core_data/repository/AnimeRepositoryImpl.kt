@@ -98,6 +98,10 @@ class AnimeRepositoryImpl @Inject constructor(
         return saved.toEntity()
     }
 
+    override suspend fun searchAnimeByTitle(query: String): List<Anime> {
+        return animeDao.searchAnime(query).map { it.toEntity() }
+    }
+
     private suspend fun addAnimeList(
         animeList: List<AnimeListItemDbModel>
     ) {

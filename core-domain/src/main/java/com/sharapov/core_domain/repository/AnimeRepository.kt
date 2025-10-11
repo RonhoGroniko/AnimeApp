@@ -13,4 +13,6 @@ interface AnimeRepository {
     suspend fun updateAnimeList(rankingType: RankingType, limit: Int)
 
     suspend fun getAnimeById(animeId: Int): AnimeWithDetails
+
+    suspend fun searchAnimeByTitle(query: String): List<Anime>
 }
