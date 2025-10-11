@@ -38,7 +38,7 @@ class SearchViewModel @AssistedInject constructor(
         getAnimeListUseCase(filter)
             .onStart { _state.value = SearchScreenState.Loading }
             .onEach { generalList ->
-                if (generalList.isEmpty()) {
+                if (generalList.isEmpty() && filter is AnimeFilter.All) {
                     val r = updateAnimeListUseCase(rankingType = RankingType.ALL, limit = 100)
                     if (r.isFailure) {
                         _state.value = SearchScreenState.Error(

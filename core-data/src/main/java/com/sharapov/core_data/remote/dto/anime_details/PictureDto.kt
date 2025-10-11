@@ -7,7 +7,7 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class PictureDto(
     @SerialName("large")
-    val large: String = "",
+    val large: String? = "",
     @SerialName("medium")
-    val medium: String = ""
+    val medium: String? = ""
 )

@@ -63,7 +63,7 @@ fun NodeDto.toDbModel(): AnimeDbModel {
     return AnimeDbModel(
         id = id,
         title = title,
-        imageUrl = mainPicture.medium,
+        imageUrl = mainPicture.large ?: mainPicture.medium ?: "",
         rating = mean,
         createdAt = createdAt
     )
@@ -135,7 +135,7 @@ fun AnimeDetailsResponseDto.toEntity(): AnimeWithDetails {
         endDate = endDate,
         genres = genres.map { it.toEntity() },
         id = id,
-        mainPicture = mainPicture.large,
+        mainPicture = mainPicture.large ?: mainPicture.medium ?: "",
         mean = mean,
         mediaType = mediaType.toEntity(),
         nsfw = nsfw,
@@ -221,7 +221,7 @@ fun AlternativeTitlesDto.toEntity(): AlternativeTitles {
 }
 
 fun PictureDto.toEntity(): String {
-    return this.large
+    return this.large ?: this.medium ?: ""
 }
 
 
@@ -230,7 +230,7 @@ fun RecommendationDto.toEntity(): Anime {
     return Anime(
         id = node.id,
         title = node.title,
-        imageUrl = node.mainPicture.large,
+        imageUrl = node.mainPicture.large ?: node.mainPicture.medium ?: "",
         rating = 0.0,
         genres = listOf(),
         createdAt = "",
@@ -243,7 +243,7 @@ fun RelatedAnimeDto.toEntity(): RelatedAnime {
         anime = Anime(
             id = node.id,
             title = node.title,
-            imageUrl = node.mainPicture.large,
+            imageUrl = node.mainPicture.large ?: node.mainPicture.medium ?: "",
             rating = 0.0,
             genres = listOf(),
             createdAt = "",
