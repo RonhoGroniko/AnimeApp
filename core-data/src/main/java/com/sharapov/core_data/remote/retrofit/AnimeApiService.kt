@@ -1,6 +1,6 @@
 package com.sharapov.core_data.remote.retrofit
 
-import com.sharapov.core_data.remote.dto.AnimeResponseDto
+import com.sharapov.core_data.remote.dto.anime.AnimeResponseDto
 import com.sharapov.core_data.remote.dto.anime_details.AnimeDetailsResponseDto
 import retrofit2.http.GET
 import retrofit2.http.Path

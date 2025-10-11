@@ -1,10 +1,12 @@
 package com.sharapov.core_data.repository
 
 import com.sharapov.core_data.local.database.AnimeDao
-import com.sharapov.core_data.local.dbmodel.AnimeFullDbModel
+import com.sharapov.core_data.local.dbmodel.anime.AnimeListItemDbModel
+import com.sharapov.core_data.local.dbmodel.anime_details.AlternativeTitleSynonymDbModel
+import com.sharapov.core_data.mapper.toDbModel
 import com.sharapov.core_data.mapper.toEntities
 import com.sharapov.core_data.mapper.toEntity
-import com.sharapov.core_data.mapper.toFullDbModels
+import com.sharapov.core_data.mapper.toListItemDbModels
 import com.sharapov.core_data.remote.DataException
 import com.sharapov.core_data.remote.retrofit.AnimeApiService
 import com.sharapov.core_domain.entity.Anime
@@ -25,10 +27,13 @@ class AnimeRepositoryImpl @Inject constructor(
 ) : AnimeRepository {
 
     override fun getAnimeList(filter: AnimeFilter): Flow<List<Anime>> {
-        return when(filter) {
+        return when (filter) {
             AnimeFilter.All -> animeDao.getAnimeList().map { it.toEntities() }
-            is AnimeFilter.ByGenre -> animeDao.getAnimeListForGenre(filter.genre).map { it.toEntities() }
-            is AnimeFilter.ByRankingType -> animeDao.getAnimeListForRankingType(filter.rankingType.name).map { it.toEntities() }
+            is AnimeFilter.ByGenre -> animeDao.getAnimeListForGenre(filter.genre)
+                .map { it.toEntities() }
+
+            is AnimeFilter.ByRankingType -> animeDao.getAnimeListForRankingType(filter.rankingType.name)
+                .map { it.toEntities() }
         }
     }
 
@@ -38,8 +43,13 @@ class AnimeRepositoryImpl @Inject constructor(
     }
 
     override suspend fun getAnimeById(animeId: Int): AnimeWithDetails {
-        return try {
-            animeApiService.getAnimeById(animeId).toEntity()
+
+        animeDao.getAnimeWithDetails(animeId)?.let { agg ->
+            if (agg.details != null) return agg.toEntity()
+        }
+
+        val dto = try {
+            animeApiService.getAnimeById(animeId)
         } catch (e: CancellationException) {
             throw e
         } catch (e: IOException) {
@@ -49,17 +59,58 @@ class AnimeRepositoryImpl @Inject constructor(
         } catch (e: Exception) {
             throw DataException.Unknown(e)
         }
+
+        val details = dto.toDbModel()
+        val statistics = dto.statistics.toDbModel(animeId)
+        val startSeason = dto.startSeason.toDbModel(animeId)
+        val alternativeTitles = dto.alternativeTitles.toDbModel(animeId)
+        val synonyms = dto.alternativeTitles.synonyms
+            .map { value -> AlternativeTitleSynonymDbModel(animeId = animeId, value = value) }
+
+        val recommendedAnime = dto.recommendations.map { it.toDbModel() }
+
+        val recommendationsLinks = dto.recommendations.map { it.toDbModel(animeId) }
+
+        val relatedAnime = dto.relatedAnime.map { it.toDbModel() }
+
+        val relatedLinks = dto.relatedAnime.map { it.toDbModel(animeId) }
+
+        val pictures = dto.pictures.map { it.toDbModel(animeId) }
+
+        val genres = dto.genres.map { it.toDbModel() }
+
+        animeDao.upsertDetailsBundle(
+            details = details,
+            statistics = statistics,
+            startSeason = startSeason,
+            alternativeTitles = alternativeTitles,
+            synonyms = synonyms,
+            recommendedAnime = recommendedAnime,
+            recommendationsLinks = recommendationsLinks,
+            relatedLinks = relatedLinks,
+            pictures = pictures,
+            relatedAnime = relatedAnime,
+            genres = genres,
+        )
+
+        val saved = animeDao.getAnimeWithDetails(animeId)
+            ?: throw DataException.Unknown(IllegalStateException("No aggregate after upsert for id=$animeId"))
+        return saved.toEntity()
     }
 
     private suspend fun addAnimeList(
-        animeList: List<AnimeFullDbModel>
+        animeList: List<AnimeListItemDbModel>
     ) {
         animeDao.upsertFullAnime(animeList)
     }
 
-    private suspend fun loadAnimeList(rankingType: RankingType, limit: Int): List<AnimeFullDbModel> {
+    private suspend fun loadAnimeList(
+        rankingType: RankingType,
+        limit: Int
+    ): List<AnimeListItemDbModel> {
         return try {
-            animeApiService.getAnimeRankingList(rankingType.query, limit).toFullDbModels(rankingType)
+            animeApiService.getAnimeRankingList(rankingType.query, limit)
+                .toListItemDbModels(rankingType)
         } catch (e: CancellationException) {
             throw e
         } catch (e: IOException) {

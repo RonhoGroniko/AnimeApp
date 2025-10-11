@@ -1,10 +1,10 @@
-package com.sharapov.core_data.local.dbmodel
+package com.sharapov.core_data.local.dbmodel.anime
 
 import androidx.room.Embedded
 import androidx.room.Junction
 import androidx.room.Relation
 
-data class AnimeFullDbModel(
+data class AnimeListItemDbModel(
     @Embedded val anime: AnimeDbModel,
     @Relation(
         parentColumn = "id",

@@ -1,4 +1,4 @@
-package com.sharapov.core_data.local.dbmodel
+package com.sharapov.core_data.local.dbmodel.anime
 
 import androidx.room.Entity
 import androidx.room.ForeignKey

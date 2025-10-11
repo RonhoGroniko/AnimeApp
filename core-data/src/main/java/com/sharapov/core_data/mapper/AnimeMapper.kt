@@ -1,15 +1,24 @@
 package com.sharapov.core_data.mapper
 
-import com.sharapov.core_data.local.dbmodel.AnimeDbModel
-import com.sharapov.core_data.local.dbmodel.AnimeFullDbModel
-import com.sharapov.core_data.local.dbmodel.GenreDbModel
-import com.sharapov.core_data.local.dbmodel.RankingTypeDbModel
-import com.sharapov.core_data.local.dbmodel.StudioDbModel
-import com.sharapov.core_data.remote.dto.AnimeResponseDto
-import com.sharapov.core_data.remote.dto.DataDto
-import com.sharapov.core_data.remote.dto.GenreDto
-import com.sharapov.core_data.remote.dto.NodeDto
-import com.sharapov.core_data.remote.dto.StudioDto
+import com.sharapov.core_data.local.dbmodel.AnimeWithDetailsDbModel
+import com.sharapov.core_data.local.dbmodel.RelatedWithAnimeDbModel
+import com.sharapov.core_data.local.dbmodel.anime.AnimeDbModel
+import com.sharapov.core_data.local.dbmodel.anime.AnimeListItemDbModel
+import com.sharapov.core_data.local.dbmodel.anime.GenreDbModel
+import com.sharapov.core_data.local.dbmodel.anime.RankingTypeDbModel
+import com.sharapov.core_data.local.dbmodel.anime.StudioDbModel
+import com.sharapov.core_data.local.dbmodel.anime_details.AlternativeTitlesDbModel
+import com.sharapov.core_data.local.dbmodel.anime_details.AnimeDetailsDbModel
+import com.sharapov.core_data.local.dbmodel.anime_details.PictureDbModel
+import com.sharapov.core_data.local.dbmodel.anime_details.RecommendationsDbModel
+import com.sharapov.core_data.local.dbmodel.anime_details.RelatedAnimeDbModel
+import com.sharapov.core_data.local.dbmodel.anime_details.StartSeasonDbModel
+import com.sharapov.core_data.local.dbmodel.anime_details.StatisticsDbModel
+import com.sharapov.core_data.remote.dto.anime.AnimeResponseDto
+import com.sharapov.core_data.remote.dto.anime.DataDto
+import com.sharapov.core_data.remote.dto.anime.GenreDto
+import com.sharapov.core_data.remote.dto.anime.NodeDto
+import com.sharapov.core_data.remote.dto.anime.StudioDto
 import com.sharapov.core_data.remote.dto.anime_details.AgeRatingDto
 import com.sharapov.core_data.remote.dto.anime_details.AlternativeTitlesDto
 import com.sharapov.core_data.remote.dto.anime_details.AnimeDetailsResponseDto
@@ -40,12 +49,12 @@ import com.sharapov.core_domain.entity.details.Status
 import com.sharapov.core_domain.entity.details.ViewersStatus
 
 
-fun AnimeResponseDto.toFullDbModels(rankingType: RankingType): List<AnimeFullDbModel> {
+fun AnimeResponseDto.toListItemDbModels(rankingType: RankingType): List<AnimeListItemDbModel> {
     return data.map { it.toFullDbModel(rankingType) }
 }
 
-fun DataDto.toFullDbModel(rankingType: RankingType): AnimeFullDbModel {
-    return AnimeFullDbModel(
+fun DataDto.toFullDbModel(rankingType: RankingType): AnimeListItemDbModel {
+    return AnimeListItemDbModel(
         anime = node.toDbModel(),
         genres = node.genres.map { it.toDbModel() },
         studios = node.studios.map { it.toDbModel() },
@@ -84,11 +93,11 @@ fun StudioDto.toDbModel(): StudioDbModel {
     )
 }
 
-fun List<AnimeFullDbModel>.toEntities(): List<Anime> {
+fun List<AnimeListItemDbModel>.toEntities(): List<Anime> {
     return map { it.toEntity() }
 }
 
-fun AnimeFullDbModel.toEntity(): Anime {
+fun AnimeListItemDbModel.toEntity(): Anime {
     return Anime(
         id = anime.id,
         title = anime.title,
@@ -124,44 +133,31 @@ fun StudioDto.toEntity(): Studio {
     )
 }
 
-// TODO: PICTURE null
 
-fun AnimeDetailsResponseDto.toEntity(): AnimeWithDetails {
-    return AnimeWithDetails(
-        alternativeTitles = alternativeTitles.toEntity(),
+fun AnimeDetailsResponseDto.toDbModel(): AnimeDetailsDbModel {
+    return AnimeDetailsDbModel(
         averageEpisodeDuration = averageEpisodeDuration,
         background = background,
-        createdAt = createdAt,
         endDate = endDate,
-        genres = genres.map { it.toEntity() },
         id = id,
-        mainPicture = mainPicture.large ?: mainPicture.medium ?: "",
-        mean = mean,
         mediaType = mediaType.toEntity(),
         nsfw = nsfw,
         numEpisodes = numEpisodes,
         numListUsers = numListUsers,
         numScoringUsers = numScoringUsers,
-        pictures = pictures.map { it.toEntity() },
         popularity = popularity,
         rank = rank,
         rating = rating.toEntity(),
-        recommendations = recommendations.map { it.toEntity() },
-        relatedAnime = relatedAnime.map { it.toEntity() },
         source = source.toEntity(),
         startDate = startDate,
-        startSeason = startSeason.toEntity(),
-        statistics = statistics.toEntity(),
         status = status.toEntity(),
-        studios = studios.map { it.toEntity() },
         synopsis = synopsis,
-        title = title,
         updatedAt = updatedAt
     )
 }
 
 fun SourceDto.toEntity(): Source {
-    return when(this) {
+    return when (this) {
         SourceDto.ORIGINAL -> Source.ORIGINAL
         SourceDto.MANGA -> Source.MANGA
         SourceDto.FOUR_KOMA_MANGA -> Source.FOUR_KOMA_MANGA
@@ -180,7 +176,7 @@ fun SourceDto.toEntity(): Source {
 }
 
 fun MediaTypeDto.toEntity(): MediaType {
-    return when(this) {
+    return when (this) {
         MediaTypeDto.TV -> MediaType.TV
         MediaTypeDto.OVA -> MediaType.OVA
         MediaTypeDto.MOVIE -> MediaType.MOVIE
@@ -192,7 +188,7 @@ fun MediaTypeDto.toEntity(): MediaType {
 }
 
 fun AgeRatingDto.toEntity(): AgeRating {
-    return  when(this) {
+    return when (this) {
         AgeRatingDto.G -> AgeRating.G
         AgeRatingDto.PG -> AgeRating.PG
         AgeRatingDto.PG_13 -> AgeRating.PG_13
@@ -204,7 +200,7 @@ fun AgeRatingDto.toEntity(): AgeRating {
 }
 
 fun StatusDto.toEntity(): Status {
-    return when(this) {
+    return when (this) {
         StatusDto.FINISHED -> Status.FINISHED
         StatusDto.AIRING -> Status.AIRING
         StatusDto.NOT_YET_AIRED -> Status.NOT_YET_AIRED
@@ -212,11 +208,11 @@ fun StatusDto.toEntity(): Status {
     }
 }
 
-fun AlternativeTitlesDto.toEntity(): AlternativeTitles {
-    return AlternativeTitles(
+fun AlternativeTitlesDto.toDbModel(animeId: Int): AlternativeTitlesDbModel {
+    return AlternativeTitlesDbModel(
         en = en,
         ja = ja,
-        synonyms = synonyms
+        animeId = animeId
     )
 }
 
@@ -224,37 +220,43 @@ fun PictureDto.toEntity(): String {
     return this.large ?: this.medium ?: ""
 }
 
-
-// TODO REFACTOR THIS SHIT
-fun RecommendationDto.toEntity(): Anime {
-    return Anime(
+fun RecommendationDto.toDbModel(): AnimeDbModel {
+    return AnimeDbModel(
         id = node.id,
         title = node.title,
         imageUrl = node.mainPicture.large ?: node.mainPicture.medium ?: "",
         rating = 0.0,
-        genres = listOf(),
-        createdAt = "",
-        studios = listOf()
+        createdAt = ""
     )
 }
 
-fun RelatedAnimeDto.toEntity(): RelatedAnime {
-    return RelatedAnime(
-        anime = Anime(
-            id = node.id,
-            title = node.title,
-            imageUrl = node.mainPicture.large ?: node.mainPicture.medium ?: "",
-            rating = 0.0,
-            genres = listOf(),
-            createdAt = "",
-            studios = listOf()
-        ),
+fun RecommendationDto.toDbModel(animeId: Int): RecommendationsDbModel {
+    return RecommendationsDbModel(
+        animeId = animeId,
+        recommendedAnimeId = node.id
+    )
+}
+
+fun RelatedAnimeDto.toDbModel(animeId: Int): RelatedAnimeDbModel {
+    return RelatedAnimeDbModel(
+        animeId = animeId,
+        relatedAnimeId = node.id,
         relation = relationType.toEntity()
     )
 }
 
+fun RelatedAnimeDto.toDbModel(): AnimeDbModel {
+    return AnimeDbModel(
+        id = node.id,
+        title = node.title,
+        imageUrl = node.mainPicture.large ?: node.mainPicture.medium ?: "",
+        rating = 0.0,
+        createdAt = ""
+    )
+}
+
 fun RelationTypeDto.toEntity(): RelationType {
-    return when(this) {
+    return when (this) {
         RelationTypeDto.SEQUEL -> RelationType.SEQUEL
         RelationTypeDto.PREQUEL -> RelationType.PREQUEL
         RelationTypeDto.ALTERNATIVE_SETTING -> RelationType.ALTERNATIVE_SETTING
@@ -270,26 +272,126 @@ fun RelationTypeDto.toEntity(): RelationType {
         RelationTypeDto.UNKNOWN -> RelationType.UNKNOWN
     }
 }
-fun StartSeasonDto.toEntity(): StartSeason {
+
+fun StartSeasonDto.toDbModel(animeId: Int): StartSeasonDbModel {
+    return StartSeasonDbModel(
+        season = season,
+        year = year,
+        animeId = animeId
+    )
+}
+
+fun StatisticsDto.toDbModel(animeId: Int): StatisticsDbModel {
+    return StatisticsDbModel(
+        animeId = animeId,
+        completed = status.completed ?: 0,
+        dropped = status.dropped ?: 0,
+        onHold = status.onHold ?: 0,
+        planToWatch = status.planToWatch ?: 0,
+        watching = status.watching ?: 0
+    )
+}
+
+fun PictureDto.toDbModel(animeId: Int): PictureDbModel {
+    return PictureDbModel(
+        animeId = animeId,
+        url = medium ?: large ?: ""
+    )
+}
+
+fun AnimeWithDetailsDbModel.toEntity(): AnimeWithDetails {
+    return AnimeWithDetails(
+        alternativeTitles = alternativeTitles.let { it?.titles?.toEntity(it.synonyms.map { s -> s.value } ) ?: AlternativeTitles(
+            en = "",
+            ja = "",
+            synonyms = listOf()
+        ) },
+        averageEpisodeDuration = details?.averageEpisodeDuration ?: 0,
+        background = details?.background ?: "",
+        createdAt = anime.createdAt,
+        endDate = details?.endDate ?: "",
+        genres = genres.map { it.toEntity() },
+        id = anime.id,
+        mainPicture = anime.imageUrl,
+        mean = anime.rating,
+        mediaType = details?.mediaType ?: MediaType.UNKNOWN,
+        nsfw = details?.nsfw ?: "",
+        numEpisodes = details?.numEpisodes?: 0,
+        numListUsers = details?.numListUsers?: 0,
+        numScoringUsers = details?.numScoringUsers?: 0,
+        pictures = pictures.map { it.url },
+        popularity = details?.popularity?: 0,
+        rank = details?.rank?: 0,
+        rating = details?.rating ?: AgeRating.UNKNOWN,
+        recommendations = recommendations.map { it.toEntity() },
+        relatedAnime = relatedAnime.map { it.toEntity() },
+        source = details?.source ?: Source.UNKNOWN,
+        startDate = details?.startDate ?: "",
+        startSeason = startSeason?.toEntity() ?: StartSeason(
+            season = "",
+            year = 0
+        ) ,
+        statistics = statistics?.toEntity() ?: Statistics(
+            numListUsers = 0,
+            status = ViewersStatus(
+                completed = 0,
+                dropped = 0,
+                onHold = 0,
+                planToWatch = 0,
+                watching = 0
+            )
+        ),
+        status = details?.status ?: Status.UNKNOWN,
+        studios = studios.map { it.toEntity() },
+        synopsis = details?.synopsis?: "",
+        title = anime.title,
+        updatedAt = details?.updatedAt ?: ""
+    )
+}
+
+fun AlternativeTitlesDbModel.toEntity(synonyms: List<String>): AlternativeTitles {
+    return AlternativeTitles(
+        en = en,
+        ja = ja,
+        synonyms = synonyms,
+    )
+}
+
+fun AnimeDbModel.toEntity(): Anime {
+    return Anime(
+        id = id,
+        title = title,
+        imageUrl = imageUrl,
+        rating = rating,
+        genres = listOf(),
+        createdAt = createdAt,
+        studios = listOf()
+    )
+}
+
+fun RelatedWithAnimeDbModel.toEntity(): RelatedAnime {
+    return RelatedAnime(
+        anime = anime.toEntity(),
+        relation = link.relation
+    )
+}
+
+fun StartSeasonDbModel.toEntity(): StartSeason {
     return StartSeason(
         season = season,
         year = year
     )
 }
 
-fun StatisticsDto.toEntity(): Statistics {
+fun StatisticsDbModel.toEntity(): Statistics {
     return Statistics(
-        numListUsers = numListUsers,
-        status = status.toEntity()
-    )
-}
-
-fun StatusDetailsDto.toEntity(): ViewersStatus {
-    return ViewersStatus(
-        completed = completed ?: 0,
-        dropped = dropped ?: 0,
-        onHold = onHold ?: 0,
-        planToWatch = planToWatch ?: 0,
-        watching = watching ?: 0
+        numListUsers = completed + dropped + onHold + planToWatch + watching,
+        status = ViewersStatus(
+            completed = completed,
+            dropped = dropped,
+            onHold = onHold,
+            planToWatch = planToWatch,
+            watching = watching
+        )
     )
 }

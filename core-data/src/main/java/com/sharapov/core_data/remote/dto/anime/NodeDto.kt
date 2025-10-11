@@ -1,4 +1,4 @@
-package com.sharapov.core_data.remote.dto
+package com.sharapov.core_data.remote.dto.anime
 
 
 import kotlinx.serialization.SerialName

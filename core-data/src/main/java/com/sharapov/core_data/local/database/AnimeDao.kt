@@ -6,14 +6,23 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Transaction
 import androidx.room.Upsert
-import com.sharapov.core_data.local.dbmodel.AnimeDbModel
-import com.sharapov.core_data.local.dbmodel.AnimeFullDbModel
-import com.sharapov.core_data.local.dbmodel.AnimeGenreCrossRef
-import com.sharapov.core_data.local.dbmodel.AnimeRankingTypeCrossRef
-import com.sharapov.core_data.local.dbmodel.AnimeStudioCrossRef
-import com.sharapov.core_data.local.dbmodel.GenreDbModel
-import com.sharapov.core_data.local.dbmodel.RankingTypeDbModel
-import com.sharapov.core_data.local.dbmodel.StudioDbModel
+import com.sharapov.core_data.local.dbmodel.AnimeWithDetailsDbModel
+import com.sharapov.core_data.local.dbmodel.anime.AnimeDbModel
+import com.sharapov.core_data.local.dbmodel.anime.AnimeListItemDbModel
+import com.sharapov.core_data.local.dbmodel.anime.AnimeGenreCrossRef
+import com.sharapov.core_data.local.dbmodel.anime.AnimeRankingTypeCrossRef
+import com.sharapov.core_data.local.dbmodel.anime.AnimeStudioCrossRef
+import com.sharapov.core_data.local.dbmodel.anime.GenreDbModel
+import com.sharapov.core_data.local.dbmodel.anime.RankingTypeDbModel
+import com.sharapov.core_data.local.dbmodel.anime.StudioDbModel
+import com.sharapov.core_data.local.dbmodel.anime_details.AlternativeTitleSynonymDbModel
+import com.sharapov.core_data.local.dbmodel.anime_details.AlternativeTitlesDbModel
+import com.sharapov.core_data.local.dbmodel.anime_details.AnimeDetailsDbModel
+import com.sharapov.core_data.local.dbmodel.anime_details.PictureDbModel
+import com.sharapov.core_data.local.dbmodel.anime_details.RecommendationsDbModel
+import com.sharapov.core_data.local.dbmodel.anime_details.RelatedAnimeDbModel
+import com.sharapov.core_data.local.dbmodel.anime_details.StartSeasonDbModel
+import com.sharapov.core_data.local.dbmodel.anime_details.StatisticsDbModel
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -29,7 +38,7 @@ interface AnimeDao {
         ORDER BY a.rating DESC
     """
     )
-    fun getAnimeListForRankingType(rankingType: String): Flow<List<AnimeFullDbModel>>
+    fun getAnimeListForRankingType(rankingType: String): Flow<List<AnimeListItemDbModel>>
 
     @Transaction
     @Query(
@@ -39,7 +48,7 @@ interface AnimeDao {
     ORDER BY rating DESC
     """
     )
-    fun getAnimeList(): Flow<List<AnimeFullDbModel>>
+    fun getAnimeList(): Flow<List<AnimeListItemDbModel>>
 
     @Transaction
     @Query(
@@ -51,7 +60,7 @@ interface AnimeDao {
     ORDER BY rating DESC
     """
     )
-    fun getAnimeListForGenre(genre: String): Flow<List<AnimeFullDbModel>>
+    fun getAnimeListForGenre(genre: String): Flow<List<AnimeListItemDbModel>>
 
     @Upsert
     suspend fun upsertAnime(animeList: List<AnimeDbModel>)
@@ -78,7 +87,7 @@ interface AnimeDao {
     suspend fun insertAnimeStudioRefs(refs: List<AnimeStudioCrossRef>)
 
     @Transaction
-    suspend fun upsertFullAnime(animeFullDbModelList: List<AnimeFullDbModel>) {
+    suspend fun upsertFullAnime(animeFullDbModelList: List<AnimeListItemDbModel>) {
         upsertAnime(animeFullDbModelList.map { it.anime })
         upsertGenres(animeFullDbModelList.flatMap { it.genres }.distinctBy { it.id })
         upsertStudios(animeFullDbModelList.flatMap { it.studios }.distinctBy { it.id })
@@ -105,5 +114,128 @@ interface AnimeDao {
         if (genreRefs.isNotEmpty()) insertAnimeGenreRefs(genreRefs)
         if (studioRefs.isNotEmpty()) insertAnimeStudioRefs(studioRefs)
         if (rankingTypeRefs.isNotEmpty()) insertRankingTypes(rankingTypeRefs)
+    }
+
+    @Upsert
+    suspend fun upsertAnimeDetails(items: List<AnimeDetailsDbModel>)
+
+
+    @Transaction
+    @Query(
+        """
+        SELECT a.*
+        FROM anime a
+        WHERE a.id = :animeId
+        """
+    )
+    suspend fun getAnimeWithDetails(animeId: Int): AnimeWithDetailsDbModel?
+
+    @Upsert
+    suspend fun upsertStatistics(items: List<StatisticsDbModel>)
+
+    @Query("SELECT * FROM anime_statistics WHERE animeId = :animeId")
+    suspend fun getStatistics(animeId: Int): StatisticsDbModel
+
+    @Upsert
+    suspend fun upsertStartSeasons(items: List<StartSeasonDbModel>)
+
+    @Query("SELECT * FROM anime_start_season WHERE animeId = :animeId")
+    suspend fun getStartSeason(animeId: Int): StartSeasonDbModel
+
+    @Upsert
+    suspend fun upsertAlternativeTitles(items: List<AlternativeTitlesDbModel>)
+
+    @Query("SELECT * FROM alternative_titles WHERE animeId = :animeId")
+    suspend fun getAlternativeTitles(animeId: Int): AlternativeTitlesDbModel
+
+
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    suspend fun insertAlternativeTitleSynonyms(items: List<AlternativeTitleSynonymDbModel>)
+
+    @Query("DELETE FROM alternative_title_synonyms WHERE animeId = :animeId")
+    suspend fun clearAlternativeTitleSynonyms(animeId: Int)
+
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    suspend fun insertRecommendations(items: List<RecommendationsDbModel>)
+
+    @Query("DELETE FROM anime_recommendations WHERE animeId = :animeId")
+    suspend fun clearRecommendations(animeId: Int)
+
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    suspend fun insertRelatedAnime(items: List<RelatedAnimeDbModel>)
+
+    @Query("DELETE FROM anime_related WHERE animeId = :animeId")
+    suspend fun clearRelatedAnime(animeId: Int)
+
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    suspend fun insertPictures(items: List<PictureDbModel>)
+
+    @Query("DELETE FROM anime_pictures WHERE animeId = :animeId")
+    suspend fun clearPictures(animeId: Int)
+
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    suspend fun insertAnimeIgnore(items: List<AnimeDbModel>)
+
+    @Query("DELETE FROM anime_genre_cross_ref WHERE animeId = :animeId")
+    suspend fun clearAnimeGenreRefsForAnime(animeId: Int)
+
+    @Transaction
+    suspend fun upsertDetailsBundle(
+        details: AnimeDetailsDbModel,
+        statistics: StatisticsDbModel,
+        startSeason: StartSeasonDbModel,
+        alternativeTitles: AlternativeTitlesDbModel,
+        synonyms: List<AlternativeTitleSynonymDbModel>,
+        recommendedAnime: List<AnimeDbModel>,
+        recommendationsLinks: List<RecommendationsDbModel>,
+        relatedAnime: List<AnimeDbModel>,
+        relatedLinks: List<RelatedAnimeDbModel>,
+        pictures: List<PictureDbModel>,
+        genres: List<GenreDbModel>
+    ) {
+
+        val recIds = recommendationsLinks.map { it.recommendedAnimeId }
+        val relIds = relatedLinks.map { it.relatedAnimeId }
+        val allTargetIds = (recIds + relIds).distinct()
+
+        if (allTargetIds.isNotEmpty()) {
+            val placeholders = allTargetIds.map { id ->
+                AnimeDbModel(
+                    id = id,
+                    title = "",
+                    imageUrl = "",
+                    rating = 0.0,
+                    createdAt = ""
+                )
+            }
+            insertAnimeIgnore(placeholders)
+        }
+
+        val realBase = (recommendedAnime + relatedAnime).distinctBy { it.id }
+        if (realBase.isNotEmpty()) upsertAnime(realBase)
+
+        upsertAnimeDetails(listOf(details))
+        upsertStatistics(listOf(statistics))
+        upsertStartSeasons(listOf(startSeason))
+        upsertAlternativeTitles(listOf(alternativeTitles))
+
+        if (genres.isNotEmpty()) {
+            upsertGenres(genres.distinctBy { it.id })
+            clearAnimeGenreRefsForAnime(details.id)
+            val genreRefs = genres.map { g -> AnimeGenreCrossRef(animeId = details.id, genreId = g.id) }
+            insertAnimeGenreRefs(genreRefs)
+        }
+        
+        clearAlternativeTitleSynonyms(details.id)
+        if (synonyms.isNotEmpty()) insertAlternativeTitleSynonyms(synonyms)
+
+        clearRecommendations(details.id)
+        if (recommendationsLinks.isNotEmpty()) insertRecommendations(recommendationsLinks)
+
+        clearRelatedAnime(details.id)
+        if (relatedLinks.isNotEmpty()) insertRelatedAnime(relatedLinks)
+
+        clearPictures(details.id)
+        if (pictures.isNotEmpty()) insertPictures(pictures)
     }
 }

@@ -1,9 +1,9 @@
 package com.sharapov.core_data.remote.dto.anime_details
 
 
-import com.sharapov.core_data.remote.dto.GenreDto
-import com.sharapov.core_data.remote.dto.MainPictureDto
-import com.sharapov.core_data.remote.dto.StudioDto
+import com.sharapov.core_data.remote.dto.anime.GenreDto
+import com.sharapov.core_data.remote.dto.anime.MainPictureDto
+import com.sharapov.core_data.remote.dto.anime.StudioDto
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
