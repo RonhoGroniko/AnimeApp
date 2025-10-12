@@ -1,6 +1,6 @@
 package com.sharapov.feature_search_screen
 
-import android.util.Log
+
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.sharapov.core_domain.entity.Anime

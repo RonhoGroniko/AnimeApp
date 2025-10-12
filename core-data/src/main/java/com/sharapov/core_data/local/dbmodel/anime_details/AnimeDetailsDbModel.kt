@@ -37,6 +37,7 @@ data class AnimeDetailsDbModel(
     val numScoringUsers: Int,
     val popularity: Int,
     val rank: Int,
+    val mean: Double,
     val rating: AgeRating,
     val source: Source,
     val startDate: String,

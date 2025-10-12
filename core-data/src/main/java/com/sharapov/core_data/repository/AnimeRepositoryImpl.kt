@@ -67,11 +67,11 @@ class AnimeRepositoryImpl @Inject constructor(
         val synonyms = dto.alternativeTitles.synonyms
             .map { value -> AlternativeTitleSynonymDbModel(animeId = animeId, value = value) }
 
-        val recommendedAnime = dto.recommendations.map { it.toDbModel() }
+        val recommendedAnime = dto.recommendations.map { it.toDbModel(details.mean) }
 
         val recommendationsLinks = dto.recommendations.map { it.toDbModel(animeId) }
 
-        val relatedAnime = dto.relatedAnime.map { it.toDbModel() }
+        val relatedAnime = dto.relatedAnime.map { it.toDbModel(details.mean) }
 
         val relatedLinks = dto.relatedAnime.map { it.toDbModel(animeId) }
 

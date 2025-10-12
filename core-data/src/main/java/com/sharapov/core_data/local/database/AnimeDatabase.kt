@@ -42,7 +42,7 @@ import com.sharapov.core_data.local.dbmodel.anime_details.converters.StatusTypeC
         StatisticsDbModel::class,
         PictureDbModel::class
     ],
-    version = 8,
+    version = 9,
     exportSchema = false
 )
 @TypeConverters(

@@ -31,7 +31,6 @@ import com.sharapov.core_data.remote.dto.anime_details.SourceDto
 import com.sharapov.core_data.remote.dto.anime_details.StartSeasonDto
 import com.sharapov.core_data.remote.dto.anime_details.StatisticsDto
 import com.sharapov.core_data.remote.dto.anime_details.StatusDto
-import com.sharapov.core_data.remote.dto.anime_details.StatusDetailsDto
 import com.sharapov.core_domain.entity.Anime
 import com.sharapov.core_domain.entity.Genre
 import com.sharapov.core_domain.entity.RankingType
@@ -152,7 +151,8 @@ fun AnimeDetailsResponseDto.toDbModel(): AnimeDetailsDbModel {
         startDate = startDate,
         status = status.toEntity(),
         synopsis = synopsis,
-        updatedAt = updatedAt
+        updatedAt = updatedAt,
+        mean = mean
     )
 }
 
@@ -220,12 +220,12 @@ fun PictureDto.toEntity(): String {
     return this.large ?: this.medium ?: ""
 }
 
-fun RecommendationDto.toDbModel(): AnimeDbModel {
+fun RecommendationDto.toDbModel(rating: Double): AnimeDbModel {
     return AnimeDbModel(
         id = node.id,
         title = node.title,
         imageUrl = node.mainPicture.large ?: node.mainPicture.medium ?: "",
-        rating = 0.0,
+        rating = rating,
         createdAt = ""
     )
 }
@@ -245,12 +245,12 @@ fun RelatedAnimeDto.toDbModel(animeId: Int): RelatedAnimeDbModel {
     )
 }
 
-fun RelatedAnimeDto.toDbModel(): AnimeDbModel {
+fun RelatedAnimeDto.toDbModel(rating: Double): AnimeDbModel {
     return AnimeDbModel(
         id = node.id,
         title = node.title,
         imageUrl = node.mainPicture.large ?: node.mainPicture.medium ?: "",
-        rating = 0.0,
+        rating = rating,
         createdAt = ""
     )
 }
