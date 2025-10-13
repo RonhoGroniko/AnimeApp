@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalCoroutinesApi::class, FlowPreview::class)
+
 package com.sharapov.feature_search_screen
 
 
@@ -13,18 +15,20 @@ import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.delay
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 @HiltViewModel(assistedFactory = SearchViewModel.Factory::class)
 class SearchViewModel @AssistedInject constructor(
@@ -39,7 +43,7 @@ class SearchViewModel @AssistedInject constructor(
 
     private var initialList: List<Anime> = listOf()
 
-    private var userInputJob: Job? = null
+    private val query = MutableStateFlow("")
 
     init {
         val filter = if (genre.isNotBlank()) {
@@ -64,50 +68,46 @@ class SearchViewModel @AssistedInject constructor(
             }
             .catch { e -> _state.value = SearchScreenState.Error(e.message ?: "Unknown error") }
             .launchIn(viewModelScope)
+
+        query
+            .debounce(250)
+            .map { it.trim() }
+            .distinctUntilChanged()
+            .flatMapLatest { q ->
+                if (q.isBlank()) {
+
+                    kotlinx.coroutines.flow.flowOf(initialList)
+                } else {
+                    searchAnimeUseCase(q)
+                        .catch { e ->
+                            emit(emptyList())
+                            _state.value = SearchScreenState.Error(e.message ?: "Unknown error")
+                        }
+                }
+            }
+            .onEach { list ->
+                _state.update { prev ->
+                    when (prev) {
+                        is SearchScreenState.Content -> prev.copy(animeList = list)
+                        else -> SearchScreenState.Content(query = query.value, animeList = list)
+                    }
+                }
+            }
+            .launchIn(viewModelScope)
     }
 
     fun processCommand(command: SearchScreenCommand) {
         viewModelScope.launch {
             when (command) {
                 is SearchScreenCommand.ChangeQuery -> {
-                    _state.update { prevState ->
-                        if (prevState is SearchScreenState.Content) {
-                            prevState.copy(query = command.query)
+                    _state.update { prev ->
+                        if (prev is SearchScreenState.Content) {
+                            prev.copy(query = command.query)
                         } else {
-                            prevState
+                            prev
                         }
                     }
-
-                    val raw = command.query
-                    userInputJob?.cancel()
-                    userInputJob = viewModelScope.launch {
-                        delay(250)
-
-                        val q = raw.trim()
-                        if (q.isBlank()) {
-                            _state.update { prevState ->
-                                if (prevState is SearchScreenState.Content) {
-                                    prevState.copy(animeList = initialList)
-                                } else {
-                                    prevState
-                                }
-                            }
-                            return@launch
-                        }
-
-                        val result = withContext(Dispatchers.IO) {
-                            runCatching { searchAnimeUseCase(q) }
-                        }
-
-                        _state.update { prevState ->
-                            if (prevState is SearchScreenState.Content) {
-                                result.fold(
-                                    onSuccess = { list -> prevState.copy(animeList = list.distinctBy { it.id }) },
-                                    onFailure = { _ -> prevState }
-                                )
-                            } else prevState
-                        }
-                    }
+                    query.value = command.query
                 }
             }
         }

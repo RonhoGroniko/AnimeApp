@@ -8,8 +8,8 @@ import androidx.room.Transaction
 import androidx.room.Upsert
 import com.sharapov.core_data.local.dbmodel.AnimeWithDetailsDbModel
 import com.sharapov.core_data.local.dbmodel.anime.AnimeDbModel
-import com.sharapov.core_data.local.dbmodel.anime.AnimeListItemDbModel
 import com.sharapov.core_data.local.dbmodel.anime.AnimeGenreCrossRef
+import com.sharapov.core_data.local.dbmodel.anime.AnimeListItemDbModel
 import com.sharapov.core_data.local.dbmodel.anime.AnimeRankingTypeCrossRef
 import com.sharapov.core_data.local.dbmodel.anime.AnimeStudioCrossRef
 import com.sharapov.core_data.local.dbmodel.anime.GenreDbModel
@@ -250,7 +250,7 @@ interface AnimeDao {
        OR syn.value LIKE '%' || :query || '%'
     """
     )
-    suspend fun searchAnime(query: String): List<AnimeDbModel>
+    fun searchAnime(query: String): Flow<List<AnimeListItemDbModel>>
 
     @Query("SELECT EXISTS(SELECT 1 FROM anime_details WHERE id = :id)")
     suspend fun hasDetails(id: Int): Boolean

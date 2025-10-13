@@ -14,7 +14,7 @@ interface AnimeRepository {
 
     fun getAnimeById(animeId: Int): Flow<AnimeWithDetails>
 
-    suspend fun searchAnimeByTitle(query: String): List<Anime>
+    fun searchAnimeByTitle(query: String): Flow<List<Anime>>
 
     suspend fun changeAnimeFavoriteStatus(animeId: Int)
 }

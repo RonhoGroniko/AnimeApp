@@ -97,8 +97,8 @@ class AnimeRepositoryImpl @Inject constructor(
         )
     }
 
-    override suspend fun searchAnimeByTitle(query: String): List<Anime> {
-        return animeDao.searchAnime(query).map { it.toEntity() }
+    override fun searchAnimeByTitle(query: String): Flow<List<Anime>> {
+        return animeDao.searchAnime(query).map { it.toEntities() }
     }
 
     override suspend fun changeAnimeFavoriteStatus(animeId: Int) {
