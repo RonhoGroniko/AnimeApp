@@ -1,5 +1,8 @@
+@file:OptIn(ExperimentalMaterial3Api::class)
+
 package com.sharapov.feature_search_screen
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -9,23 +12,26 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.unit.dp
@@ -43,17 +49,25 @@ fun SearchScreen(
     },
     onCardClick: (Int) -> Unit
 ) {
-    BasePane { innerPadding ->
-
-        val state = viewModel.state.collectAsState()
+    val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
+    val state = viewModel.state.collectAsState()
+    BasePane(
+        topBar = {
+            EnterAlwaysTopAppBar(
+                query = (state.value as? SearchScreenState.Content)?.query.orEmpty(),
+                onQueryChange = { viewModel.processCommand(SearchScreenCommand.ChangeQuery(it)) },
+                scrollBehavior = scrollBehavior
+            )
+        },
+        modifier = Modifier
+            .nestedScroll(scrollBehavior.nestedScrollConnection)
+    ) { innerPadding ->
+        
         when (val currentState = state.value) {
             is SearchScreenState.Content -> {
                 SearchScreenContent(
                     innerPadding = innerPadding,
                     state = currentState,
-                    onQueryChange = {
-                        viewModel.processCommand(SearchScreenCommand.ChangeQuery(it))
-                    },
                     onCardClick = onCardClick
                 )
             }
@@ -81,27 +95,44 @@ fun SearchScreen(
 }
 
 @Composable
+fun EnterAlwaysTopAppBar(
+    query: String,
+    onQueryChange: (String) -> Unit,
+    scrollBehavior: androidx.compose.material3.TopAppBarScrollBehavior
+) {
+    TopAppBar(
+        title = {
+            SearchBar(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(end = 8.dp),
+                query = query,
+                onQueryChange = onQueryChange
+            )
+        },
+        colors = TopAppBarDefaults.topAppBarColors(
+            containerColor = MaterialTheme.colorScheme.background,
+            scrolledContainerColor = MaterialTheme.colorScheme.background
+        ),
+        scrollBehavior = scrollBehavior
+    )
+}
+
+@Composable
 private fun SearchScreenContent(
     modifier: Modifier = Modifier,
     innerPadding: PaddingValues,
     state: SearchScreenState.Content,
-    onQueryChange: (String) -> Unit,
     onCardClick: (Int) -> Unit
 ) {
     LazyVerticalGrid(
         columns = GridCells.Fixed(3),
-        modifier = modifier.fillMaxWidth(),
+        modifier = modifier
+            .background(MaterialTheme.colorScheme.background)
+            .fillMaxWidth(),
         contentPadding = innerPadding,
         verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
-        item(span = { GridItemSpan(maxLineSpan) }) {
-            SearchBar(
-                modifier = Modifier.padding(horizontal = 16.dp),
-                query = state.query,
-                onQueryChange = onQueryChange,
-            )
-        }
-
         items(state.animeList, key = { it.id }) { anime ->
             AnimeCard(
                 modifier = Modifier
