@@ -319,7 +319,7 @@ fun AnimeWithDetailsDbModel.toEntity(): AnimeWithDetails {
         genres = genres.map { it.toEntity() },
         id = anime.id,
         mainPicture = anime.imageUrl,
-        mean = anime.rating,
+        mean = details?.mean ?: 0.0,
         mediaType = details?.mediaType ?: MediaType.UNKNOWN,
         nsfw = details?.nsfw ?: "",
         numEpisodes = details?.numEpisodes ?: 0,
