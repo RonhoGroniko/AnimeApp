@@ -23,6 +23,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -42,6 +43,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -55,6 +57,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -127,121 +130,151 @@ fun DetailsScreenContent(
     onGenreClick: (String) -> Unit,
     onChangeFavoriteStatus: () -> Unit
 ) {
-    LazyColumn(
-        modifier = modifier.fillMaxWidth(),
-        contentPadding = innerPadding
+    val listState = rememberLazyListState()
+    val density = LocalDensity.current
+    val thresholdPx = with(density) { 96.dp.toPx() }
+
+    val showBar by remember {
+        derivedStateOf {
+            listState.firstVisibleItemIndex > 0 ||
+                    listState.firstVisibleItemScrollOffset > thresholdPx
+        }
+    }
+    val alpha by animateFloatAsState(if (showBar) 1f else 0f, label = "topbar_alpha")
+
+    Box(
+        modifier = modifier
+            .fillMaxSize()
+            .padding(innerPadding)
     ) {
-        item {
-            HeaderCard(
-                imageUrl = anime.mainPicture,
-                title = anime.title,
-                studios = anime.studios,
-                releaseDate = anime.startDate,
-                mean = anime.mean,
-                isFavorite = anime.isFavorite,
-                onBackClick = onBackClick,
-                onChangeFavoriteStatus = onChangeFavoriteStatus
-            )
-        }
-        item {
-            GenreChips(
-                genres = anime.genres,
-                onGenreClick = onGenreClick
-            )
-        }
-        item {
-            InfoRow(
-                status = anime.status,
-                rating = anime.rating,
-                numEpisodes = anime.numEpisodes,
-                episodeDuration = anime.averageEpisodeDuration,
-                mediaType = anime.mediaType
-            )
-        }
-        if (anime.synopsis.isNotBlank()) {
+        LazyColumn(
+            state = listState,
+            modifier = Modifier.fillMaxSize(),
+        ) {
             item {
-                Spacer(modifier = Modifier.height(16.dp))
-            }
-            item {
-                Subtitle(modifier = Modifier.padding(horizontal = 16.dp), text = "Description")
-            }
-            item {
-                Spacer(modifier = Modifier.height(8.dp))
-            }
-            item {
-                ExpandableDescription(
-                    modifier = Modifier.padding(horizontal = 8.dp),
-                    text = anime.synopsis
+                HeaderCard(
+                    imageUrl = anime.mainPicture,
+                    title = anime.title,
+                    studios = anime.studios,
+                    releaseDate = anime.startDate,
+                    mean = anime.mean,
+                    isFavorite = anime.isFavorite,
+                    onBackClick = onBackClick,
+                    onChangeFavoriteStatus = onChangeFavoriteStatus
                 )
             }
-        }
-        if (anime.pictures.isNotEmpty()) {
             item {
-                Spacer(modifier = Modifier.height(16.dp))
-            }
-            item {
-                Subtitle(modifier = Modifier.padding(horizontal = 16.dp), text = "Pictures")
-            }
-            item {
-                Spacer(modifier = Modifier.height(4.dp))
-            }
-            item {
-                PictureCardRow(
-                    pictureUrls = anime.pictures
+                GenreChips(
+                    genres = anime.genres,
+                    onGenreClick = onGenreClick
                 )
             }
-        }
-        if (anime.background.isNotBlank()) {
             item {
-                Spacer(modifier = Modifier.height(4.dp))
-            }
-            item {
-                Subtitle(modifier = Modifier.padding(horizontal = 16.dp), text = "Background")
-            }
-            item {
-                Spacer(modifier = Modifier.height(8.dp))
-            }
-            item {
-                ExpandableDescription(
-                    modifier = Modifier.padding(horizontal = 8.dp),
-                    text = anime.background
+                InfoRow(
+                    status = anime.status,
+                    rating = anime.rating,
+                    numEpisodes = anime.numEpisodes,
+                    episodeDuration = anime.averageEpisodeDuration,
+                    mediaType = anime.mediaType
                 )
             }
+            if (anime.synopsis.isNotBlank()) {
+                item { Spacer(modifier = Modifier.height(16.dp)) }
+                item { Subtitle(modifier = Modifier.padding(horizontal = 16.dp), text = "Description") }
+                item { Spacer(modifier = Modifier.height(8.dp)) }
+                item {
+                    ExpandableDescription(
+                        modifier = Modifier.padding(horizontal = 8.dp),
+                        text = anime.synopsis
+                    )
+                }
+            }
+            if (anime.pictures.isNotEmpty()) {
+                item { Spacer(modifier = Modifier.height(16.dp)) }
+                item { Subtitle(modifier = Modifier.padding(horizontal = 16.dp), text = "Pictures") }
+                item { Spacer(modifier = Modifier.height(4.dp)) }
+                item { PictureCardRow(pictureUrls = anime.pictures) }
+            }
+            if (anime.background.isNotBlank()) {
+                item { Spacer(modifier = Modifier.height(4.dp)) }
+                item { Subtitle(modifier = Modifier.padding(horizontal = 16.dp), text = "Background") }
+                item { Spacer(modifier = Modifier.height(8.dp)) }
+                item {
+                    ExpandableDescription(
+                        modifier = Modifier.padding(horizontal = 8.dp),
+                        text = anime.background
+                    )
+                }
+            }
+            if (anime.relatedAnime.isNotEmpty()) {
+                item { Spacer(modifier = Modifier.height(8.dp)) }
+                item { Subtitle(modifier = Modifier.padding(horizontal = 16.dp), text = "Related Anime") }
+                item { Spacer(modifier = Modifier.height(8.dp)) }
+                item {
+                    RelatedAnimeCardsRow(
+                        relatedAnimeList = anime.relatedAnime,
+                        onCardClick = onCardClick
+                    )
+                }
+            }
+            if (anime.recommendations.isNotEmpty()) {
+                item { Subtitle(modifier = Modifier.padding(horizontal = 16.dp), text = "Recommendations") }
+                item { Spacer(modifier = Modifier.height(8.dp)) }
+                item {
+                    AnimeCardsRow(
+                        animeList = anime.recommendations,
+                        onCardClick = onCardClick
+                    )
+                }
+            }
         }
-        if (anime.relatedAnime.isNotEmpty()) {
-            item {
-                Spacer(modifier = Modifier.height(8.dp))
-            }
-            item {
-                Subtitle(modifier = Modifier.padding(horizontal = 16.dp), text = "Related Anime")
-            }
-            item {
-                Spacer(modifier = Modifier.height(8.dp))
-            }
-            item {
-                RelatedAnimeCardsRow(
-                    relatedAnimeList = anime.relatedAnime,
-                    onCardClick = onCardClick
-                )
-            }
-        }
-        if (anime.recommendations.isNotEmpty()) {
-            item {
-                Subtitle(modifier = Modifier.padding(horizontal = 16.dp), text = "Recommendations")
-            }
-            item {
-                Spacer(modifier = Modifier.height(8.dp))
-            }
-            item {
-                AnimeCardsRow(
-                    animeList = anime.recommendations,
-                    onCardClick = onCardClick
-                )
-            }
-        }
+
+        OverlayTopAppBar(
+            title = anime.title,
+            alpha = alpha,
+            onBackClick = onBackClick,
+            modifier = Modifier
+                .align(Alignment.TopCenter)
+                .fillMaxWidth()
+        )
     }
 }
 
+
+@Composable
+private fun OverlayTopAppBar(
+    title: String,
+    alpha: Float,
+    onBackClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Row(
+        modifier = modifier
+            .height(56.dp)
+            .background(MaterialTheme.colorScheme.background.copy(alpha = alpha)),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        IconButton(
+            onClick = onBackClick,
+            enabled = alpha > 0.001f
+        ) {
+            Icon(
+                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                contentDescription = "Back",
+                tint = MaterialTheme.colorScheme.primary.copy(alpha = alpha)
+            )
+        }
+        Text(
+            text = title,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+            color = MaterialTheme.colorScheme.secondary.copy(alpha = alpha),
+            fontFamily = CustomFonts.Poppins,
+            fontWeight = FontWeight.SemiBold,
+            fontSize = 18.sp
+        )
+    }
+}
 
 @Composable
 fun HeaderCard(
