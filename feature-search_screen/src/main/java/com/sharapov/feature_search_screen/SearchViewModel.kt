@@ -109,33 +109,6 @@ class SearchViewModel @AssistedInject constructor(
                         }
                     }
                 }
-
-                is SearchScreenCommand.Search -> {
-                    val q = command.query.trim()
-                    viewModelScope.launch {
-                        if (q.isBlank()) {
-                            _state.update { prevState ->
-                                if (prevState is SearchScreenState.Content) {
-                                    prevState.copy(animeList = initialList)
-                                } else {
-                                    prevState
-                                }
-                            }
-                            return@launch
-                        }
-                        val result = withContext(Dispatchers.IO) {
-                            runCatching { searchAnimeUseCase(q) }
-                        }
-                        _state.update { prevState ->
-                            if (prevState is SearchScreenState.Content) {
-                                result.fold(
-                                    onSuccess = { list -> prevState.copy(animeList = list) },
-                                    onFailure = { _ -> prevState }
-                                )
-                            } else prevState
-                        }
-                    }
-                }
             }
         }
     }

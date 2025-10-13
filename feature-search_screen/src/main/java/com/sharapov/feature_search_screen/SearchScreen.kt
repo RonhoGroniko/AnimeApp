@@ -17,7 +17,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -55,9 +54,6 @@ fun SearchScreen(
                     onQueryChange = {
                         viewModel.processCommand(SearchScreenCommand.ChangeQuery(it))
                     },
-                    onSearchCLick = {
-                        viewModel.processCommand(SearchScreenCommand.Search(it))
-                    },
                     onCardClick = onCardClick
                 )
             }
@@ -90,7 +86,6 @@ private fun SearchScreenContent(
     innerPadding: PaddingValues,
     state: SearchScreenState.Content,
     onQueryChange: (String) -> Unit,
-    onSearchCLick: (String) -> Unit,
     onCardClick: (Int) -> Unit
 ) {
     LazyVerticalGrid(
@@ -104,7 +99,6 @@ private fun SearchScreenContent(
                 modifier = Modifier.padding(horizontal = 16.dp),
                 query = state.query,
                 onQueryChange = onQueryChange,
-                onSearchClick = onSearchCLick
             )
         }
 
@@ -126,7 +120,6 @@ private fun SearchBar(
     modifier: Modifier = Modifier,
     query: String,
     onQueryChange: (String) -> Unit,
-    onSearchClick: (String) -> Unit
 ) {
     TextField(
         modifier = modifier
@@ -155,15 +148,11 @@ private fun SearchBar(
         },
         singleLine = true,
         trailingIcon = {
-            IconButton(
-                onClick = { onSearchClick(query) },
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Search,
-                    contentDescription = "Search button",
-                    tint = MaterialTheme.colorScheme.secondary
-                )
-            }
+            Icon(
+                imageVector = Icons.Default.Search,
+                contentDescription = "Search button",
+                tint = MaterialTheme.colorScheme.secondary
+            )
         },
         colors = TextFieldDefaults.colors(
             focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
