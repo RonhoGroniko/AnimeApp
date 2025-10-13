@@ -26,6 +26,8 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Bookmark
+import androidx.compose.material.icons.filled.BookmarkBorder
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -91,7 +93,8 @@ fun DetailsScreen(
                     anime = currentState.anime,
                     onBackClick = onBackClick,
                     onCardClick = onCardClick,
-                    onGenreClick = onGenreClick
+                    onGenreClick = onGenreClick,
+                    onChangeFavoriteStatus = { viewModel.processCommand(DetailsScreenCommand.ChangeFavoriteStatus) }
                 )
             }
 
@@ -121,7 +124,8 @@ fun DetailsScreenContent(
     anime: AnimeWithDetailsUiModel,
     onBackClick: () -> Unit,
     onCardClick: (Int) -> Unit,
-    onGenreClick: (String) -> Unit
+    onGenreClick: (String) -> Unit,
+    onChangeFavoriteStatus: () -> Unit
 ) {
     LazyColumn(
         modifier = modifier.fillMaxWidth(),
@@ -134,7 +138,9 @@ fun DetailsScreenContent(
                 studios = anime.studios,
                 releaseDate = anime.startDate,
                 mean = anime.mean,
-                onBackClick = onBackClick
+                isFavorite = anime.isFavorite,
+                onBackClick = onBackClick,
+                onChangeFavoriteStatus = onChangeFavoriteStatus
             )
         }
         item {
@@ -245,7 +251,9 @@ fun HeaderCard(
     studios: List<String>,
     releaseDate: String,
     mean: Double,
-    onBackClick: () -> Unit
+    isFavorite: Boolean,
+    onBackClick: () -> Unit,
+    onChangeFavoriteStatus: () -> Unit
 ) {
     var backEnabled by remember { mutableStateOf(true) }
 
@@ -294,13 +302,33 @@ fun HeaderCard(
                 }
             }
             Spacer(modifier = Modifier.height(8.dp))
-            Text(
-                text = title,
-                fontFamily = CustomFonts.Poppins,
-                fontWeight = FontWeight.ExtraBold,
-                color = MaterialTheme.colorScheme.secondary,
-                fontSize = 24.sp
-            )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(
+                    modifier = Modifier.weight(1f),
+                    text = title,
+                    fontFamily = CustomFonts.Poppins,
+                    fontWeight = FontWeight.ExtraBold,
+                    color = MaterialTheme.colorScheme.secondary,
+                    fontSize = 24.sp
+                )
+                IconButton(
+                    onClick = { onChangeFavoriteStatus() },
+                    colors = IconButtonDefaults.iconButtonColors(
+                        contentColor = MaterialTheme.colorScheme.secondary
+                    ),
+                    shape = RoundedCornerShape(8.dp)
+                ) {
+                    Icon(
+                        modifier = Modifier.size(36.dp),
+                        imageVector = if (isFavorite) Icons.Default.Bookmark else Icons.Default.BookmarkBorder,
+                        contentDescription = "Change isFavorite status",
+                        tint = MaterialTheme.colorScheme.secondary
+                    )
+                }
+            }
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween

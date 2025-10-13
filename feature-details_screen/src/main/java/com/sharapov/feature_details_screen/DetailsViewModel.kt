@@ -2,7 +2,7 @@ package com.sharapov.feature_details_screen
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.sharapov.core_data.remote.DataException
+import com.sharapov.core_domain.usecases.ChangeAnimeFavoriteStatusUseCase
 import com.sharapov.core_domain.usecases.GetAnimeByIdUseCase
 import com.sharapov.feature_details_screen.mapper.toUiModel
 import dagger.assisted.Assisted
@@ -11,31 +11,42 @@ import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
 
 @HiltViewModel(assistedFactory = DetailsViewModel.Factory::class)
 class DetailsViewModel @AssistedInject constructor(
-    @Assisted("id") id: Int,
-    private val getAnimeByIdUseCase: GetAnimeByIdUseCase
+    @Assisted("id") private val id: Int,
+    private val getAnimeByIdUseCase: GetAnimeByIdUseCase,
+    private val changeAnimeFavoriteStatusUseCase: ChangeAnimeFavoriteStatusUseCase
 ): ViewModel() {
 
     private val _state = MutableStateFlow<DetailsScreenState>(DetailsScreenState.Initial)
     val state = _state.asStateFlow()
 
     init {
-        viewModelScope.launch {
-            _state.value = DetailsScreenState.Loading
-            try {
-                val anime = getAnimeByIdUseCase(id)
-                _state.value = DetailsScreenState.Content(anime.toUiModel())
-            } catch (e: DataException) {
-                _state.value = DetailsScreenState.Error(e.cause?.message ?: "Unknown message")
+        getAnimeByIdUseCase(id)
+            .onStart {
+                _state.value = DetailsScreenState.Loading
             }
-        }
+            .onEach { anime ->
+                _state.value = DetailsScreenState.Content(anime.toUiModel())
+            }
+            .catch { e -> _state.value = DetailsScreenState.Error(e.cause?.message ?: "Unknown message") }
+            .launchIn(viewModelScope)
     }
 
     fun processCommand(command: DetailsScreenCommand) {
-
+        when(command) {
+            is DetailsScreenCommand.ChangeFavoriteStatus -> {
+                viewModelScope.launch {
+                    changeAnimeFavoriteStatusUseCase(id)
+                }
+            }
+        }
     }
 
     @AssistedFactory

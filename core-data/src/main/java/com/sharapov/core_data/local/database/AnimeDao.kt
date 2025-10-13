@@ -128,7 +128,7 @@ interface AnimeDao {
         WHERE a.id = :animeId
         """
     )
-    suspend fun getAnimeWithDetails(animeId: Int): AnimeWithDetailsDbModel?
+    fun getAnimeWithDetails(animeId: Int): Flow<AnimeWithDetailsDbModel?>
 
     @Upsert
     suspend fun upsertStatistics(items: List<StatisticsDbModel>)
@@ -205,7 +205,8 @@ interface AnimeDao {
                     title = "",
                     imageUrl = "",
                     rating = 0.0,
-                    createdAt = ""
+                    createdAt = "",
+                    isFavorite = false
                 )
             }
             insertAnimeIgnore(placeholders)
@@ -250,4 +251,10 @@ interface AnimeDao {
     """
     )
     suspend fun searchAnime(query: String): List<AnimeDbModel>
+
+    @Query("SELECT EXISTS(SELECT 1 FROM anime_details WHERE id = :id)")
+    suspend fun hasDetails(id: Int): Boolean
+
+    @Query("UPDATE anime SET isFavorite = NOT isFavorite WHERE id = :animeId")
+    suspend fun changeAnimeFavoriteStatus(animeId: Int)
 }

@@ -73,7 +73,8 @@ fun NodeDto.toDbModel(): AnimeDbModel {
         title = title,
         imageUrl = mainPicture.large ?: mainPicture.medium ?: "",
         rating = mean,
-        createdAt = createdAt
+        createdAt = createdAt,
+        isFavorite = false
     )
 }
 
@@ -104,7 +105,8 @@ fun AnimeListItemDbModel.toEntity(): Anime {
         rating = anime.rating,
         genres = genres.map { it.toEntity() },
         createdAt = anime.createdAt,
-        studios = studios.map { it.toEntity() }
+        studios = studios.map { it.toEntity() },
+        isFavorite = anime.isFavorite
     )
 }
 
@@ -226,7 +228,8 @@ fun RecommendationDto.toDbModel(rating: Double): AnimeDbModel {
         title = node.title,
         imageUrl = node.mainPicture.large ?: node.mainPicture.medium ?: "",
         rating = rating,
-        createdAt = ""
+        createdAt = "",
+        isFavorite = false
     )
 }
 
@@ -251,7 +254,8 @@ fun RelatedAnimeDto.toDbModel(rating: Double): AnimeDbModel {
         title = node.title,
         imageUrl = node.mainPicture.large ?: node.mainPicture.medium ?: "",
         rating = rating,
-        createdAt = ""
+        createdAt = "",
+        isFavorite = false
     )
 }
 
@@ -301,11 +305,13 @@ fun PictureDto.toDbModel(animeId: Int): PictureDbModel {
 
 fun AnimeWithDetailsDbModel.toEntity(): AnimeWithDetails {
     return AnimeWithDetails(
-        alternativeTitles = alternativeTitles.let { it?.titles?.toEntity(it.synonyms.map { s -> s.value } ) ?: AlternativeTitles(
-            en = "",
-            ja = "",
-            synonyms = listOf()
-        ) },
+        alternativeTitles = alternativeTitles.let {
+            it?.titles?.toEntity(it.synonyms.map { s -> s.value }) ?: AlternativeTitles(
+                en = "",
+                ja = "",
+                synonyms = listOf()
+            )
+        },
         averageEpisodeDuration = details?.averageEpisodeDuration ?: 0,
         background = details?.background ?: "",
         createdAt = anime.createdAt,
@@ -316,12 +322,12 @@ fun AnimeWithDetailsDbModel.toEntity(): AnimeWithDetails {
         mean = anime.rating,
         mediaType = details?.mediaType ?: MediaType.UNKNOWN,
         nsfw = details?.nsfw ?: "",
-        numEpisodes = details?.numEpisodes?: 0,
-        numListUsers = details?.numListUsers?: 0,
-        numScoringUsers = details?.numScoringUsers?: 0,
+        numEpisodes = details?.numEpisodes ?: 0,
+        numListUsers = details?.numListUsers ?: 0,
+        numScoringUsers = details?.numScoringUsers ?: 0,
         pictures = pictures.map { it.url },
-        popularity = details?.popularity?: 0,
-        rank = details?.rank?: 0,
+        popularity = details?.popularity ?: 0,
+        rank = details?.rank ?: 0,
         rating = details?.rating ?: AgeRating.UNKNOWN,
         recommendations = recommendations.map { it.toEntity() },
         relatedAnime = relatedAnime.map { it.toEntity() },
@@ -330,7 +336,7 @@ fun AnimeWithDetailsDbModel.toEntity(): AnimeWithDetails {
         startSeason = startSeason?.toEntity() ?: StartSeason(
             season = "",
             year = 0
-        ) ,
+        ),
         statistics = statistics?.toEntity() ?: Statistics(
             numListUsers = 0,
             status = ViewersStatus(
@@ -343,9 +349,10 @@ fun AnimeWithDetailsDbModel.toEntity(): AnimeWithDetails {
         ),
         status = details?.status ?: Status.UNKNOWN,
         studios = studios.map { it.toEntity() },
-        synopsis = details?.synopsis?: "",
+        synopsis = details?.synopsis ?: "",
         title = anime.title,
-        updatedAt = details?.updatedAt ?: ""
+        updatedAt = details?.updatedAt ?: "",
+        isFavorite = anime.isFavorite
     )
 }
 
@@ -365,7 +372,8 @@ fun AnimeDbModel.toEntity(): Anime {
         rating = rating,
         genres = listOf(),
         createdAt = createdAt,
-        studios = listOf()
+        studios = listOf(),
+        isFavorite = isFavorite
     )
 }
 

@@ -16,7 +16,10 @@ import com.sharapov.core_domain.repository.AnimeRepository
 import com.sharapov.core_domain.usecases.AnimeFilter
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onStart
 import retrofit2.HttpException
 import java.io.IOException
 import javax.inject.Inject
@@ -42,12 +45,18 @@ class AnimeRepositoryImpl @Inject constructor(
         addAnimeList(animeList)
     }
 
-    override suspend fun getAnimeById(animeId: Int): AnimeWithDetails {
+    override fun getAnimeById(animeId: Int): Flow<AnimeWithDetails> =
+        animeDao.getAnimeWithDetails(animeId)
+            .onStart {
+                if (!animeDao.hasDetails(animeId)) {
+                    refreshAnimeById(animeId)
+                }
+            }
+            .filterNotNull()
+            .map { it.toEntity() }
+            .distinctUntilChanged()
 
-        animeDao.getAnimeWithDetails(animeId)?.let { agg ->
-            if (agg.details != null) return agg.toEntity()
-        }
-
+    private suspend fun refreshAnimeById(animeId: Int) {
         val dto = try {
             animeApiService.getAnimeById(animeId)
         } catch (e: CancellationException) {
@@ -66,17 +75,11 @@ class AnimeRepositoryImpl @Inject constructor(
         val alternativeTitles = dto.alternativeTitles.toDbModel(animeId)
         val synonyms = dto.alternativeTitles.synonyms
             .map { value -> AlternativeTitleSynonymDbModel(animeId = animeId, value = value) }
-
         val recommendedAnime = dto.recommendations.map { it.toDbModel(details.mean) }
-
         val recommendationsLinks = dto.recommendations.map { it.toDbModel(animeId) }
-
         val relatedAnime = dto.relatedAnime.map { it.toDbModel(details.mean) }
-
         val relatedLinks = dto.relatedAnime.map { it.toDbModel(animeId) }
-
         val pictures = dto.pictures.map { it.toDbModel(animeId) }
-
         val genres = dto.genres.map { it.toDbModel() }
 
         animeDao.upsertDetailsBundle(
@@ -90,16 +93,16 @@ class AnimeRepositoryImpl @Inject constructor(
             relatedLinks = relatedLinks,
             pictures = pictures,
             relatedAnime = relatedAnime,
-            genres = genres,
+            genres = genres
         )
-
-        val saved = animeDao.getAnimeWithDetails(animeId)
-            ?: throw DataException.Unknown(IllegalStateException("No aggregate after upsert for id=$animeId"))
-        return saved.toEntity()
     }
 
     override suspend fun searchAnimeByTitle(query: String): List<Anime> {
         return animeDao.searchAnime(query).map { it.toEntity() }
+    }
+
+    override suspend fun changeAnimeFavoriteStatus(animeId: Int) {
+        animeDao.changeAnimeFavoriteStatus(animeId)
     }
 
     private suspend fun addAnimeList(

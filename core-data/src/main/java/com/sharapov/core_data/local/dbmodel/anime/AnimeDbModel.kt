@@ -11,4 +11,5 @@ data class AnimeDbModel(
     val imageUrl: String,
     val rating: Double,
     val createdAt: String, // "2022-09-09T10:01:30+00:00"
+    val isFavorite: Boolean
 )

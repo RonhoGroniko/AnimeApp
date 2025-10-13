@@ -7,5 +7,6 @@ data class Anime(
     val rating: Double,
     val genres: List<Genre>,
     val createdAt: String, // "2022-09-09T10:01:30+00:00"
-    val studios: List<Studio>
+    val studios: List<Studio>,
+    val isFavorite: Boolean
 )

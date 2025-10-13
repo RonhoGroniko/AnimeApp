@@ -12,7 +12,9 @@ interface AnimeRepository {
 
     suspend fun updateAnimeList(rankingType: RankingType, limit: Int)
 
-    suspend fun getAnimeById(animeId: Int): AnimeWithDetails
+    fun getAnimeById(animeId: Int): Flow<AnimeWithDetails>
 
     suspend fun searchAnimeByTitle(query: String): List<Anime>
+
+    suspend fun changeAnimeFavoriteStatus(animeId: Int)
 }

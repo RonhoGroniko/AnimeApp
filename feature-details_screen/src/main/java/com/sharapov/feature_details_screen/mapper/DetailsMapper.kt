@@ -41,7 +41,8 @@ fun AnimeWithDetails.toUiModel(): AnimeWithDetailsUiModel {
         studios = studios.map { it.name },
         synopsis = synopsis,
         title = title,
-        updatedAt = updatedAt
+        updatedAt = updatedAt,
+        isFavorite = isFavorite
     )
 }
 

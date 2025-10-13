@@ -35,6 +35,6 @@ data class AnimeWithDetails(
     val studios: List<Studio>,
     val synopsis: String,
     val title: String,
-    val updatedAt: String
-
+    val updatedAt: String,
+    val isFavorite: Boolean
 )
