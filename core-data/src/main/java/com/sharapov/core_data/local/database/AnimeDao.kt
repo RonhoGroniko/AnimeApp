@@ -173,8 +173,6 @@ interface AnimeDao {
     @Query("DELETE FROM anime_pictures WHERE animeId = :animeId")
     suspend fun clearPictures(animeId: Int)
 
-    @Insert(onConflict = OnConflictStrategy.IGNORE)
-    suspend fun insertAnimeIgnore(items: List<AnimeDbModel>)
 
     @Query("DELETE FROM anime_genre_cross_ref WHERE animeId = :animeId")
     suspend fun clearAnimeGenreRefsForAnime(animeId: Int)
@@ -193,24 +191,6 @@ interface AnimeDao {
         pictures: List<PictureDbModel>,
         genres: List<GenreDbModel>
     ) {
-
-        val recIds = recommendationsLinks.map { it.recommendedAnimeId }
-        val relIds = relatedLinks.map { it.relatedAnimeId }
-        val allTargetIds = (recIds + relIds).distinct()
-
-        if (allTargetIds.isNotEmpty()) {
-            val placeholders = allTargetIds.map { id ->
-                AnimeDbModel(
-                    id = id,
-                    title = "",
-                    imageUrl = "",
-                    rating = 0.0,
-                    createdAt = "",
-                    isFavorite = false
-                )
-            }
-            insertAnimeIgnore(placeholders)
-        }
 
         val realBase = (recommendedAnime + relatedAnime).distinctBy { it.id }
         if (realBase.isNotEmpty()) upsertAnime(realBase)
