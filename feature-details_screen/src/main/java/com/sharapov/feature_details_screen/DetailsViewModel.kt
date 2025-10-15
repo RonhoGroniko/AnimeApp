@@ -35,12 +35,14 @@ class DetailsViewModel @AssistedInject constructor(
             .onEach { anime ->
                 _state.value = DetailsScreenState.Content(anime.toUiModel())
             }
-            .catch { e -> _state.value = DetailsScreenState.Error(e.cause?.message ?: "Unknown message") }
+            .catch { e ->
+                _state.value = DetailsScreenState.Error(e.cause?.message ?: "Unknown message")
+            }
             .launchIn(viewModelScope)
     }
 
     fun processCommand(command: DetailsScreenCommand) {
-        when(command) {
+        when (command) {
             is DetailsScreenCommand.ChangeFavoriteStatus -> {
                 viewModelScope.launch {
                     changeAnimeFavoriteStatusUseCase(id)

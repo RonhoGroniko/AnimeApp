@@ -223,10 +223,11 @@ interface AnimeDao {
         if (genres.isNotEmpty()) {
             upsertGenres(genres.distinctBy { it.id })
             clearAnimeGenreRefsForAnime(details.id)
-            val genreRefs = genres.map { g -> AnimeGenreCrossRef(animeId = details.id, genreId = g.id) }
+            val genreRefs =
+                genres.map { g -> AnimeGenreCrossRef(animeId = details.id, genreId = g.id) }
             insertAnimeGenreRefs(genreRefs)
         }
-        
+
         clearAlternativeTitleSynonyms(details.id)
         if (synonyms.isNotEmpty()) insertAlternativeTitleSynonyms(synonyms)
 
@@ -240,6 +241,7 @@ interface AnimeDao {
         if (pictures.isNotEmpty()) insertPictures(pictures)
     }
 
+    @Transaction
     @Query(
         """
     SELECT DISTINCT a.* FROM anime a

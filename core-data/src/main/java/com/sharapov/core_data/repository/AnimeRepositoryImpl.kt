@@ -49,14 +49,14 @@ class AnimeRepositoryImpl @Inject constructor(
         animeDao.getAnimeWithDetails(animeId)
             .onStart {
                 if (!animeDao.hasDetails(animeId)) {
-                    refreshAnimeById(animeId)
+                    loadAnimeById(animeId)
                 }
             }
             .filterNotNull()
             .map { it.toEntity() }
             .distinctUntilChanged()
 
-    private suspend fun refreshAnimeById(animeId: Int) {
+    override suspend fun loadAnimeById(animeId: Int) {
         val dto = try {
             animeApiService.getAnimeById(animeId)
         } catch (e: CancellationException) {

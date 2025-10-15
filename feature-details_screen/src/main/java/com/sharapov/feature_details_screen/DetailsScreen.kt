@@ -140,7 +140,13 @@ fun DetailsScreenContent(
                     listState.firstVisibleItemScrollOffset > thresholdPx
         }
     }
-    val alpha by animateFloatAsState(if (showBar) 1f else 0f, label = "topbar_alpha")
+    val alpha by animateFloatAsState(
+        if (showBar) {
+            1f
+        } else {
+            0f
+        }, label = "topbar_alpha"
+    )
 
     Box(
         modifier = modifier
@@ -180,7 +186,12 @@ fun DetailsScreenContent(
             }
             if (anime.synopsis.isNotBlank()) {
                 item { Spacer(modifier = Modifier.height(16.dp)) }
-                item { Subtitle(modifier = Modifier.padding(horizontal = 16.dp), text = "Description") }
+                item {
+                    Subtitle(
+                        modifier = Modifier.padding(horizontal = 16.dp),
+                        text = "Description"
+                    )
+                }
                 item { Spacer(modifier = Modifier.height(8.dp)) }
                 item {
                     ExpandableDescription(
@@ -191,13 +202,23 @@ fun DetailsScreenContent(
             }
             if (anime.pictures.isNotEmpty()) {
                 item { Spacer(modifier = Modifier.height(16.dp)) }
-                item { Subtitle(modifier = Modifier.padding(horizontal = 16.dp), text = "Pictures") }
+                item {
+                    Subtitle(
+                        modifier = Modifier.padding(horizontal = 16.dp),
+                        text = "Pictures"
+                    )
+                }
                 item { Spacer(modifier = Modifier.height(4.dp)) }
                 item { PictureCardRow(pictureUrls = anime.pictures) }
             }
             if (anime.background.isNotBlank()) {
                 item { Spacer(modifier = Modifier.height(4.dp)) }
-                item { Subtitle(modifier = Modifier.padding(horizontal = 16.dp), text = "Background") }
+                item {
+                    Subtitle(
+                        modifier = Modifier.padding(horizontal = 16.dp),
+                        text = "Background"
+                    )
+                }
                 item { Spacer(modifier = Modifier.height(8.dp)) }
                 item {
                     ExpandableDescription(
@@ -208,7 +229,12 @@ fun DetailsScreenContent(
             }
             if (anime.relatedAnime.isNotEmpty()) {
                 item { Spacer(modifier = Modifier.height(8.dp)) }
-                item { Subtitle(modifier = Modifier.padding(horizontal = 16.dp), text = "Related Anime") }
+                item {
+                    Subtitle(
+                        modifier = Modifier.padding(horizontal = 16.dp),
+                        text = "Related Anime"
+                    )
+                }
                 item { Spacer(modifier = Modifier.height(8.dp)) }
                 item {
                     RelatedAnimeCardsRow(
@@ -218,7 +244,12 @@ fun DetailsScreenContent(
                 }
             }
             if (anime.recommendations.isNotEmpty()) {
-                item { Subtitle(modifier = Modifier.padding(horizontal = 16.dp), text = "Recommendations") }
+                item {
+                    Subtitle(
+                        modifier = Modifier.padding(horizontal = 16.dp),
+                        text = "Recommendations"
+                    )
+                }
                 item { Spacer(modifier = Modifier.height(8.dp)) }
                 item {
                     AnimeCardsRow(
