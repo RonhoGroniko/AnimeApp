@@ -9,7 +9,7 @@ class SearchAnimeUseCase @Inject constructor(
     private val repository: AnimeRepository
 ) {
 
-    operator fun invoke(query: String): Flow<List<Anime>> {
-        return repository.searchAnimeByTitle(query)
+    operator fun invoke(query: String, filter: AnimeFilter): Flow<List<Anime>> {
+        return repository.searchAnimeByTitle(query, filter)
     }
 }

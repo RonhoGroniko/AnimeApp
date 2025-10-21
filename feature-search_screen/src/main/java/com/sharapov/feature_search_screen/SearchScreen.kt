@@ -37,15 +37,16 @@ import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import com.sharapov.core_domain.usecases.AnimeFilter
 import com.sharapov.core_ui.theme.CustomFonts
 import com.sharapov.core_ui.theme.composable.AnimeCard
 import com.sharapov.core_ui.theme.composable.BasePane
 
 @Composable
 fun SearchScreen(
-    genre: String = "",
+    filter: AnimeFilter = AnimeFilter.All,
     viewModel: SearchViewModel = hiltViewModel { factory: SearchViewModel.Factory ->
-        factory.create(genre)
+        factory.create(filter)
     },
     onCardClick: (Int) -> Unit
 ) {

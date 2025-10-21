@@ -11,7 +11,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.onStart
@@ -28,9 +27,9 @@ class MainScreenViewModel @Inject constructor(
     val state = _state.asStateFlow()
 
     init {
-        val upcomingFlow = getAnimeListUseCase(AnimeFilter.ByRankingType(RankingType.UPCOMING)).distinctUntilChanged()
-        val airingFlow = getAnimeListUseCase(AnimeFilter.ByRankingType(RankingType.AIRING)).distinctUntilChanged()
-        val popularityFlow = getAnimeListUseCase(AnimeFilter.ByRankingType(RankingType.BY_POPULARITY)).distinctUntilChanged()
+        val upcomingFlow = getAnimeListUseCase(AnimeFilter.ByRankingType(RankingType.UPCOMING))
+        val airingFlow = getAnimeListUseCase(AnimeFilter.ByRankingType(RankingType.AIRING))
+        val popularityFlow = getAnimeListUseCase(AnimeFilter.ByRankingType(RankingType.BY_POPULARITY))
 
         combine(upcomingFlow, airingFlow, popularityFlow) { upcoming, airing, popularity ->
             Triple(upcoming, airing, popularity)

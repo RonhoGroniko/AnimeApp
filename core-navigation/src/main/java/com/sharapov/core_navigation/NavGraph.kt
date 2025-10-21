@@ -5,6 +5,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.sharapov.core_domain.usecases.AnimeFilter
 
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
@@ -14,7 +15,7 @@ fun NavGraph(
     mainScreenContent: @Composable () -> Unit,
     settingsScreenContent: @Composable () -> Unit,
     detailsScreenContent: @Composable (Int) -> Unit,
-    searchScreenWithGenreContent: @Composable (String) -> Unit,
+    searchScreenWithGenreContent: @Composable (AnimeFilter) -> Unit,
     profileScreenContent: @Composable () -> Unit,
     searchScreenContent: @Composable () -> Unit,
     favoritesScreenContent: @Composable () -> Unit,
@@ -31,7 +32,7 @@ fun NavGraph(
                 searchScreenWithGenreContent = searchScreenWithGenreContent
             )
 
-            composable(Screen.Search.route) { // search (без жанра)
+            composable(Screen.Search.route) {
                 searchScreenContent()
             }
             composable(Screen.Favorites.route) { favoritesScreenContent() }

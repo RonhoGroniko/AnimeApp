@@ -3,14 +3,17 @@ package com.sharapov.core_navigation
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
+import androidx.navigation.navArgument
 import androidx.navigation.navigation
+import com.sharapov.core_domain.usecases.AnimeFilter
+import com.sharapov.core_navigation.mapper.toEntity
 
 
 fun NavGraphBuilder.mainScreenNavGraph(
     mainScreenContent: @Composable () -> Unit,
     settingsScreenContent: @Composable () -> Unit,
     detailsScreenContent: @Composable (Int) -> Unit,
-    searchScreenWithGenreContent: @Composable (String) -> Unit,
+    searchScreenWithGenreContent: @Composable (AnimeFilter) -> Unit,
 ) {
     navigation(
         startDestination = Screen.AiringUpcoming.route,
@@ -23,9 +26,16 @@ fun NavGraphBuilder.mainScreenNavGraph(
             detailsScreenContent(id)
         }
 
-        composable(Screen.SearchWithGenre.route) {
-            val genre = Screen.SearchWithGenre.getGenre(it.arguments)
-            searchScreenWithGenreContent(genre)
+        composable(
+            route = Screen.SearchWithFilter.route,
+            arguments = listOf(
+                navArgument(Screen.SEARCH_FILTER_KEY) {
+                    type = NavItemAnimeFilter.NavigationType
+                }
+            )
+        ) {
+            val filter = Screen.SearchWithFilter.getFilter(it.arguments)
+            searchScreenWithGenreContent(filter.toEntity())
         }
 
         composable(Screen.Settings.route) { settingsScreenContent() }

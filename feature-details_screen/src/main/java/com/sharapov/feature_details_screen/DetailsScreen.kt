@@ -68,6 +68,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import coil3.compose.AsyncImage
 import com.sharapov.core_domain.entity.Anime
+import com.sharapov.core_domain.usecases.AnimeFilter
 import com.sharapov.core_ui.R
 import com.sharapov.core_ui.theme.CustomFonts
 import com.sharapov.core_ui.theme.composable.AnimeCard
@@ -83,7 +84,7 @@ fun DetailsScreen(
     },
     onBackClick: () -> Unit,
     onCardClick: (Int) -> Unit,
-    onGenreClick: (String) -> Unit
+    onGenreClick: (AnimeFilter) -> Unit
 ) {
     BasePane(
         modifier = Modifier.background(MaterialTheme.colorScheme.background),
@@ -127,7 +128,7 @@ fun DetailsScreenContent(
     anime: AnimeWithDetailsUiModel,
     onBackClick: () -> Unit,
     onCardClick: (Int) -> Unit,
-    onGenreClick: (String) -> Unit,
+    onGenreClick: (AnimeFilter) -> Unit,
     onChangeFavoriteStatus: () -> Unit
 ) {
     val listState = rememberLazyListState()
@@ -500,7 +501,7 @@ private fun calculateStars(mean: Double): StarState {
 fun GenreChips(
     modifier: Modifier = Modifier,
     genres: List<String>,
-    onGenreClick: (String) -> Unit
+    onGenreClick: (AnimeFilter) -> Unit
 ) {
     LazyRow(
         modifier = modifier
@@ -513,7 +514,7 @@ fun GenreChips(
             item {
                 ElevatedSuggestionChip(
                     onClick = {
-                        onGenreClick(genre)
+                        onGenreClick(AnimeFilter.ByGenre(genre))
                     },
                     label = {
                         Text(

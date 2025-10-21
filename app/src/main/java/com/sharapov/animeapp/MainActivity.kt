@@ -6,6 +6,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.material3.Text
 import androidx.navigation.compose.rememberNavController
+import com.sharapov.core_domain.usecases.AnimeFilter
 import com.sharapov.core_navigation.NavGraph
 import com.sharapov.core_navigation.Screen
 import com.sharapov.core_navigation.rememberNavigationState
@@ -46,8 +47,8 @@ class MainActivity : ComponentActivity() {
                             onCardClick = {
                                 navigationState.navigateToDetails(it)
                             },
-                            onGenreClick = { genre ->
-                                navigationState.navigateToSearch(genre)
+                            onGenreClick = { animeFilter ->
+                                navigationState.navigateToSearch(animeFilter)
                             }
                         )
                     },
@@ -59,11 +60,18 @@ class MainActivity : ComponentActivity() {
                             }
                         )
                     },
-                    favoritesScreenContent = { Text("Placeholder favorites") },
-                    settingsScreenContent = { Text("Placeholder settings") },
-                    searchScreenWithGenreContent = { genre ->
+                    favoritesScreenContent = {
                         SearchScreen(
-                            genre = genre,
+                            filter = AnimeFilter.Favorites,
+                            onCardClick = {
+                                navigationState.navigateToDetails(it)
+                            }
+                        )
+                    },
+                    settingsScreenContent = { Text("Placeholder settings") },
+                    searchScreenWithGenreContent = { filter ->
+                        SearchScreen(
+                            filter = filter,
                             onCardClick = { id ->
                                 navigationState.navigateToDetails(id)
                             }

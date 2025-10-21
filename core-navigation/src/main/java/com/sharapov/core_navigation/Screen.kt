@@ -1,6 +1,8 @@
 package com.sharapov.core_navigation
 
 import android.os.Bundle
+import com.sharapov.core_navigation.NavItemAnimeFilter.Companion.toQueryValue
+import com.sharapov.core_navigation.utils.parcelable
 
 sealed class Screen(val route: String) {
 
@@ -18,14 +20,16 @@ sealed class Screen(val route: String) {
     }
 
     data object Search : Screen(SEARCH_ROUTE)
-    data object SearchWithGenre : Screen("$SEARCH_ROUTE/{$SEARCH_GENRE_KEY}") {
+    data object SearchWithFilter : Screen("$SEARCH_ROUTE/{$SEARCH_FILTER_KEY}") {
 
-        fun createRoute(genre: String): String {
-            return "$SEARCH_ROUTE/$genre"
+        fun createRoute(filter: NavItemAnimeFilter): String {
+            val filterJson = toQueryValue(filter)
+            return "$SEARCH_ROUTE/${filterJson}"
         }
 
-        fun getGenre(arguments: Bundle?): String {
-            return arguments?.getString(SEARCH_GENRE_KEY) ?: ""
+        fun getFilter(arguments: Bundle?): NavItemAnimeFilter {
+            return arguments?.parcelable<NavItemAnimeFilter>(SEARCH_FILTER_KEY)
+                ?: throw RuntimeException("Args is null")
         }
     }
 
@@ -41,7 +45,7 @@ sealed class Screen(val route: String) {
 
         private const val MAIN_ROUTE = "main"
 
-        private const val SEARCH_GENRE_KEY = "genre"
+        const val SEARCH_FILTER_KEY = "filter"
         private const val SETTINGS_ROUTE = "settings"
 
         private const val SEARCH_ROUTE = "search"

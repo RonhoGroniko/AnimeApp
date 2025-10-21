@@ -36,7 +36,7 @@ class SearchViewModel @AssistedInject constructor(
     private val getAnimeListUseCase: GetAnimeListUseCase,
     private val updateAnimeListUseCase: UpdateAnimeListUseCase,
     private val searchAnimeUseCase: SearchAnimeUseCase,
-    @Assisted("genre") private val genre: String
+    @Assisted("filter") private val filter: AnimeFilter
 ) : ViewModel() {
 
     private val _state = MutableStateFlow<SearchScreenState>(SearchScreenState.Initial)
@@ -47,25 +47,26 @@ class SearchViewModel @AssistedInject constructor(
     private val query = MutableStateFlow("")
 
     init {
-        val filter = if (genre.isNotBlank()) {
-            AnimeFilter.ByGenre(genre)
-        } else {
-            AnimeFilter.All
-        }
         getAnimeListUseCase(filter)
             .onStart { _state.value = SearchScreenState.Loading }
             .onEach { generalList ->
                 if (generalList.isEmpty() && filter is AnimeFilter.All) {
-                    val r = updateAnimeListUseCase(rankingType = RankingType.ALL, limit = 100)
-                    if (r.isFailure) {
+                    val result = updateAnimeListUseCase(rankingType = RankingType.ALL, limit = 100)
+                    if (result.isFailure) {
                         _state.value = SearchScreenState.Error(
-                            r.exceptionOrNull()?.message ?: "Unable to download anime"
+                            result.exceptionOrNull()?.message ?: "Unable to download anime"
                         )
                         return@onEach
                     }
                 }
                 initialList = generalList
-                _state.value = SearchScreenState.Content(query = "", animeList = generalList)
+                _state.update {  prevState ->
+                    if (prevState is SearchScreenState.Content) {
+                        prevState.copy(query = "", animeList = generalList)
+                    } else {
+                        prevState
+                    }
+                }
             }
             .catch { e -> _state.value = SearchScreenState.Error(e.message ?: "Unknown error") }
             .launchIn(viewModelScope)
@@ -78,7 +79,7 @@ class SearchViewModel @AssistedInject constructor(
                 if (q.isBlank()) {
                     flowOf(initialList)
                 } else {
-                    searchAnimeUseCase(q)
+                    searchAnimeUseCase(q, filter)
                         .catch { e ->
                             emit(emptyList())
                             _state.value = SearchScreenState.Error(e.message ?: "Unknown error")
@@ -116,6 +117,6 @@ class SearchViewModel @AssistedInject constructor(
     @AssistedFactory
     interface Factory {
 
-        fun create(@Assisted("genre") genre: String): SearchViewModel
+        fun create(@Assisted("filter") filter: AnimeFilter): SearchViewModel
     }
 }

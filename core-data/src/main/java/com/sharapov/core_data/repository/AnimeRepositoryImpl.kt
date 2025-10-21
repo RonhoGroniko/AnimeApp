@@ -37,6 +37,8 @@ class AnimeRepositoryImpl @Inject constructor(
 
             is AnimeFilter.ByRankingType -> animeDao.getAnimeListForRankingType(filter.rankingType.name)
                 .map { it.toEntities() }
+
+            AnimeFilter.Favorites -> animeDao.getFavoritesAnimeList().map { it.toEntities() }
         }
     }
 
@@ -97,8 +99,13 @@ class AnimeRepositoryImpl @Inject constructor(
         )
     }
 
-    override fun searchAnimeByTitle(query: String): Flow<List<Anime>> {
-        return animeDao.searchAnime(query).map { it.toEntities() }
+    override fun searchAnimeByTitle(query: String, filter: AnimeFilter): Flow<List<Anime>> {
+        return when(filter) {
+            AnimeFilter.All -> animeDao.searchAnime(query).map { it.toEntities() }
+            is AnimeFilter.ByGenre -> animeDao.searchAnimeByGenre(query, filter.genre).map { it.toEntities() }
+            is AnimeFilter.ByRankingType -> animeDao.searchAnimeByRankingType(query, filter.rankingType.name).map { it.toEntities() }
+            AnimeFilter.Favorites -> animeDao.searchFavoritesAnime(query).map { it.toEntities() }
+        }
     }
 
     override suspend fun changeAnimeFavoriteStatus(animeId: Int) {
