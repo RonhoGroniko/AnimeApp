@@ -5,7 +5,7 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import androidx.navigation.navigation
-import com.sharapov.core_domain.usecases.AnimeFilter
+import com.sharapov.domain_anime.usecases.anime.list.AnimeFilter
 import com.sharapov.core_navigation.mapper.toEntity
 
 

@@ -2,13 +2,13 @@ package com.sharapov.core_di
 
 import android.content.Context
 import androidx.room.Room
-import com.sharapov.core_data.BuildConfig
-import com.sharapov.core_data.local.database.AnimeDao
-import com.sharapov.core_data.local.database.AnimeDatabase
-import com.sharapov.core_data.remote.retrofit.AnimeApiService
-import com.sharapov.core_data.remote.retrofit.MalInterceptor
-import com.sharapov.core_data.repository.AnimeRepositoryImpl
-import com.sharapov.core_domain.repository.AnimeRepository
+import com.sharapov.network_anime.retrofit.AnimeApiService
+import com.sharapov.network_anime.retrofit.MalInterceptor
+import com.sharapov.domain_anime.repository.AnimeRepository
+import com.sharapov.data_anime.repository.AnimeRepositoryImpl
+import com.sharapov.database_anime.model.database.AnimeDao
+import com.sharapov.database_anime.model.database.AnimeDatabase
+import com.sharapov.network_anime.BuildConfig
 import dagger.Binds
 import dagger.Module
 import dagger.Provides

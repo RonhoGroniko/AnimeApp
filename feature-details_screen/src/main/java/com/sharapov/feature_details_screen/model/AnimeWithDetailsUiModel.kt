@@ -1,9 +1,9 @@
 package com.sharapov.feature_details_screen.model
 
-import com.sharapov.core_domain.entity.Anime
-import com.sharapov.core_domain.entity.details.AlternativeTitles
-import com.sharapov.core_domain.entity.details.StartSeason
-import com.sharapov.core_domain.entity.details.Statistics
+import com.sharapov.domain_anime.entity.Anime
+import com.sharapov.domain_anime.entity.details.AlternativeTitles
+import com.sharapov.domain_anime.entity.details.StartSeason
+import com.sharapov.domain_anime.entity.details.Statistics
 
 data class AnimeWithDetailsUiModel(
     val alternativeTitles: AlternativeTitles,

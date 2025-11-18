@@ -54,8 +54,8 @@ kotlin {
 dependencies {
 
     implementation(project(":core-ui"))
-    implementation(project(":core-domain"))
-    implementation(project(":core-data"))
+    implementation(project(":domain-anime"))
+    implementation(project(":network-anime"))
 
     implementation(libs.hilt.android)
     ksp(libs.hilt.android.compiler)

@@ -5,12 +5,12 @@ package com.sharapov.feature_search_screen
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.sharapov.core_domain.entity.Anime
-import com.sharapov.core_domain.entity.RankingType
-import com.sharapov.core_domain.usecases.AnimeFilter
-import com.sharapov.core_domain.usecases.GetAnimeListUseCase
-import com.sharapov.core_domain.usecases.SearchAnimeUseCase
-import com.sharapov.core_domain.usecases.UpdateAnimeListUseCase
+import com.sharapov.domain_anime.entity.Anime
+import com.sharapov.domain_anime.entity.RankingType
+import com.sharapov.domain_anime.usecases.anime.list.AnimeFilter
+import com.sharapov.domain_anime.usecases.anime.list.GetAnimeListUseCase
+import com.sharapov.domain_anime.usecases.anime.list.SearchAnimeUseCase
+import com.sharapov.domain_anime.usecases.anime.list.UpdateAnimeListUseCase
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject

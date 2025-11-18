@@ -1,6 +1,6 @@
 package com.sharapov.feature_search_screen
 
-import com.sharapov.core_domain.entity.Anime
+import com.sharapov.domain_anime.entity.Anime
 
 sealed interface SearchScreenState {
 

@@ -67,8 +67,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import coil3.compose.AsyncImage
-import com.sharapov.core_domain.entity.Anime
-import com.sharapov.core_domain.usecases.AnimeFilter
+import com.sharapov.domain_anime.entity.Anime
+import com.sharapov.domain_anime.usecases.anime.list.AnimeFilter
 import com.sharapov.core_ui.R
 import com.sharapov.core_ui.theme.CustomFonts
 import com.sharapov.core_ui.theme.composable.AnimeCard

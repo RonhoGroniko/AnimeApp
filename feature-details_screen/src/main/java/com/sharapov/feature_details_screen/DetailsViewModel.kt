@@ -2,8 +2,8 @@ package com.sharapov.feature_details_screen
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.sharapov.core_domain.usecases.ChangeAnimeFavoriteStatusUseCase
-import com.sharapov.core_domain.usecases.GetAnimeByIdUseCase
+import com.sharapov.domain_anime.usecases.anime.details.ChangeAnimeFavoriteStatusUseCase
+import com.sharapov.domain_anime.usecases.anime.details.GetAnimeByIdUseCase
 import com.sharapov.feature_details_screen.mapper.toUiModel
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory

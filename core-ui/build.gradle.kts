@@ -48,8 +48,7 @@ kotlin {
 
 dependencies {
 
-    implementation(project(":core-domain"))
-
+    implementation(project(":domain-anime"))
     api(platform(libs.androidx.compose.bom))
     api(libs.androidx.compose.ui)
     api(libs.androidx.compose.ui.graphics)

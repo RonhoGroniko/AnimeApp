@@ -50,8 +50,10 @@ kotlin {
 
 dependencies {
 
-    implementation(project(":core-domain"))
-    implementation(project(":core-data"))
+    implementation(project(":domain-anime"))
+    implementation(project(":data-anime"))
+    implementation(project(":database-anime"))
+    implementation(project(":network-anime"))
 
     implementation(libs.androidx.room.runtime)
     ksp(libs.androidx.room.compiler)

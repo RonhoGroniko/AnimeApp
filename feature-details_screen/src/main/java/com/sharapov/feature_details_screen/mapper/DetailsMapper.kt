@@ -1,12 +1,12 @@
 package com.sharapov.feature_details_screen.mapper
 
-import com.sharapov.core_domain.entity.details.AgeRating
-import com.sharapov.core_domain.entity.details.AnimeWithDetails
-import com.sharapov.core_domain.entity.details.MediaType
-import com.sharapov.core_domain.entity.details.RelatedAnime
-import com.sharapov.core_domain.entity.details.RelationType
-import com.sharapov.core_domain.entity.details.Source
-import com.sharapov.core_domain.entity.details.Status
+import com.sharapov.domain_anime.entity.details.AgeRating
+import com.sharapov.domain_anime.entity.details.AnimeWithDetails
+import com.sharapov.domain_anime.entity.details.MediaType
+import com.sharapov.domain_anime.entity.details.RelatedAnime
+import com.sharapov.domain_anime.entity.details.RelationType
+import com.sharapov.domain_anime.entity.details.Source
+import com.sharapov.domain_anime.entity.details.Status
 import com.sharapov.core_ui.theme.formatDate
 import com.sharapov.feature_details_screen.model.AnimeWithDetailsUiModel
 import com.sharapov.feature_details_screen.model.RelatedAnimeUiModel
