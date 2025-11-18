@@ -6,8 +6,11 @@ import com.sharapov.network_anime.retrofit.AnimeApiService
 import com.sharapov.network_anime.retrofit.MalInterceptor
 import com.sharapov.domain_anime.repository.AnimeRepository
 import com.sharapov.data_anime.repository.AnimeRepositoryImpl
-import com.sharapov.database_anime.model.database.AnimeDao
-import com.sharapov.database_anime.model.database.AnimeDatabase
+import com.sharapov.database_anime.dao.AnimeCoreDao
+import com.sharapov.database_anime.AnimeDatabase
+import com.sharapov.database_anime.dao.AnimeDetailsDao
+import com.sharapov.database_anime.dao.AnimeListDao
+import com.sharapov.database_anime.dao.AnimeSearchDao
 import com.sharapov.network_anime.BuildConfig
 import dagger.Binds
 import dagger.Module
@@ -117,10 +120,34 @@ interface DataModule {
 
         @Provides
         @Singleton
-        fun provideAnimeDao(
+        fun provideAnimeListDao(
             database: AnimeDatabase
-        ): AnimeDao {
-            return database.animeDao()
+        ): AnimeListDao {
+            return database.animeListDao()
+        }
+
+        @Provides
+        @Singleton
+        fun provideAnimeDetailsDao(
+            database: AnimeDatabase
+        ): AnimeDetailsDao {
+            return database.animeDetailsDao()
+        }
+
+        @Provides
+        @Singleton
+        fun provideAnimeCoreDao(
+            database: AnimeDatabase
+        ): AnimeCoreDao {
+            return database.animeCoreDao()
+        }
+
+        @Provides
+        @Singleton
+        fun provideAnimeSearchDao(
+            database: AnimeDatabase
+        ): AnimeSearchDao {
+            return database.animeSearchDao()
         }
     }
 }

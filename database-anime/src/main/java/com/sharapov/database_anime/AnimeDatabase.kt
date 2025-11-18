@@ -1,8 +1,12 @@
-package com.sharapov.database_anime.model.database
+package com.sharapov.database_anime
 
 import androidx.room.Database
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
+import com.sharapov.database_anime.dao.AnimeCoreDao
+import com.sharapov.database_anime.dao.AnimeDetailsDao
+import com.sharapov.database_anime.dao.AnimeListDao
+import com.sharapov.database_anime.dao.AnimeSearchDao
 import com.sharapov.database_anime.model.details.AlternativeTitleSynonymDbModel
 import com.sharapov.database_anime.model.details.AlternativeTitlesDbModel
 import com.sharapov.database_anime.model.details.AnimeDetailsDbModel
@@ -54,5 +58,11 @@ import com.sharapov.database_anime.model.list.StudioDbModel
 )
 abstract class AnimeDatabase : RoomDatabase() {
 
-    abstract fun animeDao(): AnimeDao
+    abstract fun animeListDao(): AnimeListDao
+
+    abstract fun animeCoreDao(): AnimeCoreDao
+
+    abstract fun animeSearchDao(): AnimeSearchDao
+
+    abstract fun animeDetailsDao(): AnimeDetailsDao
 }
