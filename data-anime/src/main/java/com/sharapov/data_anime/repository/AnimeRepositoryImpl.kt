@@ -1,11 +1,13 @@
 package com.sharapov.data_anime.repository
 
+import android.net.http.HttpException
+import android.os.Build
+import androidx.annotation.RequiresExtension
 import com.sharapov.data_anime.mapper.toDbModel
 import com.sharapov.data_anime.mapper.toEntities
 import com.sharapov.data_anime.mapper.toEntity
 import com.sharapov.data_anime.mapper.toListItemDbModels
 import com.sharapov.database_anime.AnimeLocalDataSource
-import com.sharapov.database_anime.dao.AnimeCoreDao
 import com.sharapov.database_anime.dao.AnimeDetailsDao
 import com.sharapov.database_anime.dao.AnimeListDao
 import com.sharapov.database_anime.dao.AnimeSearchDao
@@ -24,13 +26,11 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onStart
-import retrofit2.HttpException
 import java.io.IOException
 import javax.inject.Inject
 
 class AnimeRepositoryImpl @Inject constructor(
     private val animeApiService: AnimeApiService,
-    private val animeCoreDao: AnimeCoreDao,
     private val animeListDao: AnimeListDao,
     private val animeDetailsDao: AnimeDetailsDao,
     private val animeSearchDao: AnimeSearchDao,
@@ -50,11 +50,15 @@ class AnimeRepositoryImpl @Inject constructor(
         }
     }
 
+    @RequiresExtension(extension = Build.VERSION_CODES.S, version = 7)
+    // TODO: ЗАТЫЧКА ЭНИВЕЙ УБИРАТЬ
     override suspend fun updateAnimeList(rankingType: RankingType, limit: Int) {
         val animeList = loadAnimeList(rankingType, limit)
         addAnimeList(animeList)
     }
 
+    @RequiresExtension(extension = Build.VERSION_CODES.S, version = 7)
+    // TODO: ЗАТЫЧКА ЭНИВЕЙ УБИРАТЬ
     override fun getAnimeById(animeId: Int): Flow<AnimeWithDetails> =
         animeDetailsDao.getAnimeWithDetails(animeId)
             .onStart {
@@ -66,6 +70,8 @@ class AnimeRepositoryImpl @Inject constructor(
             .map { it.toEntity() }
             .distinctUntilChanged()
 
+    @RequiresExtension(extension = Build.VERSION_CODES.S, version = 7)
+    // TODO: ЗАТЫЧКА ЭНИВЕЙ УБИРАТЬ
     override suspend fun loadAnimeById(animeId: Int) {
         val dto = try {
             animeApiService.getAnimeById(animeId)
@@ -126,6 +132,8 @@ class AnimeRepositoryImpl @Inject constructor(
         animeLocalDataSource.upsertFullAnime(animeList)
     }
 
+    @RequiresExtension(extension = Build.VERSION_CODES.S, version = 7)
+    // TODO: ЗАТЫЧКА ЭНИВЕЙ УБИРАТЬ
     private suspend fun loadAnimeList(
         rankingType: RankingType,
         limit: Int

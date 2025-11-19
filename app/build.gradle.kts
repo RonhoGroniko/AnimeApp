@@ -61,7 +61,6 @@ dependencies {
     implementation(project(":domain-anime"))
     implementation(project(":network-anime"))
     implementation(project(":data-anime"))
-    implementation(project(":core-di"))
     implementation(project(":core-navigation"))
     implementation(project(":feature-main_screen"))
     implementation(project(":feature-details_screen"))

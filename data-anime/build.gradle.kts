@@ -1,8 +1,8 @@
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.android)
-    alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.ksp)
+    alias(libs.plugins.hilt.android)
 }
 android {
     namespace = "com.sharapov.data_anime"
@@ -51,17 +51,12 @@ dependencies {
     implementation(project(":domain-anime"))
     implementation(project(":database-anime"))
     implementation(project(":network-anime"))
+
     implementation(libs.kotlinx.coroutines.core)
     compileOnly(libs.javax.inject)
 
-    implementation(libs.androidx.room.runtime)
-    ksp(libs.androidx.room.compiler)
-    implementation(libs.androidx.room.ktx)
-
-    implementation(libs.kotlinx.serialization.json)
-
-    implementation(libs.retrofit)
-    implementation(libs.converter.kotlinx.serialization)
+    implementation(libs.hilt.android)
+    ksp(libs.hilt.android.compiler)
 
     implementation(libs.androidx.core.ktx)
     testImplementation(libs.junit)

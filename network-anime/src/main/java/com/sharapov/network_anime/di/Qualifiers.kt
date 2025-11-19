@@ -1,4 +1,4 @@
-package com.sharapov.core_di
+package com.sharapov.network_anime.di
 
 import javax.inject.Qualifier
 

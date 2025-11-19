@@ -4,6 +4,8 @@ plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.serialization)
+    alias(libs.plugins.hilt.android)
+    alias(libs.plugins.ksp)
 }
 
 private val keystorePropertiesFile = rootProject.file("keystore.properties")
@@ -71,6 +73,11 @@ dependencies {
 
     implementation(libs.retrofit)
     implementation(libs.converter.kotlinx.serialization)
+
+    implementation(libs.logging.interceptor)
+
+    implementation(libs.hilt.android)
+    ksp(libs.hilt.android.compiler)
 
     implementation(libs.androidx.core.ktx)
     testImplementation(libs.junit)

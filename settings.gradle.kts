@@ -23,7 +23,6 @@ rootProject.name = "AnimeApp"
 include(":app")
 include(":core-ui")
 include(":network-anime")
-include(":core-di")
 include(":core-navigation")
 include(":domain-anime")
 include(":feature-main_screen")
