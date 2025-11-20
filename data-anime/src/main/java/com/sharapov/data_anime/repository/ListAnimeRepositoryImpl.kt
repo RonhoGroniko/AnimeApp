@@ -7,12 +7,14 @@ import com.sharapov.data_anime.mapper.toEntities
 import com.sharapov.data_anime.mapper.toListItemDbModels
 import com.sharapov.database_anime.AnimeLocalDataSource
 import com.sharapov.database_anime.dao.AnimeListDao
+import com.sharapov.database_anime.model.list.AnimeDbModel
 import com.sharapov.database_anime.model.list.AnimeListItemDbModel
 import com.sharapov.domain_anime.entity.Anime
 import com.sharapov.domain_anime.entity.RankingType
 import com.sharapov.domain_anime.entity.common.AnimeFilter
 import com.sharapov.domain_anime.repository.ListAnimeRepository
 import com.sharapov.network_anime.DataException
+import com.sharapov.network_anime.model.anime.AnimeResponseDto
 import com.sharapov.network_anime.retrofit.AnimeApiService
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.Flow
@@ -42,7 +44,22 @@ class ListAnimeRepositoryImpl @Inject constructor(
     @RequiresExtension(extension = Build.VERSION_CODES.S, version = 7)
     // TODO: ЗАТЫЧКА ЭНИВЕЙ УБИРАТЬ
     override suspend fun updateAnimeList(rankingType: RankingType, limit: Int) {
-        val animeList = loadAnimeList(rankingType, limit)
+        val favoritesIds = animeListDao.getFavoriteIds()
+        val animeList = loadAnimeList(rankingType, limit).toListItemDbModels(rankingType).map {
+            AnimeListItemDbModel(
+                anime = AnimeDbModel(
+                    id = it.anime.id,
+                    title = it.anime.title,
+                    imageUrl = it.anime.imageUrl,
+                    rating = it.anime.rating,
+                    createdAt = it.anime.createdAt,
+                    isFavorite = favoritesIds.contains(it.anime.id.toLong())
+                ),
+                genres = it.genres,
+                studios = it.studios,
+                rankingTypes = it.rankingTypes
+            )
+        }
         addAnimeList(animeList)
     }
 
@@ -57,10 +74,9 @@ class ListAnimeRepositoryImpl @Inject constructor(
     private suspend fun loadAnimeList(
         rankingType: RankingType,
         limit: Int
-    ): List<AnimeListItemDbModel> {
+    ): AnimeResponseDto {
         return try {
             animeApiService.getAnimeRankingList(rankingType.query, limit)
-                .toListItemDbModels(rankingType)
         } catch (e: CancellationException) {
             throw e
         } catch (e: IOException) {

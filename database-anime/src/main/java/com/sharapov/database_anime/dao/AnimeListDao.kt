@@ -54,4 +54,7 @@ interface AnimeListDao {
     """
     )
     fun getAnimeListForGenre(genre: String): Flow<List<AnimeListItemDbModel>>
+
+    @Query("SELECT id FROM anime WHERE isFavorite = 1")
+    suspend fun getFavoriteIds(): List<Long>
 }
