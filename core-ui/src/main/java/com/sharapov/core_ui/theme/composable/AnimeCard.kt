@@ -75,7 +75,7 @@ fun AnimeCard(
                         Brush.verticalGradient(
                             colors = listOf(
                                 Color.Transparent,
-                                Color(0xE6000000)
+                                MaterialTheme.colorScheme.scrim
                             )
                         )
                     )
@@ -87,7 +87,7 @@ fun AnimeCard(
                 ) {
                     Text(
                         text = anime.title,
-                        color = MaterialTheme.colorScheme.primary,
+                        color = MaterialTheme.colorScheme.onPrimary,
                         fontFamily = CustomFonts.Poppins,
                         fontSize = 12.sp,
                         textAlign = TextAlign.Center,

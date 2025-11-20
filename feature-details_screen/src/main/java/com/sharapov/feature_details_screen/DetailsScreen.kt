@@ -67,12 +67,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import coil3.compose.AsyncImage
-import com.sharapov.domain_anime.entity.Anime
-import com.sharapov.domain_anime.usecases.anime.list.AnimeFilter
 import com.sharapov.core_ui.R
 import com.sharapov.core_ui.theme.CustomFonts
 import com.sharapov.core_ui.theme.composable.AnimeCard
 import com.sharapov.core_ui.theme.composable.BasePane
+import com.sharapov.domain_anime.entity.Anime
+import com.sharapov.domain_anime.usecases.anime.list.AnimeFilter
 import com.sharapov.feature_details_screen.model.AnimeWithDetailsUiModel
 import com.sharapov.feature_details_screen.model.RelatedAnimeUiModel
 
@@ -355,7 +355,7 @@ fun HeaderCard(
                     modifier = Modifier
                         .align(Alignment.TopStart),
                     colors = IconButtonDefaults.iconButtonColors(
-                        containerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.35f)
+                        containerColor = MaterialTheme.colorScheme.onPrimaryContainer
                     ),
                     shape = RoundedCornerShape(8.dp)
                 ) {
@@ -402,14 +402,14 @@ fun HeaderCard(
                     Text(
                         text = "Studios: ${studios.joinToString()}",
                         fontFamily = CustomFonts.Poppins,
-                        color = MaterialTheme.colorScheme.primary.copy(alpha = 0.8f),
+                        color = MaterialTheme.colorScheme.primary,
                         fontStyle = FontStyle.Italic,
                         fontSize = 14.sp
                     )
                     Text(
                         text = "Release date: $releaseDate",
                         fontFamily = CustomFonts.Poppins,
-                        color = MaterialTheme.colorScheme.primary.copy(alpha = 0.8f),
+                        color = MaterialTheme.colorScheme.primary,
                         fontStyle = FontStyle.Italic,
                         fontSize = 14.sp
                     )
@@ -438,7 +438,8 @@ private fun StarsRating(
             fontFamily = CustomFonts.Poppins,
             color = MaterialTheme.colorScheme.primary,
             fontSize = 14.sp,
-            textAlign = TextAlign.End
+            textAlign = TextAlign.End,
+            fontStyle = FontStyle.Italic
         )
         Row(
             verticalAlignment = Alignment.CenterVertically,
@@ -534,7 +535,7 @@ fun GenreChips(
                     ),
                     border = BorderStroke(
                         width = 0.5.dp,
-                        color = MaterialTheme.colorScheme.secondary.copy(alpha = 0.5f)
+                        color = MaterialTheme.colorScheme.onSecondaryContainer
                     )
                 )
             }
@@ -692,11 +693,11 @@ fun ExpandableDescription(
                     .drawWithContent {
                         drawContent()
                         if (!expanded && hasOverflow) {
-                            val h = fadeHeight.toPx()
+                            val height = fadeHeight.toPx()
                             drawRect(
                                 brush = Brush.verticalGradient(
                                     colors = listOf(Color.Transparent, fadeBg),
-                                    startY = size.height - h,
+                                    startY = size.height - height,
                                     endY = size.height
                                 )
                             )
@@ -721,6 +722,7 @@ fun ExpandableDescription(
                         .graphicsLayer { rotationZ = rotation }
                         .size(24.dp)
                         .clickable(
+                            indication = null,
                             interactionSource = interaction,
                         ) { expanded = !expanded }
                         .padding(bottom = 2.dp)

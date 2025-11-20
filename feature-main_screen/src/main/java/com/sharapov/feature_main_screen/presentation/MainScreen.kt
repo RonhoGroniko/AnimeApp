@@ -285,7 +285,7 @@ private fun RefreshIconButton(
         enabled = isOnline,
         colors = IconButtonDefaults.iconButtonColors(
             contentColor = MaterialTheme.colorScheme.secondary,
-            disabledContentColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.5f)
+            disabledContentColor = MaterialTheme.colorScheme.inversePrimary
         ),
         shape = CircleShape
     ) {
@@ -319,14 +319,14 @@ private fun NetworkProblemField(
                 text = "You are back online!\nClick to refresh",
                 fontFamily = CustomFonts.Poppins,
                 textAlign = TextAlign.Center,
-                color = MaterialTheme.colorScheme.primary.copy(alpha = 0.5f)
+                color = MaterialTheme.colorScheme.inversePrimary
             )
         } else {
             Text(
                 text = "Check your Internet connection",
                 fontFamily = CustomFonts.Poppins,
                 textAlign = TextAlign.Center,
-                color = MaterialTheme.colorScheme.primary.copy(alpha = 0.5f)
+                color = MaterialTheme.colorScheme.inversePrimary
             )
         }
 

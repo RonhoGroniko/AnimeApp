@@ -64,7 +64,7 @@ fun BaseNavigationBar(
     val currentDestination = navBackStackEntry?.destination
 
     NavigationBar(
-        containerColor = MaterialTheme.colorScheme.surface
+        containerColor = MaterialTheme.colorScheme.background
     ) {
         navItems.forEachIndexed { index, item ->
             val selected = currentDestination.isOnDestination(item.screen.route)
@@ -100,8 +100,8 @@ fun BaseNavigationBar(
                 },
                 colors = NavigationBarItemDefaults.colors(
                     selectedIconColor = MaterialTheme.colorScheme.secondary,
-                    unselectedIconColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.5f),
-                    unselectedTextColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.5f),
+                    unselectedIconColor = MaterialTheme.colorScheme.inversePrimary,
+                    unselectedTextColor = MaterialTheme.colorScheme.inversePrimary,
                     indicatorColor = MaterialTheme.colorScheme.background,
                 )
             )

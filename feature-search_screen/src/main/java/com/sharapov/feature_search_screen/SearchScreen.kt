@@ -158,7 +158,7 @@ private fun SearchBar(
             .fillMaxWidth()
             .border(
                 width = 1.dp,
-                color = MaterialTheme.colorScheme.secondary.copy(alpha = 0.5f),
+                color = MaterialTheme.colorScheme.onSecondaryContainer,
                 shape = RoundedCornerShape(8.dp)
             ),
         value = query,
@@ -191,9 +191,9 @@ private fun SearchBar(
             unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
             focusedIndicatorColor = Color.Transparent,
             unfocusedIndicatorColor = Color.Transparent,
-            cursorColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.8f),
+            cursorColor = MaterialTheme.colorScheme.inversePrimary,
             focusedTextColor = MaterialTheme.colorScheme.primary,
-            unfocusedTextColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.5f)
+            unfocusedTextColor = MaterialTheme.colorScheme.inversePrimary
         ),
         shape = RoundedCornerShape(8.dp)
     )
