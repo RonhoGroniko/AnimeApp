@@ -7,7 +7,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.sharapov.domain_anime.entity.Anime
 import com.sharapov.domain_anime.entity.RankingType
-import com.sharapov.domain_anime.usecases.anime.list.AnimeFilter
+import com.sharapov.domain_anime.entity.common.AnimeFilter
 import com.sharapov.domain_anime.usecases.anime.list.GetAnimeListUseCase
 import com.sharapov.domain_anime.usecases.anime.list.SearchAnimeUseCase
 import com.sharapov.domain_anime.usecases.anime.list.UpdateAnimeListUseCase

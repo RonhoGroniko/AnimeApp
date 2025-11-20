@@ -37,10 +37,10 @@ import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import com.sharapov.domain_anime.usecases.anime.list.AnimeFilter
 import com.sharapov.core_ui.theme.CustomFonts
 import com.sharapov.core_ui.theme.composable.AnimeCard
 import com.sharapov.core_ui.theme.composable.BasePane
+import com.sharapov.domain_anime.entity.common.AnimeFilter
 
 @Composable
 fun SearchScreen(

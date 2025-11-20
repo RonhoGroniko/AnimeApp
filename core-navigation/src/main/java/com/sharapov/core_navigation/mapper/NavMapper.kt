@@ -1,8 +1,8 @@
 package com.sharapov.core_navigation.mapper
 
 import com.sharapov.domain_anime.entity.RankingType
-import com.sharapov.domain_anime.usecases.anime.list.AnimeFilter
 import com.sharapov.core_navigation.NavItemAnimeFilter
+import com.sharapov.domain_anime.entity.common.AnimeFilter
 
 fun AnimeFilter.toNavItem(): NavItemAnimeFilter {
     return when(this) {

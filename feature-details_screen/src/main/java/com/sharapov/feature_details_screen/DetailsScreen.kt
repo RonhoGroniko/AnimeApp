@@ -72,7 +72,7 @@ import com.sharapov.core_ui.theme.CustomFonts
 import com.sharapov.core_ui.theme.composable.AnimeCard
 import com.sharapov.core_ui.theme.composable.BasePane
 import com.sharapov.domain_anime.entity.Anime
-import com.sharapov.domain_anime.usecases.anime.list.AnimeFilter
+import com.sharapov.domain_anime.entity.common.AnimeFilter
 import com.sharapov.feature_details_screen.model.AnimeWithDetailsUiModel
 import com.sharapov.feature_details_screen.model.RelatedAnimeUiModel
 

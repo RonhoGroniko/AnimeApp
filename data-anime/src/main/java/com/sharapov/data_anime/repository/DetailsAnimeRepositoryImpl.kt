@@ -4,20 +4,12 @@ import android.net.http.HttpException
 import android.os.Build
 import androidx.annotation.RequiresExtension
 import com.sharapov.data_anime.mapper.toDbModel
-import com.sharapov.data_anime.mapper.toEntities
 import com.sharapov.data_anime.mapper.toEntity
-import com.sharapov.data_anime.mapper.toListItemDbModels
 import com.sharapov.database_anime.AnimeLocalDataSource
 import com.sharapov.database_anime.dao.AnimeDetailsDao
-import com.sharapov.database_anime.dao.AnimeListDao
-import com.sharapov.database_anime.dao.AnimeSearchDao
 import com.sharapov.database_anime.model.details.AlternativeTitleSynonymDbModel
-import com.sharapov.database_anime.model.list.AnimeListItemDbModel
-import com.sharapov.domain_anime.entity.Anime
-import com.sharapov.domain_anime.entity.RankingType
 import com.sharapov.domain_anime.entity.details.AnimeWithDetails
-import com.sharapov.domain_anime.repository.AnimeRepository
-import com.sharapov.domain_anime.usecases.anime.list.AnimeFilter
+import com.sharapov.domain_anime.repository.DetailsAnimeRepository
 import com.sharapov.network_anime.DataException
 import com.sharapov.network_anime.retrofit.AnimeApiService
 import kotlinx.coroutines.CancellationException
@@ -29,33 +21,11 @@ import kotlinx.coroutines.flow.onStart
 import java.io.IOException
 import javax.inject.Inject
 
-class AnimeRepositoryImpl @Inject constructor(
-    private val animeApiService: AnimeApiService,
-    private val animeListDao: AnimeListDao,
+class DetailsAnimeRepositoryImpl @Inject constructor(
     private val animeDetailsDao: AnimeDetailsDao,
-    private val animeSearchDao: AnimeSearchDao,
+    private val animeApiService: AnimeApiService,
     private val animeLocalDataSource: AnimeLocalDataSource
-) : AnimeRepository {
-
-    override fun getAnimeList(filter: AnimeFilter): Flow<List<Anime>> {
-        return when (filter) {
-            AnimeFilter.All -> animeListDao.getAnimeList().map { it.toEntities() }
-            is AnimeFilter.ByGenre -> animeListDao.getAnimeListForGenre(filter.genre)
-                .map { it.toEntities() }
-
-            is AnimeFilter.ByRankingType -> animeListDao.getAnimeListForRankingType(filter.rankingType.name)
-                .map { it.toEntities() }
-
-            AnimeFilter.Favorites -> animeListDao.getFavoritesAnimeList().map { it.toEntities() }
-        }
-    }
-
-    @RequiresExtension(extension = Build.VERSION_CODES.S, version = 7)
-    // TODO: ЗАТЫЧКА ЭНИВЕЙ УБИРАТЬ
-    override suspend fun updateAnimeList(rankingType: RankingType, limit: Int) {
-        val animeList = loadAnimeList(rankingType, limit)
-        addAnimeList(animeList)
-    }
+) : DetailsAnimeRepository {
 
     @RequiresExtension(extension = Build.VERSION_CODES.S, version = 7)
     // TODO: ЗАТЫЧКА ЭНИВЕЙ УБИРАТЬ
@@ -113,42 +83,7 @@ class AnimeRepositoryImpl @Inject constructor(
         )
     }
 
-    override fun searchAnimeByTitle(query: String, filter: AnimeFilter): Flow<List<Anime>> {
-        return when(filter) {
-            AnimeFilter.All -> animeSearchDao.searchAnime(query).map { it.toEntities() }
-            is AnimeFilter.ByGenre -> animeSearchDao.searchAnimeByGenre(query, filter.genre).map { it.toEntities() }
-            is AnimeFilter.ByRankingType -> animeSearchDao.searchAnimeByRankingType(query, filter.rankingType.name).map { it.toEntities() }
-            AnimeFilter.Favorites -> animeSearchDao.searchFavoritesAnime(query).map { it.toEntities() }
-        }
-    }
-
     override suspend fun changeAnimeFavoriteStatus(animeId: Int) {
         animeDetailsDao.changeAnimeFavoriteStatus(animeId)
-    }
-
-    private suspend fun addAnimeList(
-        animeList: List<AnimeListItemDbModel>
-    ) {
-        animeLocalDataSource.upsertFullAnime(animeList)
-    }
-
-    @RequiresExtension(extension = Build.VERSION_CODES.S, version = 7)
-    // TODO: ЗАТЫЧКА ЭНИВЕЙ УБИРАТЬ
-    private suspend fun loadAnimeList(
-        rankingType: RankingType,
-        limit: Int
-    ): List<AnimeListItemDbModel> {
-        return try {
-            animeApiService.getAnimeRankingList(rankingType.query, limit)
-                .toListItemDbModels(rankingType)
-        } catch (e: CancellationException) {
-            throw e
-        } catch (e: IOException) {
-            throw DataException.Network(e)
-        } catch (e: HttpException) {
-            throw DataException.Server(e)
-        } catch (e: Exception) {
-            throw DataException.Unknown(e)
-        }
     }
 }

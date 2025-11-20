@@ -7,11 +7,11 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.material3.Text
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.navigation.compose.rememberNavController
-import com.sharapov.domain_anime.usecases.anime.list.AnimeFilter
 import com.sharapov.core_navigation.NavGraph
 import com.sharapov.core_navigation.Screen
 import com.sharapov.core_navigation.rememberNavigationState
 import com.sharapov.core_ui.theme.AnimeAppTheme
+import com.sharapov.domain_anime.entity.common.AnimeFilter
 import com.sharapov.feature_details_screen.DetailsScreen
 import com.sharapov.feature_main_screen.presentation.MainScreen
 import com.sharapov.feature_search_screen.SearchScreen
@@ -85,8 +85,4 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-// TODO: УБРАТЬ core-di. Все зависимости прокидывать в своих модулях в NameModule
-// TODO: Разделить core-domain. Убрать как сущность и разделить по фичам? Скорее всего сделать 2 модуля
-//  которые будут отвечать за разные фичи?
-// TODO: Аналогично ращделить дату, ибо там вообще пиздец
 // TODO: имплементировать result от гуглов

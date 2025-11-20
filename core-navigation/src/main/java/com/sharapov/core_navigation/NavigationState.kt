@@ -3,8 +3,8 @@ package com.sharapov.core_navigation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.navigation.NavHostController
-import com.sharapov.domain_anime.usecases.anime.list.AnimeFilter
 import com.sharapov.core_navigation.mapper.toNavItem
+import com.sharapov.domain_anime.entity.common.AnimeFilter
 
 class NavigationState(
     val navController: NavHostController
