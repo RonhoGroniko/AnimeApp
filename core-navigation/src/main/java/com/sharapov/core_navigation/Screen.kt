@@ -1,58 +1,74 @@
 package com.sharapov.core_navigation
 
-import android.os.Bundle
-import com.sharapov.core_navigation.NavItemAnimeFilter.Companion.toQueryValue
-import com.sharapov.core_navigation.utils.parcelable
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Bookmark
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.outlined.BookmarkBorder
+import androidx.compose.material.icons.outlined.Home
+import androidx.compose.material.icons.outlined.Person
+import androidx.compose.material.icons.outlined.Search
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.navigation3.runtime.NavKey
+import kotlinx.serialization.Serializable
 
-sealed class Screen(val route: String) {
+@Serializable
+sealed interface Screen : NavKey {
 
-    data object Main : Screen(MAIN_ROUTE)
-    data object AiringUpcoming : Screen(AIRING_UPCOMING_ROUTE)
-    data object Details : Screen("$DETAILS_ROUTE/{$DETAILS_ID_KEY}") {
-
-        fun createRoute(id: Int): String {
-            return "$DETAILS_ROUTE/$id"
-        }
-
-        fun getId(arguments: Bundle?): Int {
-            return arguments?.getString(DETAILS_ID_KEY)?.toInt() ?: 0
-        }
+    @Serializable
+    data object Main : Screen, BottomNavItem {
+        override val selectedIcon: ImageVector = Icons.Filled.Home
+        override val unselectedIcon: ImageVector = Icons.Outlined.Home
+        override val title: String = "Home"
     }
 
-    data object Search : Screen(SEARCH_ROUTE)
-    data object SearchWithFilter : Screen("$SEARCH_ROUTE/{$SEARCH_FILTER_KEY}") {
-
-        fun createRoute(filter: NavItemAnimeFilter): String {
-            val filterJson = toQueryValue(filter)
-            return "$SEARCH_ROUTE/${filterJson}"
-        }
-
-        fun getFilter(arguments: Bundle?): NavItemAnimeFilter {
-            return arguments?.parcelable<NavItemAnimeFilter>(SEARCH_FILTER_KEY)
-                ?: throw RuntimeException("Args is null")
-        }
+    @Serializable
+    data object Search : Screen, BottomNavItem {
+        override val selectedIcon: ImageVector = Icons.Filled.Search
+        override val unselectedIcon: ImageVector = Icons.Outlined.Search
+        override val title: String = "Search"
     }
 
-    data object Favorites : Screen(FAVORITES_ROUTE)
-    data object Profile : Screen(PROFILE_ROUTE)
-
-    data object Settings : Screen(SETTINGS_ROUTE)
-
-    companion object {
-
-        private const val DETAILS_ID_KEY = "id"
-        private const val DETAILS_ROUTE = "details"
-
-        private const val MAIN_ROUTE = "main"
-
-        const val SEARCH_FILTER_KEY = "filter"
-        private const val SETTINGS_ROUTE = "settings"
-
-        private const val SEARCH_ROUTE = "search"
-
-        private const val FAVORITES_ROUTE = "favorites"
-        private const val PROFILE_ROUTE = "profile"
-        private const val AIRING_UPCOMING_ROUTE = "airing_upcoming"
-
+    @Serializable
+    data object Favorites : Screen, BottomNavItem {
+        override val selectedIcon: ImageVector = Icons.Filled.Bookmark
+        override val unselectedIcon: ImageVector = Icons.Outlined.BookmarkBorder
+        override val title: String = "Favorites"
     }
+
+    @Serializable
+    data object Profile : Screen, BottomNavItem {
+        override val selectedIcon: ImageVector = Icons.Filled.Person
+        override val unselectedIcon: ImageVector = Icons.Outlined.Person
+        override val title: String = "Profile"
+    }
+
+    @Serializable
+    data class Details(val id: Long) : Screen
 }
+
+private const val MAIN_ROUTE = "main"
+private const val SEARCH_ROUTE = "search"
+private const val PROFILE_ROUTE = "profile"
+private const val DETAILS_PREFIX = "details:"
+private const val FAVORITES_ROUTE = "favorites"
+
+fun Screen.toRoute(): String = when (this) {
+    is Screen.Details -> "$DETAILS_PREFIX$id"
+    Screen.Profile -> PROFILE_ROUTE
+    Screen.Favorites -> FAVORITES_ROUTE
+    Screen.Main -> MAIN_ROUTE
+    Screen.Search -> SEARCH_ROUTE
+}
+
+fun String.toScreen(): Screen = when {
+    this == MAIN_ROUTE -> Screen.Main
+    this == PROFILE_ROUTE -> Screen.Profile
+    startsWith(DETAILS_PREFIX) ->
+        Screen.Details(substringAfter(DETAILS_PREFIX).toLong())
+    this == FAVORITES_ROUTE -> Screen.Favorites
+    this == SEARCH_ROUTE -> Screen.Search
+    else -> Screen.Main
+}
+

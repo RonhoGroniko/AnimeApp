@@ -2,7 +2,6 @@ plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.kotlin.android)
-    alias(libs.plugins.kotlin.parcelize)
     alias(libs.plugins.kotlin.serialization)
 }
 
@@ -59,6 +58,9 @@ dependencies {
 
     implementation(libs.kotlinx.serialization.json)
 
-    implementation(libs.androidx.navigation.compose)
+    api(libs.androidx.navigation3.ui)
+    api(libs.androidx.navigation3.runtime)
+
+    api(libs.androidx.lifecycle.viewmodel.navigation3)
     testImplementation(libs.junit)
 }

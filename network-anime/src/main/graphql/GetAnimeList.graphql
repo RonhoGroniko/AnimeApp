@@ -1,0 +1,6 @@
+query GetAnimeList($page : PositiveInt, $limit : PositiveInt, $status : AnimeStatusString) {
+
+    animes(page : $page, limit: $limit, status: $status) {
+        ...AnimeFields
+    }
+}

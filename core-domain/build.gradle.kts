@@ -1,14 +1,14 @@
 plugins {
-    alias(libs.plugins.android.library)  
+    alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.android)
 }
-
 android {
-    namespace = "com.sharapov.domain_anime"
+    namespace = "com.sharapov.core_domain"
     compileSdk = 36
 
     defaultConfig {
         minSdk = 26
+
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles("consumer-rules.pro")
     }
@@ -22,14 +22,14 @@ android {
             )
         }
     }
-
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
-
     packaging {
-        resources { excludes += "/META-INF/{AL2.0,LGPL2.1}" }
+        resources {
+            excludes += "/META-INF/{AL2.0,LGPL2.1}"
+        }
     }
 }
 
@@ -37,19 +37,17 @@ kotlin {
     jvmToolchain(17)
     compilerOptions {
         jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17)
-        freeCompilerArgs.set(listOf(
+        freeCompilerArgs.addAll(
             "-Xcontext-parameters",
             "-opt-in=kotlin.RequiresOptIn"
-        ))
+        )
     }
 }
 
 dependencies {
 
-    api(project(":core-domain"))
+    implementation(libs.kotlinx.coroutines.core)
 
-    api(libs.kotlinx.coroutines.core)
-    compileOnly(libs.javax.inject)
-
+    implementation(libs.androidx.core.ktx)
     testImplementation(libs.junit)
 }

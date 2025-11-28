@@ -49,6 +49,8 @@ kotlin {
 dependencies {
 
     implementation(project(":domain-anime"))
+    implementation(project(":core-domain"))
+
     api(platform(libs.androidx.compose.bom))
     api(libs.androidx.compose.ui)
     api(libs.androidx.compose.ui.graphics)
@@ -57,7 +59,6 @@ dependencies {
 
     api(libs.coil.compose)
     api(libs.coil.network.okhttp)
-    api(libs.androidx.navigation.compose)
 
     api(libs.androidx.compose.material.icons.extended)
 
