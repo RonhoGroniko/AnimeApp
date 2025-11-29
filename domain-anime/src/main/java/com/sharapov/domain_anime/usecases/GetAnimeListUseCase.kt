@@ -8,5 +8,5 @@ class GetAnimeListUseCase @Inject constructor(
     private val animeListRepository: AnimeListRepository
 ) {
 
-    operator fun invoke(animeStatus: AnimeStatus = AnimeStatus.RELEASED) = animeListRepository.getAnimeList(animeStatus)
+    operator fun invoke(animeStatus: AnimeStatus = AnimeStatus.RELEASED, limit: Int = 8) = animeListRepository.getAnimeList(animeStatus, limit)
 }

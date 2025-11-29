@@ -5,8 +5,14 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Scaffold
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
 import androidx.navigation3.runtime.entryProvider
@@ -16,6 +22,7 @@ import com.sharapov.core_navigation.BaseBottomBar
 import com.sharapov.core_navigation.Screen
 import com.sharapov.core_navigation.TopLevelBackStack
 import com.sharapov.core_ui.theme.AnimeAppTheme
+import com.sharapov.feature_main_screen.MainScreen
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -42,12 +49,19 @@ class MainActivity : ComponentActivity() {
                         backStack = topLevelBackStack.backStack,
                         onBack = { topLevelBackStack.removeLast() },
                         entryProvider = entryProvider {
-                            entry<Screen.Main> {
-
+                            entry<Screen.Main> { key ->
+                                MainScreen(
+                                    onCardClick = { animeId ->
+                                        topLevelBackStack.add(Screen.Details(animeId))
+                                    },
+                                    onSettingsClick = {
+                                        topLevelBackStack.add(Screen.Settings)
+                                    }
+                                )
                             }
 
                             entry<Screen.Details> { key ->
-
+                                DetailsScreen()
                             }
 
                             entry<Screen.Profile> { key ->
@@ -55,7 +69,11 @@ class MainActivity : ComponentActivity() {
                             }
 
                             entry<Screen.Favorites> { key ->
-                                
+
+                            }
+
+                            entry<Screen.Settings> { key ->
+
                             }
                         }
                     )
@@ -63,4 +81,9 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
+}
+
+@Composable
+fun DetailsScreen() {
+    Box(modifier = Modifier.fillMaxSize().background(Color.Red))
 }

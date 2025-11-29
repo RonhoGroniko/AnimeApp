@@ -19,11 +19,19 @@ class AnimeListRepositoryImpl @Inject constructor(
     private val apolloClient: ApolloClient
 ) : AnimeListRepository {
 
-    override fun getAnimeList(animeStatus: AnimeStatus): Flow<Result<List<AnimeListItem>>> = flow {
+    override fun getAnimeList(
+        animeStatus: AnimeStatus,
+        limit: Int
+    ): Flow<Result<List<AnimeListItem>>> = flow {
         emit(Result.Loading)
         try {
             val data = apolloClient
-                .query(GetAnimeListQuery(status = Optional.present(animeStatus.value)))
+                .query(
+                    GetAnimeListQuery(
+                        status = Optional.present(animeStatus.value),
+                        limit = Optional.present(limit)
+                    )
+                )
                 .execute()
                 .dataOrThrow()
             emit(Result.Success(data.animes.map { it.toEntity() }))

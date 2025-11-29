@@ -7,5 +7,5 @@ import kotlinx.coroutines.flow.Flow
 
 interface AnimeListRepository {
 
-    fun getAnimeList(animeStatus: AnimeStatus = AnimeStatus.RELEASED): Flow<Result<List<AnimeListItem>>>
+    fun getAnimeList(animeStatus: AnimeStatus = AnimeStatus.RELEASED, limit: Int = 8): Flow<Result<List<AnimeListItem>>>
 }

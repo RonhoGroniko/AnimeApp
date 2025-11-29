@@ -31,12 +31,17 @@ class MainViewModel @Inject constructor(
         SectionState.Initial
     )
 
+    private val _releasedAnimeSectionState = MutableStateFlow<SectionState<List<AnimeListItem>>>(
+        SectionState.Initial
+    )
+
     val state: StateFlow<MainScreenState> = combine(
         _upcomingAnimeSectionState,
-        _ongoingAnimeSectionState
-    ) { upcoming, airing ->
-        stateWithSections(listOf(upcoming, airing)) {
-            MainScreenContent(upcoming, airing)
+        _ongoingAnimeSectionState,
+        _releasedAnimeSectionState
+    ) { upcoming, airing, released ->
+        stateWithSections(listOf(upcoming, airing, released)) {
+            MainScreenContent(upcoming, airing, released)
         }
     }.stateIn(
         scope = viewModelScope,
@@ -47,6 +52,7 @@ class MainViewModel @Inject constructor(
     init {
         loadUpcomingAnime()
         loadOngoingAnime()
+        loadReleasedAnime()
     }
 
     private fun loadUpcomingAnime() {
@@ -61,6 +67,14 @@ class MainViewModel @Inject constructor(
         viewModelScope.launch {
             getAnimeListUseCase(animeStatus = AnimeStatus.ONGOING).collect { result ->
                 _ongoingAnimeSectionState.value = result.toSectionState()
+            }
+        }
+    }
+
+    private fun loadReleasedAnime() {
+        viewModelScope.launch {
+            getAnimeListUseCase(animeStatus = AnimeStatus.RELEASED).collect { result ->
+                _releasedAnimeSectionState.value = result.toSectionState()
             }
         }
     }

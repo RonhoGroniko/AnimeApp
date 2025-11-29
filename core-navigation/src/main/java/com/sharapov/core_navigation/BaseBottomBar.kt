@@ -1,6 +1,7 @@
 package com.sharapov.core_navigation
 
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ShortNavigationBar
 import androidx.compose.material3.ShortNavigationBarItem
 import androidx.compose.material3.Text
@@ -14,7 +15,9 @@ fun BaseBottomBar(
         Screen.Main, Screen.Search, Screen.Favorites, Screen.Profile
     )
 
-    ShortNavigationBar {
+    ShortNavigationBar(
+        containerColor = MaterialTheme.colorScheme.background
+    ) {
         navItems.forEachIndexed { index, item ->
             val selected = topLevelBackStack.topLevelKey == item
             ShortNavigationBarItem(

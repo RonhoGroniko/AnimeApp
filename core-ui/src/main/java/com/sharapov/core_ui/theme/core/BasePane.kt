@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.ShortNavigationBar
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
@@ -18,6 +19,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import kotlinx.coroutines.delay
 
 @Composable
@@ -35,7 +37,7 @@ fun <S> BasePane(
         topBar = { topBar?.invoke() },
         floatingActionButton = { floatingActionButton?.invoke() },
         snackbarHost = { SnackbarHost(snackbarHostState) },
-        bottomBar = { if (includeBottomBarInset) BottomAppBar(content = {}) }
+        bottomBar = { if (includeBottomBarInset) ShortNavigationBar(containerColor = Color.Transparent, content = {}) }
     ) { innerPadding ->
 
         when (lceState) {

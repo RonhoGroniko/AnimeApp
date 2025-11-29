@@ -46,10 +46,14 @@ sealed interface Screen : NavKey {
 
     @Serializable
     data class Details(val id: Long) : Screen
+
+    @Serializable
+    data object Settings : Screen
 }
 
 private const val MAIN_ROUTE = "main"
 private const val SEARCH_ROUTE = "search"
+private const val SETTINGS_ROUTE = "settings"
 private const val PROFILE_ROUTE = "profile"
 private const val DETAILS_PREFIX = "details:"
 private const val FAVORITES_ROUTE = "favorites"
@@ -60,6 +64,7 @@ fun Screen.toRoute(): String = when (this) {
     Screen.Favorites -> FAVORITES_ROUTE
     Screen.Main -> MAIN_ROUTE
     Screen.Search -> SEARCH_ROUTE
+    Screen.Settings -> SETTINGS_ROUTE
 }
 
 fun String.toScreen(): Screen = when {
@@ -69,6 +74,7 @@ fun String.toScreen(): Screen = when {
         Screen.Details(substringAfter(DETAILS_PREFIX).toLong())
     this == FAVORITES_ROUTE -> Screen.Favorites
     this == SEARCH_ROUTE -> Screen.Search
+    this == SETTINGS_ROUTE -> Screen.Settings
     else -> Screen.Main
 }
 

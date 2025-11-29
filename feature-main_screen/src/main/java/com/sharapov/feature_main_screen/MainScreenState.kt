@@ -8,5 +8,6 @@ typealias MainScreenState = LceState<MainScreenContent>
 
 data class MainScreenContent(
     val upcomingAnimeList: SectionState<List<AnimeListItem>>,
-    val airingAnimeList: SectionState<List<AnimeListItem>>
+    val airingAnimeList: SectionState<List<AnimeListItem>>,
+    val releasedAnimeList: SectionState<List<AnimeListItem>>
 )
