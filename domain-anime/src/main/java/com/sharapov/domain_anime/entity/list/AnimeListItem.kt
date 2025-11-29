@@ -1,4 +1,4 @@
-package com.sharapov.domain_anime.entity
+package com.sharapov.domain_anime.entity.list
 
 data class AnimeListItem(
     val id: Long,

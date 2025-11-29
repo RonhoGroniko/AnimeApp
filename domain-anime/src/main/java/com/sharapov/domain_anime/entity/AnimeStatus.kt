@@ -3,5 +3,6 @@ package com.sharapov.domain_anime.entity
 enum class AnimeStatus(val value: String) {
     ANONS("anons"),
     ONGOING("ongoing"),
-    RELEASED("released")
+    RELEASED("released"),
+    UNKNOWN("unknown")
 }

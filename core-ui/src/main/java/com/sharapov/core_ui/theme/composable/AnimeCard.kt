@@ -38,7 +38,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil3.compose.AsyncImage
 import com.sharapov.core_ui.theme.CustomFonts
-import com.sharapov.domain_anime.entity.AnimeListItem
+import com.sharapov.domain_anime.entity.list.AnimeListItem
 
 @Composable
 fun AnimeCard(

@@ -6,9 +6,9 @@ import com.sharapov.core_ui.theme.core.LceState
 import com.sharapov.core_ui.theme.core.SectionState
 import com.sharapov.core_ui.theme.core.stateWithSections
 import com.sharapov.core_ui.theme.core.toSectionState
-import com.sharapov.domain_anime.entity.AnimeListItem
+import com.sharapov.domain_anime.entity.list.AnimeListItem
 import com.sharapov.domain_anime.entity.AnimeStatus
-import com.sharapov.domain_anime.usecases.GetAnimeListUseCase
+import com.sharapov.domain_anime.usecases.list.GetAnimeListUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted

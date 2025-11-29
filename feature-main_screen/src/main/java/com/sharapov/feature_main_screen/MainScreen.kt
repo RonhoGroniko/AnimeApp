@@ -32,7 +32,7 @@ import com.sharapov.core_ui.theme.composable.AnimeCardPlaceholder
 import com.sharapov.core_ui.theme.core.BasePane
 import com.sharapov.core_ui.theme.core.LceState
 import com.sharapov.core_ui.theme.core.SectionState
-import com.sharapov.domain_anime.entity.AnimeListItem
+import com.sharapov.domain_anime.entity.list.AnimeListItem
 
 @Composable
 fun MainScreen(

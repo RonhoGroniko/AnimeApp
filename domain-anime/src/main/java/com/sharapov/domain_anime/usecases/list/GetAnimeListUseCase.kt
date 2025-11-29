@@ -1,4 +1,4 @@
-package com.sharapov.domain_anime.usecases
+package com.sharapov.domain_anime.usecases.list
 
 import com.sharapov.domain_anime.entity.AnimeStatus
 import com.sharapov.domain_anime.repository.AnimeListRepository

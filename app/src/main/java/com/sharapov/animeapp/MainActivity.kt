@@ -5,14 +5,8 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Scaffold
-import androidx.compose.runtime.Composable
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
 import androidx.navigation3.runtime.entryProvider
@@ -22,6 +16,7 @@ import com.sharapov.core_navigation.BaseBottomBar
 import com.sharapov.core_navigation.Screen
 import com.sharapov.core_navigation.TopLevelBackStack
 import com.sharapov.core_ui.theme.AnimeAppTheme
+import com.sharapov.feature_details_screen.DetailsScreen
 import com.sharapov.feature_main_screen.MainScreen
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -61,7 +56,9 @@ class MainActivity : ComponentActivity() {
                             }
 
                             entry<Screen.Details> { key ->
-                                DetailsScreen()
+                                DetailsScreen(
+                                    animeId = key.id
+                                )
                             }
 
                             entry<Screen.Profile> { key ->
@@ -83,7 +80,7 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-@Composable
-fun DetailsScreen() {
-    Box(modifier = Modifier.fillMaxSize().background(Color.Red))
-}
+//@Composable
+//fun DetailsScreen() {
+//    Box(modifier = Modifier.fillMaxSize().background(Color.Red))
+//}

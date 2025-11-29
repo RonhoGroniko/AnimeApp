@@ -1,0 +1,51 @@
+query GetAnimeById($id : String!) {
+    animes(ids : $id) {
+
+        ...AnimeFields
+        russian
+        english
+        japanese
+        synonyms
+        kind
+        rating
+        status
+        episodes
+        episodesAired
+        duration
+        franchise
+        airedOn { date }
+        releasedOn { date }
+        season
+
+        createdAt,
+        nextEpisodeAt,
+
+        genres { id name kind }
+        studios { id name imageUrl }
+
+        chronology {
+            ...AnimeFields
+            kind
+        }
+
+        characterRoles {
+            rolesEn
+            character { id name poster { originalUrl } }
+        }
+
+        related {
+            anime {
+                ...AnimeFields
+            }
+            relationText
+        }
+
+        videos { id name kind playerUrl imageUrl }
+        screenshots { id originalUrl }
+
+        scoresStats { score count }
+        statusesStats { status count }
+
+        description
+    }
+}
