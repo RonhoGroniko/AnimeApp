@@ -74,6 +74,7 @@ import com.sharapov.core_ui.theme.core.LceState
 import com.sharapov.domain_anime.entity.details.RelatedAnime
 import com.sharapov.domain_anime.entity.details.Screenshot
 import com.sharapov.domain_anime.entity.list.AnimeListItem
+import com.sharapov.feature_details_screen.mapper.episodesToUi
 
 @Composable
 fun DetailsScreen(
@@ -157,7 +158,10 @@ fun DetailsScreenContent(
                 InfoRow(
                     status = contentState.data.anime.status,
                     rating = contentState.data.anime.rating,
-                    numEpisodes = contentState.data.anime.episodes.toString(),
+                    numEpisodes = episodesToUi(
+                        contentState.data.anime.episodesAired,
+                        contentState.data.anime.episodes
+                    ),
                     episodeDuration = contentState.data.anime.duration.toString(),
                     animeKind = contentState.data.anime.kind
                 )
@@ -165,7 +169,12 @@ fun DetailsScreenContent(
             if (contentState.data.anime.description.isNotBlank()) {
                 item {
                     Subtitle(
-                        modifier = Modifier.padding(top = 16.dp, bottom = 8.dp, start = 16.dp, end = 16.dp),
+                        modifier = Modifier.padding(
+                            top = 16.dp,
+                            bottom = 8.dp,
+                            start = 16.dp,
+                            end = 16.dp
+                        ),
                         text = "Description"
                     )
                 }
@@ -179,7 +188,12 @@ fun DetailsScreenContent(
             if (contentState.data.anime.screenshotsUrls.isNotEmpty()) {
                 item {
                     Subtitle(
-                        modifier = Modifier.padding(top = 16.dp, bottom = 8.dp, start = 16.dp, end = 16.dp),
+                        modifier = Modifier.padding(
+                            top = 16.dp,
+                            bottom = 8.dp,
+                            start = 16.dp,
+                            end = 16.dp
+                        ),
                         text = "Screenshots"
                     )
                 }
@@ -188,7 +202,12 @@ fun DetailsScreenContent(
             if (contentState.data.anime.relatedAnime.isNotEmpty()) {
                 item {
                     Subtitle(
-                        modifier = Modifier.padding(top = 8.dp, bottom = 8.dp, start = 16.dp, end = 16.dp),
+                        modifier = Modifier.padding(
+                            top = 8.dp,
+                            bottom = 8.dp,
+                            start = 16.dp,
+                            end = 16.dp
+                        ),
                         text = "Related Anime"
                     )
                 }
@@ -203,16 +222,16 @@ fun DetailsScreenContent(
             if (contentState.data.anime.chronology.isNotEmpty()) {
                 item {
                     Subtitle(
-                        modifier = Modifier.padding(top = 8.dp, bottom = 8.dp, start = 16.dp, end = 16.dp),
+                        modifier = Modifier.padding(bottom = 8.dp, start = 16.dp, end = 16.dp),
                         text = "Chronology"
                     )
                 }
                 item {
-                   AnimeCardsRowWithTitle(
-                       animeList = contentState.data.anime.chronology.map { it.animeListItem },
-                       titleList = contentState.data.anime.chronology.map { it.kind.value },
-                       onCardClick = onCardClick
-                   )
+                    AnimeCardsRowWithTitle(
+                        animeList = contentState.data.anime.chronology.map { it.animeListItem },
+                        titleList = contentState.data.anime.chronology.map { it.kind.value },
+                        onCardClick = onCardClick
+                    )
                 }
             }
         }
@@ -361,13 +380,15 @@ fun HeaderCard(
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Column(modifier = Modifier.weight(0.6f)) {
-                    Text(
-                        text = "Studios: ${studios.joinToString()}",
-                        fontFamily = CustomFonts.Poppins,
-                        color = MaterialTheme.colorScheme.primary,
-                        fontStyle = FontStyle.Italic,
-                        fontSize = 14.sp
-                    )
+                    if (studios.isNotEmpty()) {
+                        Text(
+                            text = "Studios: ${studios.joinToString()}",
+                            fontFamily = CustomFonts.Poppins,
+                            color = MaterialTheme.colorScheme.primary,
+                            fontStyle = FontStyle.Italic,
+                            fontSize = 14.sp
+                        )
+                    }
 
                     if (releaseDate.isNotBlank()) {
                         Text(
@@ -736,7 +757,7 @@ private fun AnimeCardsRowWithTitle(
         modifier = modifier.fillMaxWidth()
     ) {
         animeList.forEachIndexed { index, anime ->
-            item(key = anime.id ) {
+            item(key = anime.id) {
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
