@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.sharapov.core_ui.theme.core.LceState
 import com.sharapov.core_ui.theme.core.toLceState
 import com.sharapov.domain_anime.usecases.details.GetAnimeByIdUseCase
+import com.sharapov.feature_details_screen.mapper.toUi
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
@@ -30,7 +31,7 @@ class DetailsViewModel @AssistedInject constructor (
         viewModelScope.launch {
             getAnimeByIdUseCase(animeId).collect { result ->
                 _state.value = result.toLceState { anime ->
-                    DetailsScreenContent(anime)
+                    DetailsScreenContent(anime.toUi())
                 }
             }
         }

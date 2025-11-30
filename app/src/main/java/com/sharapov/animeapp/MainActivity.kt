@@ -57,7 +57,11 @@ class MainActivity : ComponentActivity() {
 
                             entry<Screen.Details> { key ->
                                 DetailsScreen(
-                                    animeId = key.id
+                                    animeId = key.id,
+                                    onBackClick = { topLevelBackStack.removeLast() },
+                                    onCardClick = { animeId ->
+                                        topLevelBackStack.add(Screen.Details(animeId))
+                                    }
                                 )
                             }
 

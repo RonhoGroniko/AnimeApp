@@ -10,17 +10,20 @@ import com.sharapov.domain_anime.entity.details.AnimeChronology
 import com.sharapov.domain_anime.entity.details.AnimeDetails
 import com.sharapov.domain_anime.entity.details.Character
 import com.sharapov.domain_anime.entity.details.RelatedAnime
+import com.sharapov.domain_anime.entity.details.RelationKind
 import com.sharapov.domain_anime.entity.details.ScoreStats
 import com.sharapov.domain_anime.entity.details.Screenshot
 import com.sharapov.domain_anime.entity.details.StatusKind
 import com.sharapov.domain_anime.entity.details.StatusStats
 import com.sharapov.domain_anime.entity.details.Video
 import com.sharapov.domain_anime.entity.details.VideoKind
+import com.sharapov.domain_anime.entity.list.AnimeListItem
 import com.sharapov.network_anime.GetAnimeByIdQuery
 import com.sharapov.network_anime.type.AnimeKindEnum
 import com.sharapov.network_anime.type.AnimeRatingEnum
 import com.sharapov.network_anime.type.AnimeStatusEnum
 import com.sharapov.network_anime.type.GenreKindEnum
+import com.sharapov.network_anime.type.RelationKindEnum
 import com.sharapov.network_anime.type.UserRateStatusEnum
 import com.sharapov.network_anime.type.VideoKindEnum
 
@@ -36,7 +39,7 @@ fun GetAnimeByIdQuery.Data.toEntity(): AnimeDetails {
         rating = anime.rating?.toEntity() ?: AnimeRating.UNKNOWN,
         score = anime.animeFields.score ?: 0.0,
         status = anime.status?.toEntity() ?: AnimeStatus.UNKNOWN,
-        episodes = anime.episodes ,
+        episodes = anime.episodes,
         episodesAired = anime.episodesAired,
         duration = anime.duration ?: 0,
         franchise = anime.franchise ?: "",
@@ -44,7 +47,7 @@ fun GetAnimeByIdQuery.Data.toEntity(): AnimeDetails {
         releasedOnDate = anime.releasedOn?.date.toIsoDateString(),
         season = anime.season ?: "",
         imageUrl = anime.animeFields.poster?.originalUrl ?: "",
-        createdAt =  anime.createdAt.toIsoDateString(),
+        createdAt = anime.createdAt.toIsoDateString(),
         nextEpisodeAt = anime.nextEpisodeAt.toIsoString(),
         genres = anime.genres?.map { it.toEntity() } ?: listOf(),
         studios = anime.studios.map { it.toEntity() },
@@ -59,7 +62,7 @@ fun GetAnimeByIdQuery.Data.toEntity(): AnimeDetails {
     )
 }
 
-fun AnimeRatingEnum.toEntity() : AnimeRating = when(this) {
+fun AnimeRatingEnum.toEntity(): AnimeRating = when (this) {
     AnimeRatingEnum.none -> AnimeRating.NONE
     AnimeRatingEnum.g -> AnimeRating.G
     AnimeRatingEnum.pg -> AnimeRating.PG
@@ -70,7 +73,7 @@ fun AnimeRatingEnum.toEntity() : AnimeRating = when(this) {
     AnimeRatingEnum.UNKNOWN__ -> AnimeRating.UNKNOWN
 }
 
-fun AnimeStatusEnum.toEntity() : AnimeStatus = when(this) {
+fun AnimeStatusEnum.toEntity(): AnimeStatus = when (this) {
     AnimeStatusEnum.anons -> AnimeStatus.ANONS
     AnimeStatusEnum.ongoing -> AnimeStatus.ONGOING
     AnimeStatusEnum.released -> AnimeStatus.RELEASED
@@ -102,9 +105,7 @@ fun GetAnimeByIdQuery.Studio.toEntity(): Studio {
 
 fun GetAnimeByIdQuery.Chronology.toEntity(): AnimeChronology {
     return AnimeChronology(
-        id = animeFields.id.toLong(),
-        name = animeFields.name,
-        imageUrl = animeFields.poster?.originalUrl ?: "",
+        animeListItem = animeFields.toEntity(),
         kind = kind?.toEntity() ?: AnimeKind.UNKNOWN
     )
 }
@@ -133,11 +134,31 @@ fun GetAnimeByIdQuery.CharacterRole.toEntity(): Character {
 
 fun GetAnimeByIdQuery.Related.toEntity(): RelatedAnime {
     return RelatedAnime(
-        id = anime?.animeFields?.id?.toLong() ?: 0,
-        name = anime?.animeFields?.id ?: "",
-        imageUrl = anime?.animeFields?.id ?: "",
-        relationText = relationText
+        animeListItem = anime?.animeFields?.toEntity()
+            ?: AnimeListItem(
+                id = 0,
+                name = "",
+                score = 0.0,
+                imageUrl = ""
+            ),
+        relationKind = relationKind.toEntity()
     )
+}
+
+fun RelationKindEnum.toEntity() : RelationKind = when(this) {
+    RelationKindEnum.adaptation -> RelationKind.ADAPTATION
+    RelationKindEnum.alternative_setting -> RelationKind.ALTERNATIVE_SETTING
+    RelationKindEnum.alternative_version -> RelationKind.ALTERNATIVE_VERSION
+    RelationKindEnum.character -> RelationKind.CHARACTER
+    RelationKindEnum.full_story -> RelationKind.FULL_STORY
+    RelationKindEnum.other -> RelationKind.OTHER
+    RelationKindEnum.parent_story -> RelationKind.PARENT_STORY
+    RelationKindEnum.prequel -> RelationKind.PREQUEL
+    RelationKindEnum.sequel -> RelationKind.SEQUEL
+    RelationKindEnum.side_story -> RelationKind.SIDE_STORY
+    RelationKindEnum.spin_off -> RelationKind.SPIN_OFF
+    RelationKindEnum.summary -> RelationKind.SUMMARY
+    RelationKindEnum.UNKNOWN__ -> RelationKind.UNKNOWN
 }
 
 fun GetAnimeByIdQuery.Video.toEntity(): Video {

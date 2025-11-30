@@ -1,10 +1,9 @@
 package com.sharapov.domain_anime.entity.details
 
 import com.sharapov.domain_anime.entity.AnimeKind
+import com.sharapov.domain_anime.entity.list.AnimeListItem
 
 data class AnimeChronology(
-    val id: Long,
-    val name: String,
-    val imageUrl: String,
+    val animeListItem: AnimeListItem,
     val kind: AnimeKind
 )

@@ -37,7 +37,7 @@ query GetAnimeById($id : String!) {
             anime {
                 ...AnimeFields
             }
-            relationText
+            relationKind
         }
 
         videos { id name kind playerUrl imageUrl }
