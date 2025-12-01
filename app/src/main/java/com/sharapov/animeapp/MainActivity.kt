@@ -18,6 +18,7 @@ import com.sharapov.core_navigation.TopLevelBackStack
 import com.sharapov.core_ui.theme.AnimeAppTheme
 import com.sharapov.feature_details_screen.DetailsScreen
 import com.sharapov.feature_main_screen.MainScreen
+import com.sharapov.feature_search_screen.SearchScreen
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -71,6 +72,14 @@ class MainActivity : ComponentActivity() {
 
                             entry<Screen.Favorites> { key ->
 
+                            }
+
+                            entry<Screen.Search> { key ->
+                                SearchScreen(
+                                    onCardClick = { animeId ->
+                                        topLevelBackStack.add(Screen.Details(animeId))
+                                    }
+                                )
                             }
 
                             entry<Screen.Settings> { key ->
