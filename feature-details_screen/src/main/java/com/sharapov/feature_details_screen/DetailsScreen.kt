@@ -90,13 +90,21 @@ fun DetailsScreen(
     BasePane(
         modifier = modifier,
         lceState = state.value,
-    ) { innerPadding, contentState ->
-        DetailsScreenContent(
-            contentState = contentState,
-            innerPadding = innerPadding,
-            onBackClick = onBackClick,
-            onCardClick = onCardClick
-        )
+    ) { innerPadding, currentState ->
+        when (currentState) {
+            is LceState.Content<DetailsScreenContent> -> {
+                DetailsScreenContent(
+                    contentState = currentState,
+                    innerPadding = innerPadding,
+                    onBackClick = onBackClick,
+                    onCardClick = onCardClick
+                )
+            }
+
+            is LceState.Error -> {}
+            LceState.Initial -> {}
+            LceState.Loading -> {}
+        }
     }
 }
 

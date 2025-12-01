@@ -48,12 +48,19 @@ fun MainScreen(
         topBar = { TopMainScreenBar(
             onSettingsClick = onSettingsClick
         ) }
-    ) { innerPadding, contentState ->
-        MainScreenContent(
-            contentState = contentState,
-            innerPadding = innerPadding,
-            onCardClick = onCardClick
-        )
+    ) { innerPadding, currentState ->
+        when(currentState) {
+            is LceState.Content<MainScreenContent> -> {
+                MainScreenContent(
+                    contentState = currentState,
+                    innerPadding = innerPadding,
+                    onCardClick = onCardClick
+                )
+            }
+            is LceState.Error -> {}
+            LceState.Initial -> {}
+            LceState.Loading -> {}
+        }
     }
 }
 

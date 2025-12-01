@@ -3,8 +3,8 @@ package com.sharapov.data_anime.repository
 import com.apollographql.apollo.ApolloClient
 import com.apollographql.apollo.api.Optional
 import com.sharapov.core_domain.Result
-import com.sharapov.domain_anime.entity.list.AnimeListItem
 import com.sharapov.domain_anime.entity.AnimeStatus
+import com.sharapov.domain_anime.entity.list.AnimeListItem
 import com.sharapov.domain_anime.repository.AnimeListRepository
 import com.sharapov.network_anime.GetAnimeListQuery
 import com.sharapov.network_anime.mapper.toEntity
