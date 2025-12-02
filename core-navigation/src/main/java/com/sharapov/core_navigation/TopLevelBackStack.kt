@@ -81,7 +81,8 @@ class TopLevelBackStack<T : NavKey>(private val startKey: T) {
                         "stacks" to state.topLevelBackStacks
                             .map { (key, stack) ->
                                 key.toRoute() to stack.map { it.toRoute() }
-                            }
+                            },
+                        "history" to state.topLevelHistory.map { it.toRoute() }
                     )
                 },
                 restore = { map ->
@@ -95,6 +96,9 @@ class TopLevelBackStack<T : NavKey>(private val startKey: T) {
                     val startKey = startKeyRoute.toScreen()
                     val topLevelKey = topLevelKeyRoute.toScreen()
 
+                    @Suppress("UNCHECKED_CAST")
+                    val historyRoutes = map["history"] as List<String>
+
                     TopLevelBackStack(startKey).apply {
                         topLevelBackStacks.clear()
                         stacksEncoded.forEach { (keyRoute, listRoutes) ->
@@ -102,6 +106,8 @@ class TopLevelBackStack<T : NavKey>(private val startKey: T) {
                             val stateList = mutableStateListOf<Screen>()
                             stateList.addAll(listRoutes.map { it.toScreen() })
                             topLevelBackStacks[key] = stateList
+                            topLevelHistory.clear()
+                            topLevelHistory.addAll(historyRoutes.map { it.toScreen() })
                         }
                         this.topLevelKey = topLevelKey
                         updateBackstack()
