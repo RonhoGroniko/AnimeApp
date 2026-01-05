@@ -26,6 +26,7 @@ fun <S> BasePane(
     modifier: Modifier = Modifier,
     lceState: LceState<S>,
     includeBottomBarInset: Boolean = true,
+    showGeneralProgressIndicator: Boolean = true,
     topBar: @Composable (() -> Unit)? = null,
     floatingActionButton: @Composable (() -> Unit)? = null,
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
@@ -60,21 +61,24 @@ fun <S> BasePane(
             LceState.Initial -> {}
 
             LceState.Loading -> {
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(innerPadding),
-                    contentAlignment = Alignment.Center
-                ) {
-                    var showProgressIndicator by remember { mutableStateOf(false) }
-                    LaunchedEffect(Unit) {
-                        delay(1000)
-                        showProgressIndicator = true
-                    }
-                    AnimatedVisibility(visible = showProgressIndicator) {
-                        CircularProgressIndicator()
+                if (showGeneralProgressIndicator) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(innerPadding),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        var showProgressIndicator by remember { mutableStateOf(false) }
+                        LaunchedEffect(Unit) {
+                            delay(1000)
+                            showProgressIndicator = true
+                        }
+                        AnimatedVisibility(visible = showProgressIndicator) {
+                            CircularProgressIndicator()
+                        }
                     }
                 }
+                content(innerPadding, lceState)
             }
         }
     }

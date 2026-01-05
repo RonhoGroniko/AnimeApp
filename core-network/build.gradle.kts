@@ -68,6 +68,9 @@ dependencies {
 
     api(libs.apollo.runtime)
 
+    api(libs.androidx.paging.runtime)
+    api(libs.androidx.paging.compose)
+
     implementation(libs.logging.interceptor)
 
     implementation(libs.hilt.android)
