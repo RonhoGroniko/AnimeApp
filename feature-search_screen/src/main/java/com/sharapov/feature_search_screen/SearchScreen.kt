@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalMaterial3Api::class)
+
 package com.sharapov.feature_search_screen
 
 
@@ -7,28 +9,43 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.SheetState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.TopAppBarScrollBehavior
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -49,6 +66,8 @@ import com.sharapov.core_ui.theme.core.BasePane
 import com.sharapov.core_ui.theme.core.LceState
 import com.sharapov.domain_anime.entity.filter.AnimeFilter
 import com.sharapov.domain_anime.entity.list.AnimeListItem
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -62,6 +81,10 @@ fun SearchScreen(
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
     val state = viewModel.state.collectAsState()
     val animeList = viewModel.animePagingFlow.collectAsLazyPagingItems()
+
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    val scope = rememberCoroutineScope()
+    var showBottomSheet by remember { mutableStateOf(false) }
 
     val refreshError = animeList.loadState.refresh as? LoadState.Error
 
@@ -80,6 +103,15 @@ fun SearchScreen(
                 scrollBehavior = scrollBehavior
             )
         },
+        floatingActionButton = {
+            FloatingActionButton(
+                onClick = {
+                    showBottomSheet = true
+                }
+            ) {
+                Icon(Icons.Filled.Add, "Add filters")
+            }
+        },
         modifier = Modifier
             .nestedScroll(scrollBehavior.nestedScrollConnection)
     ) { innerPadding, currentState ->
@@ -88,7 +120,13 @@ fun SearchScreen(
                 SearchScreenContent(
                     innerPadding = innerPadding,
                     onCardClick = onCardClick,
-                    lazyPagingItems = animeList
+                    lazyPagingItems = animeList,
+                    sheetState = sheetState,
+                    scope = scope,
+                    onDismiss = {
+                        showBottomSheet = false
+                    },
+                    showBottomSheet = showBottomSheet
                 )
             }
 
@@ -129,6 +167,10 @@ private fun SearchScreenContent(
     modifier: Modifier = Modifier,
     innerPadding: PaddingValues,
     lazyPagingItems: LazyPagingItems<AnimeListItem>,
+    sheetState: SheetState,
+    scope: CoroutineScope,
+    showBottomSheet: Boolean,
+    onDismiss: () -> Unit,
     onCardClick: (Long) -> Unit
 ) {
     if (lazyPagingItems.loadState.hasError && lazyPagingItems.itemCount != 0) {
@@ -175,6 +217,13 @@ private fun SearchScreenContent(
 
         else -> Unit
     }
+    FilterModalBottomSheet(
+        sheetState = sheetState,
+        scope = scope,
+        onDismiss = onDismiss,
+        showBottomSheet = showBottomSheet,
+        innerPadding = innerPadding
+    )
 }
 
 @Composable
@@ -227,4 +276,40 @@ private fun SearchBar(
         ),
         shape = RoundedCornerShape(8.dp)
     )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun FilterModalBottomSheet(
+    modifier: Modifier = Modifier,
+    sheetState: SheetState,
+    scope: CoroutineScope,
+    showBottomSheet: Boolean,
+    innerPadding: PaddingValues,
+    onDismiss: () -> Unit
+) {
+    if (showBottomSheet) {
+        ModalBottomSheet(
+            modifier = modifier
+                .fillMaxHeight()
+                .windowInsetsPadding(
+                    WindowInsets(top = innerPadding.calculateTopPadding())
+                ),
+            onDismissRequest = {
+                onDismiss()
+            },
+            dragHandle = null,
+            sheetState = sheetState
+        ) {
+            Button(onClick = {
+                scope.launch { sheetState.hide() }.invokeOnCompletion {
+                    if (!sheetState.isVisible) {
+                        onDismiss()
+                    }
+                }
+            }) {
+                Text("Hide bottom sheet")
+            }
+        }
+    }
 }
