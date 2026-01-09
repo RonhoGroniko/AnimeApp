@@ -46,7 +46,7 @@ fun AnimeCard(
     anime: AnimeListItem,
     onCardClick: (Long) -> Unit
 ) {
-    var backEnabled by remember { mutableStateOf(true) } // TODO: ПОЧЕМУ НАЗЫВАЕТСЯ BACKENABLED?>?////???
+    var backEnabled by remember { mutableStateOf(true) }
 
     Card(
         modifier = modifier

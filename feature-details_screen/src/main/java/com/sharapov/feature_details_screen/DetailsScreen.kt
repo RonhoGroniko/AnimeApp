@@ -71,7 +71,6 @@ import com.sharapov.core_ui.theme.CustomFonts
 import com.sharapov.core_ui.theme.composable.AnimeCard
 import com.sharapov.core_ui.theme.core.BasePane
 import com.sharapov.core_ui.theme.core.LceState
-import com.sharapov.domain_anime.entity.details.RelatedAnime
 import com.sharapov.domain_anime.entity.details.Screenshot
 import com.sharapov.domain_anime.entity.list.AnimeListItem
 import com.sharapov.feature_details_screen.mapper.episodesToUi
@@ -192,6 +191,7 @@ fun DetailsScreenContent(
                         text = contentState.data.anime.description
                     )
                 }
+                item { Spacer(modifier = Modifier.height(8.dp)) }
             }
             if (contentState.data.anime.screenshotsUrls.isNotEmpty()) {
                 item {
@@ -206,6 +206,7 @@ fun DetailsScreenContent(
                     )
                 }
                 item { ScreenshotRow(pictureUrls = contentState.data.anime.screenshotsUrls) }
+                item { Spacer(modifier = Modifier.height(8.dp)) }
             }
             if (contentState.data.anime.relatedAnime.isNotEmpty()) {
                 item {
@@ -226,6 +227,7 @@ fun DetailsScreenContent(
                         onCardClick = onCardClick
                     )
                 }
+                item { Spacer(modifier = Modifier.height(8.dp)) }
             }
             if (contentState.data.anime.chronology.isNotEmpty()) {
                 item {
@@ -241,6 +243,7 @@ fun DetailsScreenContent(
                         onCardClick = onCardClick
                     )
                 }
+                item { Spacer(modifier = Modifier.height(8.dp)) }
             }
         }
 
@@ -789,23 +792,3 @@ private fun AnimeCardsRowWithTitle(
     }
 }
 
-@Composable
-fun AnimeCardsRow(
-    modifier: Modifier = Modifier,
-    animeList: List<AnimeListItem>,
-    onCardClick: (Long) -> Unit
-) {
-    LazyRow(
-        modifier = modifier.fillMaxWidth(),
-    ) {
-        animeList.forEach { anime ->
-            item(key = anime.id) {
-                AnimeCard(
-                    modifier = Modifier.padding(8.dp),
-                    anime = anime,
-                    onCardClick = { onCardClick(anime.id) }
-                )
-            }
-        }
-    }
-}

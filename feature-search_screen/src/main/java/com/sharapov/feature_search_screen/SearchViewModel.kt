@@ -55,7 +55,6 @@ class SearchViewModel @AssistedInject constructor(
             searchAnimeUseCase(
                 query = query,
                 limit = 20,
-                page = 1,
                 filter = filter
             ).flow
         }

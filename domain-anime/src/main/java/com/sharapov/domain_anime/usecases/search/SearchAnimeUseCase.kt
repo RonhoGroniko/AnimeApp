@@ -13,13 +13,11 @@ class SearchAnimeUseCase @Inject constructor(
     operator fun invoke(
         query: String,
         limit: Int,
-        page: Int,
         filter: AnimeFilter
     ): Pager<Int, AnimeListItem> {
         return searchRepository.searchAnime(
             query = query,
             limit = limit,
-            page = page,
             filter = filter
         )
     }

@@ -16,7 +16,6 @@ class AnimeSearchRepositoryImpl @Inject constructor(
     override fun searchAnime(
         query: String,
         limit: Int,
-        page: Int,
         filter: AnimeFilter
     ): Pager<Int, AnimeListItem> {
         return Pager(

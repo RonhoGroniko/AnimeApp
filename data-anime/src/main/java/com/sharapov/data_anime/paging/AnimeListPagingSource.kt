@@ -44,7 +44,7 @@ class AnimeListPagingSource @AssistedInject constructor(
             )
                 .execute()
                 .dataOrThrow()
-            val nextKey = if (data.animes.size < limit) null else page + 1
+            val nextKey = if (data.animes.size < pageSize) null else page + 1
             val prevKey = if (page == 1) null else page - 1
             return LoadResult.Page(data.toEntities(), prevKey, nextKey)
         } catch (e: Exception) {
