@@ -48,6 +48,9 @@ dependencies {
 
     implementation(libs.kotlinx.coroutines.core)
 
+    api(libs.androidx.paging.runtime)
+    api(libs.androidx.paging.compose)
+
     implementation(libs.androidx.core.ktx)
     testImplementation(libs.junit)
 }

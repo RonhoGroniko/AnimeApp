@@ -16,6 +16,4 @@ enum class AnimeOrder(val value: String) {
     BY_SHIKIMORI_RANKING("ranked_shiki"), // By Shikimori ranking
     CREATED_AT("created_at"), // created_at
     CREATED_AT_DESC("created_at_desc"), // created_at_desc
-    UPDATED_AT("updated_at"), // By field updated_at on entity
-    UPDATED_AT_DESC("updated_at_desc"), // updated_at_desc
 }

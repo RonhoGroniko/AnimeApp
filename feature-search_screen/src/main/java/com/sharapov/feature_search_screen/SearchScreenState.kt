@@ -4,8 +4,7 @@ import com.sharapov.core_ui.theme.core.LceState
 import com.sharapov.domain_anime.entity.list.AnimeListItem
 
 data class SearchScreenContent(
-    val query: String,
-    val animeList: List<AnimeListItem>
+    val query: String = ""
 )
 
 typealias SearchScreenState = LceState<SearchScreenContent>

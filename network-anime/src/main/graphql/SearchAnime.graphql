@@ -1,0 +1,12 @@
+query SearchAnime(
+    $query : String!,
+    $limit : PositiveInt!,
+    $page : PositiveInt!
+    $order : OrderEnum!,
+    $status : AnimeStatusString
+) {
+
+    animes(search: $query, order : $order, status: $status, limit: $limit, page : $page) {
+        ...AnimeFields
+    }
+}

@@ -1,19 +1,22 @@
 package com.sharapov.feature_search_screen
 
 
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -24,29 +27,50 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.paging.LoadState
+import androidx.paging.compose.LazyPagingItems
+import androidx.paging.compose.collectAsLazyPagingItems
+import androidx.paging.compose.itemKey
 import com.sharapov.core_ui.theme.CustomFonts
 import com.sharapov.core_ui.theme.composable.AnimeCard
 import com.sharapov.core_ui.theme.core.BasePane
 import com.sharapov.core_ui.theme.core.LceState
+import com.sharapov.domain_anime.entity.filter.AnimeFilter
+import com.sharapov.domain_anime.entity.list.AnimeListItem
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SearchScreen(
-//    filter: AnimeFilter = AnimeFilter.All,
-    viewModel: SearchViewModel = hiltViewModel(),
+    filter: AnimeFilter = AnimeFilter(),
+    viewModel: SearchViewModel = hiltViewModel { factory: SearchViewModel.Factory ->
+        factory.create(filter)
+    },
     onCardClick: (Long) -> Unit
 ) {
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
     val state = viewModel.state.collectAsState()
+    val animeList = viewModel.animePagingFlow.collectAsLazyPagingItems()
+
+    val refreshError = animeList.loadState.refresh as? LoadState.Error
+
+    LaunchedEffect(refreshError) {
+        if (refreshError != null && animeList.itemCount == 0) {
+            viewModel.errorLoadStateToLce(refreshError.error)
+        }
+    }
+
     BasePane(
         lceState = state.value,
         topBar = {
@@ -63,8 +87,8 @@ fun SearchScreen(
             is LceState.Content<SearchScreenContent> -> {
                 SearchScreenContent(
                     innerPadding = innerPadding,
-                    contentState = currentState,
-                    onCardClick = onCardClick
+                    onCardClick = onCardClick,
+                    lazyPagingItems = animeList
                 )
             }
 
@@ -104,9 +128,15 @@ fun EnterAlwaysTopAppBar(
 private fun SearchScreenContent(
     modifier: Modifier = Modifier,
     innerPadding: PaddingValues,
-    contentState: LceState.Content<SearchScreenContent>,
+    lazyPagingItems: LazyPagingItems<AnimeListItem>,
     onCardClick: (Long) -> Unit
 ) {
+    if (lazyPagingItems.loadState.hasError && lazyPagingItems.itemCount != 0) {
+        val context = LocalContext.current
+        LaunchedEffect(Unit) {
+            Toast.makeText(context, "Error downloading", Toast.LENGTH_LONG).show()
+        }
+    }
     LazyVerticalGrid(
         columns = GridCells.Fixed(3),
         modifier = modifier
@@ -115,16 +145,35 @@ private fun SearchScreenContent(
         contentPadding = innerPadding,
         verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
-        items(contentState.data.animeList, key = { it.id }) { anime ->
-            AnimeCard(
-                modifier = Modifier
-                    .padding(horizontal = 4.dp)
-                    .fillMaxWidth()
-                    .aspectRatio(0.72f),
-                anime = anime,
-                onCardClick = onCardClick
-            )
+        items(lazyPagingItems.itemCount, key = lazyPagingItems.itemKey { it.id }) { index ->
+            val anime = lazyPagingItems[index]
+            anime?.let {
+                AnimeCard(
+                    modifier = Modifier
+                        .padding(horizontal = 4.dp)
+                        .fillMaxWidth()
+                        .aspectRatio(0.72f),
+                    anime = anime,
+                    onCardClick = onCardClick
+                )
+            }
         }
+    }
+    when (lazyPagingItems.loadState.append) {
+        is LoadState.Loading -> {
+            Box(
+                Modifier
+                    .fillMaxSize()
+                    .padding(innerPadding),
+                contentAlignment = Alignment.TopCenter
+            ) {
+                CircularProgressIndicator(
+                    color = MaterialTheme.colorScheme.onSecondary
+                )
+            }
+        }
+
+        else -> Unit
     }
 }
 
