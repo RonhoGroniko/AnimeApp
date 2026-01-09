@@ -8,25 +8,34 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.SheetState
@@ -39,9 +48,9 @@ import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -53,6 +62,7 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
@@ -65,6 +75,7 @@ import com.sharapov.core_ui.theme.composable.AnimeCard
 import com.sharapov.core_ui.theme.core.BasePane
 import com.sharapov.core_ui.theme.core.LceState
 import com.sharapov.domain_anime.entity.filter.AnimeFilter
+import com.sharapov.domain_anime.entity.filter.genre.Genre
 import com.sharapov.domain_anime.entity.list.AnimeListItem
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -299,17 +310,126 @@ private fun FilterModalBottomSheet(
                 onDismiss()
             },
             dragHandle = null,
-            sheetState = sheetState
+            sheetState = sheetState,
+            shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp)
         ) {
-            Button(onClick = {
-                scope.launch { sheetState.hide() }.invokeOnCompletion {
-                    if (!sheetState.isVisible) {
-                        onDismiss()
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(MaterialTheme.colorScheme.surfaceVariant)
+                    .border(
+                        1.dp,
+                        color = MaterialTheme.colorScheme.onSecondaryContainer,
+                        shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp)
+                    )
+                    .height(IntrinsicSize.Min),
+            ) {
+                IconButton(
+                    onClick = {
+                        scope.launch { sheetState.hide() }.invokeOnCompletion {
+                            if (!sheetState.isVisible) {
+                                onDismiss()
+                            }
+                        }
+                    }
+                ) {
+                    Icon(imageVector = Icons.Default.Close, contentDescription = "Close filters")
+                }
+                Box(
+                    modifier = Modifier
+                        .weight(1f)
+                        .fillMaxHeight(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = "Filters",
+                        fontFamily = CustomFonts.Poppins,
+                        fontSize = 16.sp,
+                        color = MaterialTheme.colorScheme.secondary,
+                        fontStyle = FontStyle.Italic,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+            }
+            LazyColumn() {
+                item {
+                    GenresFilter()
+                }
+
+            }
+
+        }
+    }
+}
+
+@Composable
+private fun GenresFilter(
+    modifier: Modifier = Modifier
+) {
+    val selectedGenres = remember { mutableStateListOf<String>() }
+    Column(modifier = modifier.fillMaxSize()) {
+        FilterSubtitle(text = "Genres")
+        Genre.sortedAlphabetically.forEach { sortedMap ->
+            Column() {
+                UppercaseLetterWithDivider(letter = sortedMap.key)
+                FlowRow(
+                    modifier = Modifier.padding(horizontal = 4.dp),
+                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    sortedMap.value.forEach { genre ->
+                        val selected = genre in selectedGenres
+                        FilterChip(
+                            selected = selected,
+                            onClick = {
+                                if (selected) {
+                                    selectedGenres.remove(genre)
+                                } else {
+                                    selectedGenres.add(genre)
+                                }
+                            },
+                            label = { Text(text = genre) }
+                        )
                     }
                 }
-            }) {
-                Text("Hide bottom sheet")
             }
         }
     }
+}
+
+@Composable
+private fun FilterSubtitle(
+    modifier: Modifier = Modifier,
+    text: String
+) {
+    Text(
+        modifier = modifier.padding(start = 16.dp, top = 8.dp),
+        text = text,
+        fontFamily = CustomFonts.Poppins,
+        fontSize = 16.sp,
+        color = MaterialTheme.colorScheme.secondary,
+        fontStyle = FontStyle.Normal,
+        fontWeight = FontWeight.Bold
+    )
+}
+
+@Composable
+private fun UppercaseLetterWithDivider(
+    modifier: Modifier = Modifier,
+    letter: Char,
+) {
+    Column(modifier = modifier.fillMaxWidth()) {
+        Text(
+            modifier = Modifier.padding(horizontal = 8.dp),
+            text = letter.toString(),
+            fontFamily = CustomFonts.Poppins,
+            fontSize = 16.sp,
+            color = MaterialTheme.colorScheme.secondary,
+            fontStyle = FontStyle.Italic
+        )
+        HorizontalDivider(
+            modifier = modifier.fillMaxWidth(),
+            color = MaterialTheme.colorScheme.onSecondaryContainer
+        )
+    }
+
 }
