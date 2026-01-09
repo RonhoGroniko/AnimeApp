@@ -3,10 +3,32 @@ query SearchAnime(
     $limit : PositiveInt!,
     $page : PositiveInt!
     $order : OrderEnum!,
-    $status : AnimeStatusString
+    $status : AnimeStatusString,
+    $kind : AnimeKindString,
+    $season : SeasonString,
+    $rating : RatingString,
+    $origin : OriginString,
+    $genres : String,
+    $studios : String,
+    $franchise : String,
+    $censored : Boolean
 ) {
 
-    animes(search: $query, order : $order, status: $status, limit: $limit, page : $page) {
+    animes(
+        search: $query,
+        order : $order,
+        status: $status,
+        limit: $limit,
+        page : $page,
+        kind: $kind,
+        season: $season,
+        rating: $rating,
+        origin: $origin,
+        genre: $genres,
+        studio: $studios,
+        franchise: $franchise,
+        censored: $censored
+    ) {
         ...AnimeFields
     }
 }

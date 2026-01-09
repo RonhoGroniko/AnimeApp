@@ -11,8 +11,8 @@ data class AnimeFilter(
     val season: String? = null,
     val rating: AnimeRating? = null,
     val origin: AnimeOrigin? = null,
-    val genre: String? = null,
-    val studio: String? = null,
+    val genre: String? = null, // List of comma separated genre ids
+    val studio: String? = null, // List of comma separated studio ids
     val franchise: String? = null,
-    val censored: Boolean? = null
+    val censored: Boolean = true
 )

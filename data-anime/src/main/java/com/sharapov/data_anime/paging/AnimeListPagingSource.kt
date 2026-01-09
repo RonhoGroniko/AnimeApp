@@ -40,6 +40,14 @@ class AnimeListPagingSource @AssistedInject constructor(
                     page = page,
                     order = filter.order.toOrderEnum(),
                     status = filter.status?.let { Optional.present(it.value) } ?: Optional.absent(),
+                    kind = filter.kind?.let { Optional.present(it.value) } ?: Optional.absent(),
+                    season = filter.season?.let { Optional.present(it) } ?: Optional.absent(),
+                    rating = filter.rating?.let { Optional.present(it.value) } ?: Optional.absent(),
+                    origin = filter.origin?.let { Optional.present(it.value) } ?: Optional.absent(),
+                    genres = filter.genre?.let { Optional.present(it) } ?: Optional.absent(),
+                    studios = filter.studio?.let { Optional.present(it) } ?: Optional.absent(),
+                    franchise = filter.franchise?.let { Optional.present(it) } ?: Optional.absent(),
+                    censored = filter.censored.let { Optional.present(it) },
                 )
             )
                 .execute()
