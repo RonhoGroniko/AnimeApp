@@ -31,6 +31,9 @@ sealed interface Screen : NavKey {
     }
 
     @Serializable
+    data class SearchWithGenre(val genre: String) : Screen // genre as string
+
+    @Serializable
     data object Favorites : Screen, BottomNavItem {
         override val selectedIcon: ImageVector = Icons.Filled.Bookmark
         override val unselectedIcon: ImageVector = Icons.Outlined.BookmarkBorder
@@ -53,6 +56,7 @@ sealed interface Screen : NavKey {
 
 private const val MAIN_ROUTE = "main"
 private const val SEARCH_ROUTE = "search"
+private const val SEARCH_WITH_GENRE_PREFIX = "search_genre:"
 private const val SETTINGS_ROUTE = "settings"
 private const val PROFILE_ROUTE = "profile"
 private const val DETAILS_PREFIX = "details:"
@@ -65,6 +69,7 @@ fun Screen.toRoute(): String = when (this) {
     Screen.Main -> MAIN_ROUTE
     Screen.Search -> SEARCH_ROUTE
     Screen.Settings -> SETTINGS_ROUTE
+    is Screen.SearchWithGenre -> "$SEARCH_WITH_GENRE_PREFIX$genre"
 }
 
 fun String.toScreen(): Screen = when {
@@ -75,6 +80,7 @@ fun String.toScreen(): Screen = when {
     this == FAVORITES_ROUTE -> Screen.Favorites
     this == SEARCH_ROUTE -> Screen.Search
     this == SETTINGS_ROUTE -> Screen.Settings
+    startsWith(SEARCH_WITH_GENRE_PREFIX) -> Screen.SearchWithGenre(substringAfter(SEARCH_WITH_GENRE_PREFIX))
     else -> Screen.Main
 }
 

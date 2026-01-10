@@ -4,7 +4,7 @@ enum class AnimeKind(val value: String) {
     TV("TV Series"),
     MOVIE("Movie"),
     OVA("OVA"),
-    ONA("OVA"),
+    ONA("ONA"),
     SPECIAL("Special"),
     TV_SPECIAL("TV Special"),
     MUSIC("Music"),

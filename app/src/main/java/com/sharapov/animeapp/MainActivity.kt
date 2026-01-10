@@ -16,6 +16,8 @@ import com.sharapov.core_navigation.BaseBottomBar
 import com.sharapov.core_navigation.Screen
 import com.sharapov.core_navigation.TopLevelBackStack
 import com.sharapov.core_ui.theme.AnimeAppTheme
+import com.sharapov.domain_anime.entity.filter.AnimeFilter
+import com.sharapov.domain_anime.entity.filter.genre.Genre
 import com.sharapov.feature_details_screen.DetailsScreen
 import com.sharapov.feature_main_screen.MainScreen
 import com.sharapov.feature_search_screen.SearchScreen
@@ -62,6 +64,10 @@ class MainActivity : ComponentActivity() {
                                     onBackClick = { topLevelBackStack.removeLast() },
                                     onCardClick = { animeId ->
                                         topLevelBackStack.add(Screen.Details(animeId))
+                                    },
+                                    onGenreClick = { genre ->
+                                        topLevelBackStack.switchTopLevel(Screen.Search)
+                                        topLevelBackStack.add(Screen.SearchWithGenre(genre))
                                     }
                                 )
                             }
@@ -76,6 +82,15 @@ class MainActivity : ComponentActivity() {
 
                             entry<Screen.Search> { key ->
                                 SearchScreen(
+                                    onCardClick = { animeId ->
+                                        topLevelBackStack.add(Screen.Details(animeId))
+                                    }
+                                )
+                            }
+
+                            entry<Screen.SearchWithGenre> { key ->
+                                SearchScreen(
+                                    filter = AnimeFilter(genre = Genre.getIdByName(key.genre).toString()),
                                     onCardClick = { animeId ->
                                         topLevelBackStack.add(Screen.Details(animeId))
                                     }

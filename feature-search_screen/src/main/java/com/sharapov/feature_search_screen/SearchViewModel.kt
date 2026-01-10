@@ -10,6 +10,7 @@ import com.sharapov.core_ui.theme.core.toUiMessage
 import com.sharapov.domain_anime.entity.filter.AnimeFilter
 import com.sharapov.domain_anime.entity.list.AnimeListItem
 import com.sharapov.domain_anime.usecases.search.SearchAnimeUseCase
+import com.sharapov.feature_search_screen.model.toUi
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
@@ -47,7 +48,8 @@ class SearchViewModel @AssistedInject constructor(
         .onEach {
             _state.value = LceState.Content(
                 SearchScreenContent(
-                    query = it
+                    query = it,
+                    filter = filter.toUi()
                 )
             )
         }

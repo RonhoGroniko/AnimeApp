@@ -89,5 +89,23 @@ enum class Genre(val id: Int, val value: String) {
                 .map { it.value }
                 .sorted()
                 .groupBy { it[0].uppercaseChar() }
+
+        fun getById(id: Int): Genre {
+            for (genre in entries) {
+                if (id == genre.id) {
+                    return genre
+                }
+            }
+            throw IllegalArgumentException("Unknown genre_id $id")
+        }
+
+        fun getIdByName(name: String): Int {
+            for (genre in entries) {
+                if (name == genre.value) {
+                    return genre.id
+                }
+            }
+            throw IllegalArgumentException("Unknown genre_name $name")
+        }
     }
 }

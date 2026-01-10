@@ -6,6 +6,7 @@ package com.sharapov.feature_search_screen
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -13,6 +14,7 @@ import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -20,6 +22,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -27,8 +31,13 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material.icons.filled.ArrowDropUp
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.DeleteOutline
+import androidx.compose.material.icons.filled.Done
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
@@ -74,9 +83,13 @@ import com.sharapov.core_ui.theme.CustomFonts
 import com.sharapov.core_ui.theme.composable.AnimeCard
 import com.sharapov.core_ui.theme.core.BasePane
 import com.sharapov.core_ui.theme.core.LceState
+import com.sharapov.domain_anime.entity.AnimeKind
+import com.sharapov.domain_anime.entity.AnimeRating
+import com.sharapov.domain_anime.entity.AnimeStatus
 import com.sharapov.domain_anime.entity.filter.AnimeFilter
 import com.sharapov.domain_anime.entity.filter.genre.Genre
 import com.sharapov.domain_anime.entity.list.AnimeListItem
+import com.sharapov.feature_search_screen.model.AnimeFilterUiModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -134,6 +147,7 @@ fun SearchScreen(
                     lazyPagingItems = animeList,
                     sheetState = sheetState,
                     scope = scope,
+                    initialFilter = currentState.data.filter,
                     onDismiss = {
                         showBottomSheet = false
                     },
@@ -181,6 +195,7 @@ private fun SearchScreenContent(
     sheetState: SheetState,
     scope: CoroutineScope,
     showBottomSheet: Boolean,
+    initialFilter: AnimeFilterUiModel,
     onDismiss: () -> Unit,
     onCardClick: (Long) -> Unit
 ) {
@@ -233,6 +248,7 @@ private fun SearchScreenContent(
         scope = scope,
         onDismiss = onDismiss,
         showBottomSheet = showBottomSheet,
+        initialFilter = initialFilter,
         innerPadding = innerPadding
     )
 }
@@ -297,9 +313,19 @@ private fun FilterModalBottomSheet(
     scope: CoroutineScope,
     showBottomSheet: Boolean,
     innerPadding: PaddingValues,
+    initialFilter: AnimeFilterUiModel,
+//    onApplyFilter: (AnimeFilter) -> Unit,
     onDismiss: () -> Unit
 ) {
     if (showBottomSheet) {
+
+        val selectedGenres = remember { mutableStateListOf<String>() }
+
+        LaunchedEffect(Unit) {
+            selectedGenres.addAll(initialFilter.genre ?: listOf())
+        }
+
+
         ModalBottomSheet(
             modifier = modifier
                 .fillMaxHeight()
@@ -322,7 +348,9 @@ private fun FilterModalBottomSheet(
                         color = MaterialTheme.colorScheme.onSecondaryContainer,
                         shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp)
                     )
+                    .padding(horizontal = 8.dp)
                     .height(IntrinsicSize.Min),
+                verticalAlignment = Alignment.CenterVertically
             ) {
                 IconButton(
                     onClick = {
@@ -350,47 +378,159 @@ private fun FilterModalBottomSheet(
                         fontWeight = FontWeight.Bold
                     )
                 }
+                Button(
+                    modifier = Modifier.padding(vertical = 2.dp),
+                    onClick = {}
+                ) {
+//                    Text(text = "Clear", fontFamily = CustomFonts.Poppins)
+                    Icon(imageVector = Icons.Default.DeleteOutline, contentDescription = "Close filters")
+                }
+                Spacer(modifier = Modifier.width(4.dp))
+                Button(
+                    modifier = Modifier.padding(vertical = 2.dp),
+                    onClick = {}
+                ) {
+//                    Text(text = "Apply", fontFamily = CustomFonts.Poppins)
+                    Icon(imageVector = Icons.Default.Done, contentDescription = "Apply filters")
+                }
             }
             LazyColumn() {
                 item {
-                    GenresFilter()
+                    GenresFilter(
+                        selectedGenres = selectedGenres,
+                        onToggle = { genre ->
+                            if (genre in selectedGenres) {
+                                selectedGenres.remove(genre)
+                            } else {
+                                selectedGenres.add(genre)
+                            }
+                        }
+                    )
                 }
-
+                item {
+                    Spacer(modifier = Modifier.height(16.dp))
+                }
+                item {
+                    FilterPart(
+                        subtitleText = "Status",
+                        items = AnimeStatus.entries.filter { it != AnimeStatus.UNKNOWN }
+                            .map { it.valueForUi }
+                    )
+                }
+                item {
+                    HorizontalDivider(
+                        modifier = modifier.fillMaxWidth(),
+                        color = MaterialTheme.colorScheme.onSecondaryContainer
+                    )
+                    Spacer(modifier = Modifier.height(16.dp))
+                }
+                item {
+                    FilterPart(
+                        subtitleText = "Type",
+                        items = AnimeKind.entries.filter { it != AnimeKind.UNKNOWN }
+                            .map { it.value }
+                    )
+                }
+                item {
+                    HorizontalDivider(
+                        modifier = modifier.fillMaxWidth(),
+                        color = MaterialTheme.colorScheme.onSecondaryContainer
+                    )
+                    Spacer(modifier = Modifier.height(16.dp))
+                }
+                item {
+                    FilterPart(
+                        subtitleText = "Age Rating",
+                        items = AnimeRating.entries.filter { it != AnimeRating.UNKNOWN }
+                            .map { it.value }
+                    )
+                }
+                item {
+                    HorizontalDivider(
+                        modifier = modifier.fillMaxWidth(),
+                        color = MaterialTheme.colorScheme.onSecondaryContainer
+                    )
+                    Spacer(modifier = Modifier.height(16.dp))
+                }
             }
-
         }
     }
 }
 
 @Composable
 private fun GenresFilter(
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    selectedGenres: List<String>,
+    onToggle: (String) -> Unit
 ) {
-    val selectedGenres = remember { mutableStateListOf<String>() }
-    Column(modifier = modifier.fillMaxSize()) {
-        FilterSubtitle(text = "Genres")
-        Genre.sortedAlphabetically.forEach { sortedMap ->
-            Column() {
-                UppercaseLetterWithDivider(letter = sortedMap.key)
-                FlowRow(
-                    modifier = Modifier.padding(horizontal = 4.dp),
-                    horizontalArrangement = Arrangement.spacedBy(4.dp)
-                ) {
-                    sortedMap.value.forEach { genre ->
-                        val selected = genre in selectedGenres
-                        FilterChip(
-                            selected = selected,
-                            onClick = {
-                                if (selected) {
-                                    selectedGenres.remove(genre)
-                                } else {
-                                    selectedGenres.add(genre)
+    var expandGenres by remember { mutableStateOf(false) }
+    Column(modifier = modifier.fillMaxWidth()) {
+        ExpandableFilterSubtitle(
+            text = "Genres",
+            expand = expandGenres,
+            onExpandClick = { expandGenres = !expandGenres }
+        )
+        if (expandGenres) {
+            Genre.sortedAlphabetically.forEach { sortedMap ->
+                Column() {
+                    UppercaseLetterWithDivider(letter = sortedMap.key)
+                    FlowRow(
+                        modifier = Modifier.padding(horizontal = 4.dp),
+                        horizontalArrangement = Arrangement.spacedBy(4.dp)
+                    ) {
+                        sortedMap.value.forEach { genre ->
+                            val selected = genre in selectedGenres
+                            FilterChip(
+                                selected = selected,
+                                onClick = {
+                                    onToggle(genre)
+                                },
+                                label = {
+                                    Text(
+                                        text = genre,
+                                        fontFamily = CustomFonts.Poppins,
+                                    )
                                 }
-                            },
-                            label = { Text(text = genre) }
-                        )
+                            )
+                        }
                     }
                 }
+            }
+        }
+    }
+}
+
+@Composable
+private fun FilterPart(
+    modifier: Modifier = Modifier,
+    subtitleText: String,
+    items: List<String>
+) {
+    val selectedItems = remember { mutableStateListOf<String>() }
+    Column(modifier = modifier) {
+        FilterSubtitle(text = subtitleText)
+        FlowRow(
+            modifier = Modifier.padding(horizontal = 4.dp),
+            horizontalArrangement = Arrangement.spacedBy(4.dp)
+        ) {
+            items.forEach { item ->
+                val selected = item in selectedItems
+                FilterChip(
+                    selected = selected,
+                    onClick = {
+                        if (selected) {
+                            selectedItems.remove(item)
+                        } else {
+                            selectedItems.add(item)
+                        }
+                    },
+                    label = {
+                        Text(
+                            text = item,
+                            fontFamily = CustomFonts.Poppins,
+                        )
+                    }
+                )
             }
         }
     }
@@ -401,16 +541,58 @@ private fun FilterSubtitle(
     modifier: Modifier = Modifier,
     text: String
 ) {
-    Text(
-        modifier = modifier.padding(start = 16.dp, top = 8.dp),
-        text = text,
-        fontFamily = CustomFonts.Poppins,
-        fontSize = 16.sp,
-        color = MaterialTheme.colorScheme.secondary,
-        fontStyle = FontStyle.Normal,
-        fontWeight = FontWeight.Bold
-    )
+    Box(
+        modifier = modifier.padding(horizontal = 16.dp),
+        contentAlignment = Alignment.CenterStart
+    ) {
+        Text(
+            text = text,
+            fontFamily = CustomFonts.Poppins,
+            fontSize = 16.sp,
+            color = MaterialTheme.colorScheme.secondary,
+            fontStyle = FontStyle.Normal,
+            fontWeight = FontWeight.Bold
+        )
+    }
 }
+
+
+@Composable
+private fun ExpandableFilterSubtitle(
+    modifier: Modifier = Modifier,
+    text: String,
+    expand: Boolean,
+    onExpandClick: () -> Unit
+) {
+    Column() {
+        Row(
+            modifier
+                .fillMaxWidth()
+                .height(48.dp)
+                .clickable(onClick = { onExpandClick() }),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            FilterSubtitle(
+                text = text, modifier = Modifier
+                    .fillMaxHeight()
+                    .weight(1f)
+            )
+            Icon(
+                modifier = Modifier
+                    .padding(horizontal = 16.dp)
+                    .size(24.dp),
+                imageVector = if (expand) Icons.Default.ArrowDropUp else Icons.Default.ArrowDropDown,
+                contentDescription = if (expand) "Shrink genres" else "Expand genres",
+                tint = MaterialTheme.colorScheme.secondary
+            )
+        }
+        HorizontalDivider(
+            modifier = modifier.fillMaxWidth(),
+            color = MaterialTheme.colorScheme.onSecondaryContainer
+        )
+    }
+}
+
 
 @Composable
 private fun UppercaseLetterWithDivider(
@@ -431,5 +613,4 @@ private fun UppercaseLetterWithDivider(
             color = MaterialTheme.colorScheme.onSecondaryContainer
         )
     }
-
 }

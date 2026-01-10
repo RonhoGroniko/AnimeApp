@@ -84,6 +84,7 @@ fun DetailsScreen(
     },
     onBackClick: () -> Unit,
     onCardClick: (Long) -> Unit,
+    onGenreClick: (String) -> Unit,
 ) {
     val state = viewModel.state.collectAsState()
     BasePane(
@@ -96,7 +97,8 @@ fun DetailsScreen(
                     contentState = currentState,
                     innerPadding = innerPadding,
                     onBackClick = onBackClick,
-                    onCardClick = onCardClick
+                    onCardClick = onCardClick,
+                    onGenreClick = onGenreClick
                 )
             }
 
@@ -114,7 +116,7 @@ fun DetailsScreenContent(
     contentState: LceState.Content<DetailsScreenContent>,
     onBackClick: () -> Unit,
     onCardClick: (Long) -> Unit,
-//    onGenreClick: (AnimeFilter) -> Unit,
+    onGenreClick: (String) -> Unit,
 //    onChangeFavoriteStatus: () -> Unit
 ) {
     val listState = rememberLazyListState()
@@ -158,7 +160,7 @@ fun DetailsScreenContent(
             item {
                 GenreChips(
                     genres = contentState.data.anime.genres,
-//                    onGenreClick = onGenreClick
+                    onGenreClick = onGenreClick
                 )
             }
             item {
@@ -500,7 +502,7 @@ private fun calculateStars(mean: Double): StarState {
 fun GenreChips(
     modifier: Modifier = Modifier,
     genres: List<String>,
-//    onGenreClick: (AnimeFilter) -> Unit
+    onGenreClick: (String) -> Unit
 ) {
     LazyRow(
         modifier = modifier
@@ -513,7 +515,7 @@ fun GenreChips(
             item {
                 ElevatedSuggestionChip(
                     onClick = {
-//                        onGenreClick(AnimeFilter.ByGenre(genre))
+                        onGenreClick(genre)
                     },
                     label = {
                         Text(
