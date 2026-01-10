@@ -20,9 +20,10 @@ class AnimeSearchRepositoryImpl @Inject constructor(
     ): Pager<Int, AnimeListItem> {
         return Pager(
             PagingConfig(
+                initialLoadSize = 20,
                 pageSize = limit,
                 enablePlaceholders = false,
-                maxSize = 100
+                maxSize = 400
             )
         ) {
             pagingSourceFactory.create(

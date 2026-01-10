@@ -30,8 +30,7 @@ class AnimeListPagingSource @AssistedInject constructor(
 
     override suspend fun load(params: LoadParams<Int>): LoadResult<Int, AnimeListItem> {
         val page = params.key ?: 1
-        val pageSize = params.loadSize.coerceIn(minimumValue = limit, maximumValue = 50) // TODO: DELETE MAGIC NUMBER
-
+        val pageSize = limit // TODO: DELETE MAGIC NUMBER
         try {
             val data = apolloClient.query(
                 SearchAnimeQuery(
@@ -54,6 +53,7 @@ class AnimeListPagingSource @AssistedInject constructor(
                 .dataOrThrow()
             val nextKey = if (data.animes.size < pageSize) null else page + 1
             val prevKey = if (page == 1) null else page - 1
+            Log.d("PagingSource Load", "Page: $page, limit: $limit, ids: ${data.toEntities().take(5).map { it.id }}")
             return LoadResult.Page(data.toEntities(), prevKey, nextKey)
         } catch (e: Exception) {
             Log.d("error", e.toString())
