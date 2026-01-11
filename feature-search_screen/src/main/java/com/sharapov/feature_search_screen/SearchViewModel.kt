@@ -10,7 +10,6 @@ import com.sharapov.core_ui.theme.core.toUiMessage
 import com.sharapov.domain_anime.entity.filter.AnimeFilter
 import com.sharapov.domain_anime.entity.list.AnimeListItem
 import com.sharapov.domain_anime.usecases.search.SearchAnimeUseCase
-import com.sharapov.feature_search_screen.model.toUi
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
@@ -20,6 +19,7 @@ import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
@@ -38,29 +38,36 @@ class SearchViewModel @AssistedInject constructor(
     val state = _state.asStateFlow()
 
     private val _query = MutableStateFlow("")
+    private val _filter = MutableStateFlow(filter)
 
     @OptIn(FlowPreview::class, ExperimentalCoroutinesApi::class)
-    val animePagingFlow: Flow<PagingData<AnimeListItem>> = _query
-        .onStart { _state.value = LceState.Loading }
-        .map { it.trim() }
-        .debounce(500)
-        .distinctUntilChanged()
-        .onEach {
-            _state.value = LceState.Content(
-                SearchScreenContent(
-                    query = it,
-                    filter = filter.toUi()
+    val animePagingFlow: Flow<PagingData<AnimeListItem>> =
+        combine(
+            _query
+            .map { it.trim() }
+            .debounce(500)
+            .distinctUntilChanged(),
+            _filter
+        ) { query, filter ->
+            query to filter
+        }
+            .onStart { _state.value = LceState.Loading }
+            .onEach { (query, filter) ->
+                _state.value = LceState.Content(
+                    SearchScreenContent(
+                        query = query,
+                        filter = filter
+                    )
                 )
-            )
-        }
-        .flatMapLatest { query ->
-            searchAnimeUseCase(
-                query = query,
-                limit = 20,
-                filter = filter
-            ).flow
-        }
-        .cachedIn(viewModelScope)
+            }
+            .flatMapLatest { (query, filter) ->
+                searchAnimeUseCase(
+                    query = query,
+                    limit = 20,
+                    filter = filter
+                ).flow
+            }
+            .cachedIn(viewModelScope)
 
     fun errorLoadStateToLce(throwable: Throwable?) {
         val type = throwable.toErrorType()
@@ -78,6 +85,17 @@ class SearchViewModel @AssistedInject constructor(
                 _state.update { prevState ->
                     if (prevState is LceState.Content) {
                         prevState.copy(data = prevState.data.copy(query = command.query))
+                    } else {
+                        prevState
+                    }
+                }
+            }
+
+            is SearchScreenCommand.ApplyFilter -> {
+                _state.update { prevState ->
+                    _filter.value = command.filter
+                    if (prevState is LceState.Content) {
+                        prevState.copy(data = prevState.data.copy(filter = command.filter))
                     } else {
                         prevState
                     }

@@ -10,7 +10,7 @@ enum class AnimeKind(val value: String) {
     MUSIC("Music"),
     PV("PV"),
     CM("CM"),
-    UNKNOWN("Unknown")
+    UNKNOWN("Unknown");
 }
 //movie - Movies
 //

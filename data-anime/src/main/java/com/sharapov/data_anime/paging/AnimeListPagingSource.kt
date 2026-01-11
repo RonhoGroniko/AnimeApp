@@ -8,6 +8,9 @@ import com.apollographql.apollo.api.Optional
 import com.sharapov.domain_anime.entity.filter.AnimeFilter
 import com.sharapov.domain_anime.entity.list.AnimeListItem
 import com.sharapov.network_anime.SearchAnimeQuery
+import com.sharapov.network_anime.mapper.toAnimeKindEnum
+import com.sharapov.network_anime.mapper.toAnimeRatingEnum
+import com.sharapov.network_anime.mapper.toAnimeStatusEnum
 import com.sharapov.network_anime.mapper.toEntities
 import com.sharapov.network_anime.mapper.toOrderEnum
 import dagger.assisted.Assisted
@@ -30,7 +33,7 @@ class AnimeListPagingSource @AssistedInject constructor(
 
     override suspend fun load(params: LoadParams<Int>): LoadResult<Int, AnimeListItem> {
         val page = params.key ?: 1
-        val pageSize = limit // TODO: DELETE MAGIC NUMBER
+        val pageSize = limit
         try {
             val data = apolloClient.query(
                 SearchAnimeQuery(
@@ -38,10 +41,10 @@ class AnimeListPagingSource @AssistedInject constructor(
                     limit = pageSize,
                     page = page,
                     order = filter.order.toOrderEnum(),
-                    status = filter.status?.let { Optional.present(it.value) } ?: Optional.absent(),
-                    kind = filter.kind?.let { Optional.present(it.value) } ?: Optional.absent(),
+                    status = filter.status?.let { Optional.present(it.toAnimeStatusEnum().rawValue) } ?: Optional.absent(),
+                    kind = filter.kind?.let { Optional.present(it.toAnimeKindEnum().rawValue) } ?: Optional.absent(),
                     season = filter.season?.let { Optional.present(it) } ?: Optional.absent(),
-                    rating = filter.rating?.let { Optional.present(it.value) } ?: Optional.absent(),
+                    rating = filter.rating?.let { Optional.present(it.toAnimeRatingEnum().rawValue) } ?: Optional.absent(),
                     origin = filter.origin?.let { Optional.present(it.value) } ?: Optional.absent(),
                     genres = filter.genre?.let { Optional.present(it) } ?: Optional.absent(),
                     studios = filter.studio?.let { Optional.present(it) } ?: Optional.absent(),

@@ -108,7 +108,6 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-//@Composable
-//fun DetailsScreen() {
-//    Box(modifier = Modifier.fillMaxSize().background(Color.Red))
-//}
+// TODO : АНИМКА GENRES FILTER
+// TODO : КРЕСТ В НЕПУСТОЙ QUERY
+// TODO : СМЕНИТЬ ЦВЕТА SEARCH SCREEN

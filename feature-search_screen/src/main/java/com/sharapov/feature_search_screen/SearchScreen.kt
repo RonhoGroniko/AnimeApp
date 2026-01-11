@@ -90,6 +90,8 @@ import com.sharapov.domain_anime.entity.filter.AnimeFilter
 import com.sharapov.domain_anime.entity.filter.genre.Genre
 import com.sharapov.domain_anime.entity.list.AnimeListItem
 import com.sharapov.feature_search_screen.model.AnimeFilterUiModel
+import com.sharapov.feature_search_screen.model.toEntity
+import com.sharapov.feature_search_screen.model.toUi
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -147,7 +149,10 @@ fun SearchScreen(
                     lazyPagingItems = animeList,
                     sheetState = sheetState,
                     scope = scope,
-                    initialFilter = currentState.data.filter,
+                    initialFilter = currentState.data.filter.toUi(),
+                    onApplyFilter = { newFilter ->
+                        viewModel.processCommand(SearchScreenCommand.ApplyFilter(newFilter))
+                    },
                     onDismiss = {
                         showBottomSheet = false
                     },
@@ -197,7 +202,8 @@ private fun SearchScreenContent(
     showBottomSheet: Boolean,
     initialFilter: AnimeFilterUiModel,
     onDismiss: () -> Unit,
-    onCardClick: (Long) -> Unit
+    onCardClick: (Long) -> Unit,
+    onApplyFilter: (AnimeFilter) -> Unit
 ) {
     if (lazyPagingItems.loadState.hasError && lazyPagingItems.itemCount != 0) {
         val context = LocalContext.current
@@ -249,7 +255,8 @@ private fun SearchScreenContent(
         onDismiss = onDismiss,
         showBottomSheet = showBottomSheet,
         initialFilter = initialFilter,
-        innerPadding = innerPadding
+        innerPadding = innerPadding,
+        onApplyFilter = onApplyFilter
     )
 }
 
@@ -314,15 +321,21 @@ private fun FilterModalBottomSheet(
     showBottomSheet: Boolean,
     innerPadding: PaddingValues,
     initialFilter: AnimeFilterUiModel,
-//    onApplyFilter: (AnimeFilter) -> Unit,
+    onApplyFilter: (AnimeFilter) -> Unit,
     onDismiss: () -> Unit
 ) {
     if (showBottomSheet) {
 
         val selectedGenres = remember { mutableStateListOf<String>() }
+        var selectedStatus by remember { mutableStateOf<AnimeStatus?>(null) }
+        var selectedType by remember { mutableStateOf<AnimeKind?>(null) }
+        var selectedRating by remember { mutableStateOf<AnimeRating?>(null) }
 
         LaunchedEffect(Unit) {
             selectedGenres.addAll(initialFilter.genre ?: listOf())
+            selectedStatus = initialFilter.status
+            selectedType = initialFilter.kind
+            selectedRating = initialFilter.rating
         }
 
 
@@ -383,12 +396,24 @@ private fun FilterModalBottomSheet(
                     onClick = {}
                 ) {
 //                    Text(text = "Clear", fontFamily = CustomFonts.Poppins)
-                    Icon(imageVector = Icons.Default.DeleteOutline, contentDescription = "Close filters")
+                    Icon(
+                        imageVector = Icons.Default.DeleteOutline,
+                        contentDescription = "Close filters"
+                    )
                 }
                 Spacer(modifier = Modifier.width(4.dp))
                 Button(
                     modifier = Modifier.padding(vertical = 2.dp),
-                    onClick = {}
+                    onClick = {
+                        val filter = AnimeFilterUiModel(
+                            genre = selectedGenres,
+                            status = selectedStatus,
+                            kind = selectedType,
+                            rating = selectedRating
+                        )
+                        onApplyFilter(filter.toEntity())
+                        onDismiss()
+                    }
                 ) {
 //                    Text(text = "Apply", fontFamily = CustomFonts.Poppins)
                     Icon(imageVector = Icons.Default.Done, contentDescription = "Apply filters")
@@ -413,8 +438,12 @@ private fun FilterModalBottomSheet(
                 item {
                     FilterPart(
                         subtitleText = "Status",
-                        items = AnimeStatus.entries.filter { it != AnimeStatus.UNKNOWN }
-                            .map { it.valueForUi }
+                        items = AnimeStatus.entries.filter { it != AnimeStatus.UNKNOWN },
+                        selectedItem = selectedStatus,
+                        label = { it.valueForUi },
+                        onToggle = { status ->
+                            selectedStatus = if (selectedStatus == status) null else status
+                        }
                     )
                 }
                 item {
@@ -427,8 +456,12 @@ private fun FilterModalBottomSheet(
                 item {
                     FilterPart(
                         subtitleText = "Type",
-                        items = AnimeKind.entries.filter { it != AnimeKind.UNKNOWN }
-                            .map { it.value }
+                        items = AnimeKind.entries.filter { it != AnimeKind.UNKNOWN },
+                        selectedItem = selectedType,
+                        label = { it.value },
+                        onToggle = { type ->
+                            selectedType = if(selectedType == type) null else type
+                        }
                     )
                 }
                 item {
@@ -441,8 +474,12 @@ private fun FilterModalBottomSheet(
                 item {
                     FilterPart(
                         subtitleText = "Age Rating",
-                        items = AnimeRating.entries.filter { it != AnimeRating.UNKNOWN }
-                            .map { it.value }
+                        items = AnimeRating.entries.filter { it != AnimeRating.UNKNOWN },
+                        selectedItem = selectedRating,
+                        label = { it.value },
+                        onToggle = { rating ->
+                            selectedRating = if (selectedRating == rating) null else rating
+                        }
                     )
                 }
                 item {
@@ -501,12 +538,14 @@ private fun GenresFilter(
 }
 
 @Composable
-private fun FilterPart(
+private fun <T> FilterPart(
     modifier: Modifier = Modifier,
     subtitleText: String,
-    items: List<String>
+    items: List<T>,
+    selectedItem: T?,
+    label: (T) -> String,
+    onToggle: (T) -> Unit
 ) {
-    val selectedItems = remember { mutableStateListOf<String>() }
     Column(modifier = modifier) {
         FilterSubtitle(text = subtitleText)
         FlowRow(
@@ -514,19 +553,15 @@ private fun FilterPart(
             horizontalArrangement = Arrangement.spacedBy(4.dp)
         ) {
             items.forEach { item ->
-                val selected = item in selectedItems
+                val selected = item == selectedItem
                 FilterChip(
                     selected = selected,
                     onClick = {
-                        if (selected) {
-                            selectedItems.remove(item)
-                        } else {
-                            selectedItems.add(item)
-                        }
+                        onToggle(item)
                     },
                     label = {
                         Text(
-                            text = item,
+                            text = label(item),
                             fontFamily = CustomFonts.Poppins,
                         )
                     }

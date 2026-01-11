@@ -1,8 +1,14 @@
 package com.sharapov.network_anime.mapper
 
+import com.sharapov.domain_anime.entity.AnimeKind
+import com.sharapov.domain_anime.entity.AnimeRating
+import com.sharapov.domain_anime.entity.AnimeStatus
 import com.sharapov.domain_anime.entity.filter.AnimeOrder
 import com.sharapov.domain_anime.entity.list.AnimeListItem
 import com.sharapov.network_anime.SearchAnimeQuery
+import com.sharapov.network_anime.type.AnimeKindEnum
+import com.sharapov.network_anime.type.AnimeRatingEnum
+import com.sharapov.network_anime.type.AnimeStatusEnum
 import com.sharapov.network_anime.type.OrderEnum
 
 fun AnimeOrder.toOrderEnum(): OrderEnum {
@@ -26,4 +32,41 @@ fun AnimeOrder.toOrderEnum(): OrderEnum {
 
 fun SearchAnimeQuery.Data.toEntities() : List<AnimeListItem> {
     return this.animes.map { it.animeFields.toEntity() }
+}
+
+fun AnimeStatus.toAnimeStatusEnum(): AnimeStatusEnum {
+    return when(this) {
+        AnimeStatus.ANONS -> AnimeStatusEnum.anons
+        AnimeStatus.ONGOING -> AnimeStatusEnum.ongoing
+        AnimeStatus.RELEASED -> AnimeStatusEnum.released
+        else -> AnimeStatusEnum.UNKNOWN__
+    }
+}
+
+fun AnimeKind.toAnimeKindEnum(): AnimeKindEnum {
+    return when(this) {
+        AnimeKind.TV -> AnimeKindEnum.tv
+        AnimeKind.MOVIE -> AnimeKindEnum.movie
+        AnimeKind.OVA -> AnimeKindEnum.ova
+        AnimeKind.ONA -> AnimeKindEnum.ona
+        AnimeKind.SPECIAL -> AnimeKindEnum.special
+        AnimeKind.TV_SPECIAL -> AnimeKindEnum.tv_special
+        AnimeKind.MUSIC -> AnimeKindEnum.music
+        AnimeKind.PV -> AnimeKindEnum.pv
+        AnimeKind.CM -> AnimeKindEnum.cm
+        AnimeKind.UNKNOWN -> AnimeKindEnum.UNKNOWN__
+    }
+}
+
+fun AnimeRating.toAnimeRatingEnum() : AnimeRatingEnum {
+    return when(this) {
+        AnimeRating.NONE -> AnimeRatingEnum.none
+        AnimeRating.G -> AnimeRatingEnum.g
+        AnimeRating.PG -> AnimeRatingEnum.pg
+        AnimeRating.PG_13 -> AnimeRatingEnum.pg_13
+        AnimeRating.R -> AnimeRatingEnum.r
+        AnimeRating.R_PLUS -> AnimeRatingEnum.r_plus
+        AnimeRating.RX -> AnimeRatingEnum.rx
+        AnimeRating.UNKNOWN -> AnimeRatingEnum.UNKNOWN__
+    }
 }
