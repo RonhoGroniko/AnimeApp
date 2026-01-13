@@ -98,7 +98,14 @@ fun DetailsScreen(
                     innerPadding = innerPadding,
                     onBackClick = onBackClick,
                     onCardClick = onCardClick,
-                    onGenreClick = onGenreClick
+                    onGenreClick = onGenreClick,
+                    onChangeFavoriteStatus = {
+                        viewModel.processCommand(
+                            DetailsScreenCommand.ChangeFavoriteStatus(
+                                anime = currentState.data.anime
+                            )
+                        )
+                    }
                 )
             }
 
@@ -117,7 +124,7 @@ fun DetailsScreenContent(
     onBackClick: () -> Unit,
     onCardClick: (Long) -> Unit,
     onGenreClick: (String) -> Unit,
-//    onChangeFavoriteStatus: () -> Unit
+    onChangeFavoriteStatus: () -> Unit
 ) {
     val listState = rememberLazyListState()
     val density = LocalDensity.current
@@ -153,8 +160,9 @@ fun DetailsScreenContent(
                     studios = contentState.data.anime.studios,
                     releaseDate = contentState.data.anime.releasedOnDate,
                     mean = contentState.data.anime.score,
-                    isFavorite = false, // TODO:
+                    isFavorite = contentState.data.anime.isFavorite,
                     onBackClick = onBackClick,
+                    onChangeFavoriteStatus = onChangeFavoriteStatus
                 )
             }
             item {
@@ -306,7 +314,7 @@ fun HeaderCard(
     mean: Double,
     isFavorite: Boolean,
     onBackClick: () -> Unit,
-//    onChangeFavoriteStatus: () -> Unit
+    onChangeFavoriteStatus: () -> Unit
 ) {
     var backEnabled by remember { mutableStateOf(true) }
 
@@ -373,8 +381,7 @@ fun HeaderCard(
                 )
 
                 IconButton(
-                    onClick = { // onChangeFavoriteStatus()
-                    },
+                    onClick = { onChangeFavoriteStatus() },
                     colors = IconButtonDefaults.iconButtonColors(
                         contentColor = MaterialTheme.colorScheme.secondary
                     ),

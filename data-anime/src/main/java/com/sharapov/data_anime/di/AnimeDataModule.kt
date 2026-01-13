@@ -1,9 +1,11 @@
 package com.sharapov.data_anime.di
 
 import com.sharapov.data_anime.repository.AnimeDetailsRepositoryImpl
+import com.sharapov.data_anime.repository.AnimeFavoriteRepositoryImpl
 import com.sharapov.data_anime.repository.AnimeListRepositoryImpl
 import com.sharapov.data_anime.repository.AnimeSearchRepositoryImpl
 import com.sharapov.domain_anime.repository.AnimeDetailsRepository
+import com.sharapov.domain_anime.repository.AnimeFavoriteRepository
 import com.sharapov.domain_anime.repository.AnimeListRepository
 import com.sharapov.domain_anime.repository.AnimeSearchRepository
 import dagger.Binds
@@ -28,4 +30,8 @@ interface AnimeDataModule {
     @Binds
     @Singleton
     fun bindAnimeSearchRepository(impl: AnimeSearchRepositoryImpl): AnimeSearchRepository
+
+    @Binds
+    @Singleton
+    fun bindAnimeFavoriteRepository(impl: AnimeFavoriteRepositoryImpl): AnimeFavoriteRepository
 }

@@ -11,6 +11,7 @@ import com.sharapov.domain_anime.entity.details.Video
 data class AnimeDetailsUiModel(
     val id: Long,
     val name: String,
+    val isFavorite: Boolean,
     val russianName: String,
     val englishName: String,
     val japaneseName: String,

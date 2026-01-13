@@ -55,7 +55,6 @@ dependencies {
 
     implementation(project(":core-ui"))
     implementation(project(":domain-anime"))
-    implementation(project(":network-anime"))
 
     implementation(libs.hilt.android)
     ksp(libs.hilt.android.compiler)

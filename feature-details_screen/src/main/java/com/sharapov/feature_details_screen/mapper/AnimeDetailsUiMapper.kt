@@ -2,12 +2,14 @@ package com.sharapov.feature_details_screen.mapper
 
 import com.sharapov.domain_anime.entity.AnimeStatus
 import com.sharapov.domain_anime.entity.details.AnimeDetails
+import com.sharapov.domain_anime.entity.list.AnimeListItem
 import com.sharapov.feature_details_screen.model.AnimeDetailsUiModel
 
-fun AnimeDetails.toUi() : AnimeDetailsUiModel {
+fun AnimeDetails.toUi(isFavorite: Boolean) : AnimeDetailsUiModel {
     return AnimeDetailsUiModel(
         id = id,
         name = name,
+        isFavorite = isFavorite,
         russianName = russianName,
         englishName = englishName,
         japaneseName = japaneseName,
@@ -35,5 +37,14 @@ fun AnimeDetails.toUi() : AnimeDetailsUiModel {
         scoreStats = scoreStats,
         statusStats = statusStats,
         description = description
+    )
+}
+
+fun AnimeDetailsUiModel.toEntityListItem(): AnimeListItem {
+    return AnimeListItem(
+        id = id,
+        name = name,
+        score = score,
+        imageUrl = imageUrl
     )
 }

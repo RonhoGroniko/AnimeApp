@@ -57,7 +57,7 @@ class MainViewModel @Inject constructor(
 
     private fun loadUpcomingAnime() {
         viewModelScope.launch {
-            getAnimeListUseCase(animeStatus = AnimeStatus.ANONS).collect { result ->
+            getAnimeListUseCase(animeStatus = AnimeStatus.ANONS, limit = 8).collect { result ->
                 _upcomingAnimeSectionState.value = result.toSectionState()
             }
         }
@@ -65,7 +65,7 @@ class MainViewModel @Inject constructor(
 
     private fun loadOngoingAnime() {
         viewModelScope.launch {
-            getAnimeListUseCase(animeStatus = AnimeStatus.ONGOING).collect { result ->
+            getAnimeListUseCase(animeStatus = AnimeStatus.ONGOING, limit = 8).collect { result ->
                 _ongoingAnimeSectionState.value = result.toSectionState()
             }
         }
@@ -73,7 +73,7 @@ class MainViewModel @Inject constructor(
 
     private fun loadReleasedAnime() {
         viewModelScope.launch {
-            getAnimeListUseCase(animeStatus = AnimeStatus.RELEASED).collect { result ->
+            getAnimeListUseCase(animeStatus = AnimeStatus.RELEASED, limit = 8).collect { result ->
                 _releasedAnimeSectionState.value = result.toSectionState()
             }
         }

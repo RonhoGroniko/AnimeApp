@@ -7,7 +7,7 @@ plugins {
 }
 
 android {
-    namespace = "com.sharapov.feature_details_screen"
+    namespace = "com.sharapov.feature_favorites_screen"
     compileSdk = 36
 
     defaultConfig {
@@ -57,8 +57,6 @@ dependencies {
     implementation(project(":domain-anime"))
 
     implementation(libs.hilt.android)
-    implementation(libs.androidx.material3)
-    implementation(libs.androidx.compose.foundation)
     ksp(libs.hilt.android.compiler)
     implementation(libs.androidx.hilt.navigation.compose)
 
