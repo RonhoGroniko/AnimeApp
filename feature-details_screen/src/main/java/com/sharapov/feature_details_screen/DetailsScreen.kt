@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -23,6 +24,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -32,6 +34,7 @@ import androidx.compose.material.icons.filled.BookmarkBorder
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ElevatedSuggestionChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -66,11 +69,15 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import coil3.compose.AsyncImage
+import coil3.compose.AsyncImagePainter
+import coil3.compose.SubcomposeAsyncImage
+import coil3.compose.SubcomposeAsyncImageContent
 import com.sharapov.core_ui.R
 import com.sharapov.core_ui.theme.CustomFonts
 import com.sharapov.core_ui.theme.composable.AnimeCard
 import com.sharapov.core_ui.theme.core.BasePane
 import com.sharapov.core_ui.theme.core.LceState
+import com.sharapov.domain_anime.entity.details.Character
 import com.sharapov.domain_anime.entity.details.Screenshot
 import com.sharapov.domain_anime.entity.list.AnimeListItem
 import com.sharapov.feature_details_screen.mapper.episodesToUi
@@ -218,6 +225,21 @@ fun DetailsScreenContent(
                 item { ScreenshotRow(pictureUrls = contentState.data.anime.screenshotsUrls) }
                 item { Spacer(modifier = Modifier.height(8.dp)) }
             }
+//            if (contentState.data.anime.characters.isNotEmpty()) {
+//                item {
+//                    Subtitle(
+//                        modifier = Modifier.padding(
+//                            top = 16.dp,
+//                            bottom = 8.dp,
+//                            start = 16.dp,
+//                            end = 16.dp
+//                        ),
+//                        text = "Characters"
+//                    )
+//                }
+//                item { CharacterRow(pictureUrls = contentState.data.anime.screenshotsUrls) }
+//                item { Spacer(modifier = Modifier.height(8.dp)) }
+//            }
             if (contentState.data.anime.relatedAnime.isNotEmpty()) {
                 item {
                     Subtitle(
@@ -745,23 +767,54 @@ fun ScreenshotRow(
     pictureUrls: List<Screenshot>
 ) {
     LazyRow(
+        modifier = modifier
+            .fillMaxWidth()
+            .height(200.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        items(pictureUrls, key = { it.id }) { screenshot ->
+            SubcomposeAsyncImage(
+                modifier = Modifier
+                    .padding(horizontal = 8.dp)
+                    .aspectRatio(3/2f, true)
+                    .fillMaxHeight()
+                    .clip(RoundedCornerShape(8.dp)),
+                model = screenshot.imageUrl,
+                contentScale = ContentScale.Crop,
+                contentDescription = "Anime picture",
+            ) {
+                val painterState = painter.state.collectAsState()
+                when (val currentPainterState = painterState.value) {
+                    is AsyncImagePainter.State.Loading -> {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .background(Color(0xFFE6E6E6)),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            CircularProgressIndicator()
+                        }
+                    }
+
+                    else -> {
+                        SubcomposeAsyncImageContent(modifier = Modifier.fillMaxSize())
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun CharacterRow(
+    modifier: Modifier = Modifier,
+    characters: List<Character>
+) {
+    LazyRow(
         modifier = modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        item {
-            pictureUrls.forEach { screenshot ->
-                AsyncImage(
-                    modifier = Modifier
-                        .padding(horizontal = 8.dp)
-                        .fillMaxWidth()
-                        .clip(RoundedCornerShape(8.dp))
-                        .heightIn(max = 200.dp),
-                    model = screenshot.imageUrl,
-                    contentDescription = "Anime picture",
-                )
-            }
-
-        }
+        item { }
     }
 }
 
