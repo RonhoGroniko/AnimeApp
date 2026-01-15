@@ -9,7 +9,6 @@ import com.sharapov.domain_anime.repository.AnimeFavoriteRepository
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onStart
 import javax.inject.Inject
@@ -18,22 +17,22 @@ class AnimeFavoriteRepositoryImpl @Inject constructor(
     private val animeDao: AnimeDao
 ) : AnimeFavoriteRepository {
 
-    override fun getFavoriteAnimeList(): Flow<Result<List<AnimeListItem>>> = flow {
-        emit(Result.Loading)
-        try {
-            val animeList = animeDao.getFavoriteAnimeList()
-            emit(Result.Success(animeList.toEntities()))
-        } catch (e: CancellationException) {
-            throw e
-        } catch (e: Exception) {
-            emit(
-                Result.Error(
-                    exception = e,
-                    message = e.message
+    override fun getFavoriteAnimeList(): Flow<Result<List<AnimeListItem>>> =
+        animeDao.getFavoriteAnimeList()
+            .map { animeList ->
+                Result.Success(animeList.toEntities()) as Result<List<AnimeListItem>>
+            }
+            .onStart {
+                emit(Result.Loading)
+            }
+            .catch { e ->
+                emit(
+                    Result.Error(
+                        exception = e,
+                        message = e.message
+                    )
                 )
-            )
-        }
-    }
+            }
 
     override suspend fun changeFavoriteStatus(
         anime: AnimeListItem,

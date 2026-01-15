@@ -11,7 +11,7 @@ import kotlinx.coroutines.flow.Flow
 interface AnimeDao {
 
     @Query("SELECT * FROM favorites ORDER BY createdAt DESC")
-    suspend fun getFavoriteAnimeList() : List<AnimeDbModel>
+    fun getFavoriteAnimeList() : Flow<List<AnimeDbModel>>
 
     @Insert(onConflict = REPLACE)
     suspend fun addFavoriteAnime(anime: AnimeDbModel)
