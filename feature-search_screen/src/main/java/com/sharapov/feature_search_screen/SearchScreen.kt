@@ -256,7 +256,7 @@ private fun SearchScreenContent(
         showBottomSheet = showBottomSheet,
         initialFilter = initialFilter,
         innerPadding = innerPadding,
-        onApplyFilter = onApplyFilter
+        onApplyFilter = onApplyFilter,
     )
 }
 
@@ -393,7 +393,12 @@ private fun FilterModalBottomSheet(
                 }
                 Button(
                     modifier = Modifier.padding(vertical = 2.dp),
-                    onClick = {}
+                    onClick = {
+                        selectedGenres.clear()
+                        selectedType = null
+                        selectedStatus = null
+                        selectedRating = null
+                    }
                 ) {
 //                    Text(text = "Clear", fontFamily = CustomFonts.Poppins)
                     Icon(
