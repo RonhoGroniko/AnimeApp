@@ -97,6 +97,8 @@ import com.sharapov.feature_search_screen.model.toUi
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
+private const val EMPTY_QUERY = ""
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SearchScreen(
@@ -128,6 +130,7 @@ fun SearchScreen(
             EnterAlwaysTopAppBar(
                 query = (state.value as? LceState.Content)?.data?.query.orEmpty(),
                 onQueryChange = { viewModel.processCommand(SearchScreenCommand.ChangeQuery(it)) },
+                onClearQuery = { viewModel.processCommand(SearchScreenCommand.ChangeQuery(EMPTY_QUERY)) },
                 scrollBehavior = scrollBehavior
             )
         },
@@ -174,6 +177,7 @@ fun SearchScreen(
 fun EnterAlwaysTopAppBar(
     query: String,
     onQueryChange: (String) -> Unit,
+    onClearQuery: () -> Unit,
     scrollBehavior: TopAppBarScrollBehavior
 ) {
     TopAppBar(
@@ -183,7 +187,8 @@ fun EnterAlwaysTopAppBar(
                     .fillMaxWidth()
                     .padding(end = 16.dp),
                 query = query,
-                onQueryChange = onQueryChange
+                onQueryChange = onQueryChange,
+                onClearQuery = onClearQuery
             )
         },
         colors = TopAppBarDefaults.topAppBarColors(
@@ -267,6 +272,7 @@ private fun SearchBar(
     modifier: Modifier = Modifier,
     query: String,
     onQueryChange: (String) -> Unit,
+    onClearQuery: () -> Unit
 ) {
     TextField(
         modifier = modifier
@@ -295,11 +301,25 @@ private fun SearchBar(
         },
         singleLine = true,
         trailingIcon = {
-            Icon(
-                imageVector = Icons.Default.Search,
-                contentDescription = "Search button",
-                tint = MaterialTheme.colorScheme.secondary
-            )
+            if (query.isBlank()) {
+                Icon(
+                    imageVector = Icons.Default.Search,
+                    contentDescription = "Search button",
+                    tint = MaterialTheme.colorScheme.secondary
+                )
+            } else {
+                IconButton(
+                    onClick = {
+                        onClearQuery()
+                    },
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Close,
+                        contentDescription = "Clear query",
+                        tint = MaterialTheme.colorScheme.secondary
+                    )
+                }
+            }
         },
         colors = TextFieldDefaults.colors(
             focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
