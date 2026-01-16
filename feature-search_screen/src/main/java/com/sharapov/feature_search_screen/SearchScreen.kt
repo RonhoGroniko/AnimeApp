@@ -179,7 +179,7 @@ fun EnterAlwaysTopAppBar(
             SearchBar(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(end = 8.dp),
+                    .padding(end = 16.dp),
                 query = query,
                 onQueryChange = onQueryChange
             )
@@ -460,7 +460,7 @@ private fun FilterModalBottomSheet(
                         selectedItem = selectedType,
                         label = { it.value },
                         onToggle = { type ->
-                            selectedType = if(selectedType == type) null else type
+                            selectedType = if (selectedType == type) null else type
                         }
                     )
                 }
