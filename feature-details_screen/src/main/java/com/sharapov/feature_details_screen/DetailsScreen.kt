@@ -21,6 +21,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
@@ -225,21 +226,21 @@ fun DetailsScreenContent(
                 item { ScreenshotRow(pictureUrls = contentState.data.anime.screenshotsUrls) }
                 item { Spacer(modifier = Modifier.height(8.dp)) }
             }
-//            if (contentState.data.anime.characters.isNotEmpty()) {
-//                item {
-//                    Subtitle(
-//                        modifier = Modifier.padding(
-//                            top = 16.dp,
-//                            bottom = 8.dp,
-//                            start = 16.dp,
-//                            end = 16.dp
-//                        ),
-//                        text = "Characters"
-//                    )
-//                }
-//                item { CharacterRow(pictureUrls = contentState.data.anime.screenshotsUrls) }
-//                item { Spacer(modifier = Modifier.height(8.dp)) }
-//            }
+            if (contentState.data.anime.characters.isNotEmpty()) {
+                item {
+                    Subtitle(
+                        modifier = Modifier.padding(
+                            top = 16.dp,
+                            bottom = 8.dp,
+                            start = 16.dp,
+                            end = 16.dp
+                        ),
+                        text = "Characters"
+                    )
+                }
+                item { CharacterRow(characters =  contentState.data.anime.characters) }
+                item { Spacer(modifier = Modifier.height(8.dp)) }
+            }
             if (contentState.data.anime.relatedAnime.isNotEmpty()) {
                 item {
                     Subtitle(
@@ -776,7 +777,7 @@ fun ScreenshotRow(
             SubcomposeAsyncImage(
                 modifier = Modifier
                     .padding(horizontal = 8.dp)
-                    .aspectRatio(3/2f, true)
+                    .aspectRatio(3 / 2f, true)
                     .fillMaxHeight()
                     .clip(RoundedCornerShape(8.dp)),
                 model = screenshot.imageUrl,
@@ -784,7 +785,7 @@ fun ScreenshotRow(
                 contentDescription = "Anime picture",
             ) {
                 val painterState = painter.state.collectAsState()
-                when (val currentPainterState = painterState.value) {
+                when (painterState.value) {
                     is AsyncImagePainter.State.Loading -> {
                         Box(
                             modifier = Modifier
@@ -797,7 +798,7 @@ fun ScreenshotRow(
                     }
 
                     else -> {
-                        SubcomposeAsyncImageContent(modifier = Modifier.fillMaxSize())
+                        SubcomposeAsyncImageContent()
                     }
                 }
             }
@@ -812,9 +813,61 @@ private fun CharacterRow(
 ) {
     LazyRow(
         modifier = modifier.fillMaxWidth(),
-        verticalAlignment = Alignment.CenterVertically
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        contentPadding = PaddingValues(horizontal = 8.dp)
     ) {
-        item { }
+        items(characters, key = { it.id }) { character ->
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(
+                    modifier = Modifier.widthIn(max = 120.dp).height(32.dp),
+                    text = character.roles[0],
+                    textAlign = TextAlign.Center,
+                    color = MaterialTheme.colorScheme.primary,
+                    fontFamily = CustomFonts.Poppins,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis
+                )
+                SubcomposeAsyncImage(
+                    modifier = Modifier
+                        .height(160.dp)
+                        .width(120.dp)
+                        .clip(RoundedCornerShape(40.dp)),
+                    model = character.imageUrl,
+                    contentScale = ContentScale.Crop,
+                    contentDescription = "Character picture"
+                ) {
+                    val painterState = painter.state.collectAsState()
+                    when (painterState.value) {
+                        is AsyncImagePainter.State.Loading -> {
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .background(Color(0xFFE6E6E6)),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                CircularProgressIndicator()
+                            }
+                        }
+
+                        else -> {
+                            SubcomposeAsyncImageContent()
+                        }
+                    }
+                }
+                Text(
+                    modifier = Modifier.widthIn(max = 120.dp),
+                    text = character.name,
+                    textAlign = TextAlign.Center,
+                    color = MaterialTheme.colorScheme.primary,
+                    fontFamily = CustomFonts.Poppins,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
+        }
     }
 }
 
