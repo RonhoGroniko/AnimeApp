@@ -4,6 +4,7 @@ package com.sharapov.feature_search_screen
 
 
 import android.widget.Toast
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -38,6 +39,7 @@ import androidx.compose.material.icons.filled.DeleteOutline
 import androidx.compose.material.icons.filled.Done
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
@@ -331,6 +333,9 @@ private fun FilterModalBottomSheet(
         var selectedType by remember { mutableStateOf<AnimeKind?>(null) }
         var selectedRating by remember { mutableStateOf<AnimeRating?>(null) }
 
+        val clearEnabled =
+            !(selectedGenres.isEmpty() && selectedStatus == null && selectedType == null && selectedRating == null)
+
         LaunchedEffect(Unit) {
             selectedGenres.addAll(initialFilter.genre ?: listOf())
             selectedStatus = initialFilter.status
@@ -393,12 +398,17 @@ private fun FilterModalBottomSheet(
                 }
                 Button(
                     modifier = Modifier.padding(vertical = 2.dp),
+                    enabled = clearEnabled,
                     onClick = {
                         selectedGenres.clear()
                         selectedType = null
                         selectedStatus = null
                         selectedRating = null
-                    }
+                    },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.secondary,
+                    ),
+                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.onSecondaryContainer)
                 ) {
 //                    Text(text = "Clear", fontFamily = CustomFonts.Poppins)
                     Icon(
@@ -418,7 +428,11 @@ private fun FilterModalBottomSheet(
                         )
                         onApplyFilter(filter.toEntity())
                         onDismiss()
-                    }
+                    },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.secondary,
+                    ),
+                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.onSecondaryContainer)
                 ) {
 //                    Text(text = "Apply", fontFamily = CustomFonts.Poppins)
                     Icon(imageVector = Icons.Default.Done, contentDescription = "Apply filters")

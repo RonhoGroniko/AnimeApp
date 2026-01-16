@@ -116,7 +116,7 @@ class MainActivity : ComponentActivity() {
 // TODO : АНИМКА GENRES FILTER
 // TODO : КРЕСТ В НЕПУСТОЙ QUERY
 // TODO : СМЕНИТЬ ЦВЕТА SEARCH SCREEN
-// TODO : ОЧИСТИТЬ ФИЛЬТРЫ
+// TODO : CENSORED
 // TODO : РЕШИТЬ ВОПРОС С SECTION STATE
 // TODO : SUBCOMPOSEASYNCIMAGE
 // TODO :
