@@ -28,11 +28,6 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.Bookmark
-import androidx.compose.material.icons.filled.BookmarkBorder
-import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedSuggestionChip
@@ -77,6 +72,10 @@ import com.sharapov.core_ui.theme.composable.AnimeCard
 import com.sharapov.core_ui.theme.composable.ShimmerBox
 import com.sharapov.core_ui.theme.core.BasePane
 import com.sharapov.core_ui.theme.core.LceState
+import com.sharapov.core_ui.theme.icons.ArrowBack
+import com.sharapov.core_ui.theme.icons.Bookmark
+import com.sharapov.core_ui.theme.icons.CustomIcons
+import com.sharapov.core_ui.theme.icons.KeyboardArrowDown
 import com.sharapov.domain_anime.entity.details.Character
 import com.sharapov.domain_anime.entity.details.Screenshot
 import com.sharapov.domain_anime.entity.list.AnimeListItem
@@ -237,7 +236,7 @@ fun DetailsScreenContent(
                         text = "Characters"
                     )
                 }
-                item { CharacterRow(characters =  contentState.data.anime.characters) }
+                item { CharacterRow(characters = contentState.data.anime.characters) }
                 item { Spacer(modifier = Modifier.height(8.dp)) }
             }
             if (contentState.data.anime.relatedAnime.isNotEmpty()) {
@@ -309,7 +308,7 @@ private fun OverlayTopAppBar(
             enabled = alpha > 0.001f
         ) {
             Icon(
-                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                imageVector = CustomIcons.AutoMirrored.Filled.ArrowBack,
                 contentDescription = "Back",
                 tint = MaterialTheme.colorScheme.primary.copy(alpha = alpha)
             )
@@ -363,10 +362,11 @@ fun HeaderCard(
                     contentScale = ContentScale.FillWidth
                 ) {
                     val painter = painter.state.collectAsState()
-                    when(painter.value) {
+                    when (painter.value) {
                         is AsyncImagePainter.State.Success -> {
                             SubcomposeAsyncImageContent()
                         }
+
                         else -> {
                             ShimmerBox()
                         }
@@ -389,7 +389,7 @@ fun HeaderCard(
                     shape = RoundedCornerShape(8.dp)
                 ) {
                     Icon(
-                        imageVector = Icons.AutoMirrored.Default.ArrowBack,
+                        imageVector = CustomIcons.AutoMirrored.Filled.ArrowBack,
                         contentDescription = "Back",
                         tint = MaterialTheme.colorScheme.primary
                     )
@@ -420,7 +420,7 @@ fun HeaderCard(
                 ) {
                     Icon(
                         modifier = Modifier.size(36.dp),
-                        imageVector = if (isFavorite) Icons.Default.Bookmark else Icons.Default.BookmarkBorder,
+                        imageVector = if (isFavorite) CustomIcons.Filled.Bookmark else CustomIcons.Outlined.Bookmark,
                         contentDescription = "Change isFavorite status",
                         tint = MaterialTheme.colorScheme.secondary
                     )
@@ -752,7 +752,7 @@ fun ExpandableDescription(
             if (hasOverflow || expanded) {
                 val interaction = remember { MutableInteractionSource() }
                 Icon(
-                    imageVector = Icons.Default.KeyboardArrowDown,
+                    imageVector = CustomIcons.Filled.KeyboardArrowDown,
                     contentDescription = if (expanded) "Collapse" else "Expand",
                     tint = MaterialTheme.colorScheme.primary,
                     modifier = Modifier
@@ -794,7 +794,7 @@ fun ScreenshotRow(
             ) {
                 val painterState = painter.state.collectAsState()
                 when (painterState.value) {
-                    is AsyncImagePainter.State.Success-> {
+                    is AsyncImagePainter.State.Success -> {
                         SubcomposeAsyncImageContent()
                     }
 

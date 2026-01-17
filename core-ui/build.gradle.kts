@@ -60,12 +60,11 @@ dependencies {
     api(libs.coil.compose)
     api(libs.coil.network.okhttp)
 
-    api(libs.androidx.compose.material.icons.extended)
-
     implementation(libs.androidx.compose.ui.tooling.preview)
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
+    implementation(libs.androidx.ui.graphics)
 
     debugImplementation(libs.androidx.compose.ui.tooling)
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)

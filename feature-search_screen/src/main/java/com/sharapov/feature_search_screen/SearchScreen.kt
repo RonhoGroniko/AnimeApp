@@ -4,6 +4,9 @@ package com.sharapov.feature_search_screen
 
 
 import android.widget.Toast
+import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -30,14 +33,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.ArrowDropDown
-import androidx.compose.material.icons.filled.ArrowDropUp
-import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.DeleteOutline
-import androidx.compose.material.icons.filled.Done
-import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -85,6 +80,14 @@ import com.sharapov.core_ui.theme.CustomFonts
 import com.sharapov.core_ui.theme.composable.AnimeCard
 import com.sharapov.core_ui.theme.core.BasePane
 import com.sharapov.core_ui.theme.core.LceState
+import com.sharapov.core_ui.theme.icons.ArrowDropDown
+import com.sharapov.core_ui.theme.icons.ArrowDropUp
+import com.sharapov.core_ui.theme.icons.Close
+import com.sharapov.core_ui.theme.icons.CustomIcons
+import com.sharapov.core_ui.theme.icons.Delete
+import com.sharapov.core_ui.theme.icons.Done
+import com.sharapov.core_ui.theme.icons.Filter
+import com.sharapov.core_ui.theme.icons.Search
 import com.sharapov.domain_anime.entity.AnimeKind
 import com.sharapov.domain_anime.entity.AnimeRating
 import com.sharapov.domain_anime.entity.AnimeStatus
@@ -130,7 +133,13 @@ fun SearchScreen(
             EnterAlwaysTopAppBar(
                 query = (state.value as? LceState.Content)?.data?.query.orEmpty(),
                 onQueryChange = { viewModel.processCommand(SearchScreenCommand.ChangeQuery(it)) },
-                onClearQuery = { viewModel.processCommand(SearchScreenCommand.ChangeQuery(EMPTY_QUERY)) },
+                onClearQuery = {
+                    viewModel.processCommand(
+                        SearchScreenCommand.ChangeQuery(
+                            EMPTY_QUERY
+                        )
+                    )
+                },
                 scrollBehavior = scrollBehavior
             )
         },
@@ -140,7 +149,7 @@ fun SearchScreen(
                     showBottomSheet = true
                 }
             ) {
-                Icon(Icons.Filled.Add, "Add filters")
+                Icon(imageVector = CustomIcons.Outlined.Filter, contentDescription = "Add filters")
             }
         },
         modifier = Modifier
@@ -303,7 +312,7 @@ private fun SearchBar(
         trailingIcon = {
             if (query.isBlank()) {
                 Icon(
-                    imageVector = Icons.Default.Search,
+                    imageVector = CustomIcons.Filled.Search,
                     contentDescription = "Search button",
                     tint = MaterialTheme.colorScheme.secondary
                 )
@@ -314,7 +323,7 @@ private fun SearchBar(
                     },
                 ) {
                     Icon(
-                        imageVector = Icons.Default.Close,
+                        imageVector = CustomIcons.Filled.Close,
                         contentDescription = "Clear query",
                         tint = MaterialTheme.colorScheme.secondary
                     )
@@ -399,7 +408,7 @@ private fun FilterModalBottomSheet(
                         }
                     }
                 ) {
-                    Icon(imageVector = Icons.Default.Close, contentDescription = "Close filters")
+                    Icon(imageVector = CustomIcons.Filled.Close, contentDescription = "Close filters")
                 }
                 Box(
                     modifier = Modifier
@@ -432,7 +441,7 @@ private fun FilterModalBottomSheet(
                 ) {
 //                    Text(text = "Clear", fontFamily = CustomFonts.Poppins)
                     Icon(
-                        imageVector = Icons.Default.DeleteOutline,
+                        imageVector = CustomIcons.Outlined.Delete,
                         contentDescription = "Close filters"
                     )
                 }
@@ -455,7 +464,7 @@ private fun FilterModalBottomSheet(
                     border = BorderStroke(1.dp, MaterialTheme.colorScheme.onSecondaryContainer)
                 ) {
 //                    Text(text = "Apply", fontFamily = CustomFonts.Poppins)
-                    Icon(imageVector = Icons.Default.Done, contentDescription = "Apply filters")
+                    Icon(imageVector = CustomIcons.Filled.Done, contentDescription = "Apply filters")
                 }
             }
             LazyColumn() {
@@ -540,7 +549,15 @@ private fun GenresFilter(
     onToggle: (String) -> Unit
 ) {
     var expandGenres by remember { mutableStateOf(false) }
-    Column(modifier = modifier.fillMaxWidth()) {
+    Column(
+        modifier = modifier.fillMaxWidth()
+            .animateContentSize(
+                animationSpec = tween(
+                    durationMillis = 300,
+                    easing = FastOutSlowInEasing
+                )
+            )
+    ) {
         ExpandableFilterSubtitle(
             text = "Genres",
             expand = expandGenres,
@@ -548,27 +565,25 @@ private fun GenresFilter(
         )
         if (expandGenres) {
             Genre.sortedAlphabetically.forEach { sortedMap ->
-                Column() {
-                    UppercaseLetterWithDivider(letter = sortedMap.key)
-                    FlowRow(
-                        modifier = Modifier.padding(horizontal = 4.dp),
-                        horizontalArrangement = Arrangement.spacedBy(4.dp)
-                    ) {
-                        sortedMap.value.forEach { genre ->
-                            val selected = genre in selectedGenres
-                            FilterChip(
-                                selected = selected,
-                                onClick = {
-                                    onToggle(genre)
-                                },
-                                label = {
-                                    Text(
-                                        text = genre,
-                                        fontFamily = CustomFonts.Poppins,
-                                    )
-                                }
-                            )
-                        }
+                UppercaseLetterWithDivider(letter = sortedMap.key)
+                FlowRow(
+                    modifier = Modifier.padding(horizontal = 4.dp),
+                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    sortedMap.value.forEach { genre ->
+                        val selected = genre in selectedGenres
+                        FilterChip(
+                            selected = selected,
+                            onClick = {
+                                onToggle(genre)
+                            },
+                            label = {
+                                Text(
+                                    text = genre,
+                                    fontFamily = CustomFonts.Poppins,
+                                )
+                            }
+                        )
                     }
                 }
             }
@@ -647,7 +662,8 @@ private fun ExpandableFilterSubtitle(
             verticalAlignment = Alignment.CenterVertically
         ) {
             FilterSubtitle(
-                text = text, modifier = Modifier
+                text = text,
+                modifier = Modifier
                     .fillMaxHeight()
                     .weight(1f)
             )
@@ -655,7 +671,7 @@ private fun ExpandableFilterSubtitle(
                 modifier = Modifier
                     .padding(horizontal = 16.dp)
                     .size(24.dp),
-                imageVector = if (expand) Icons.Default.ArrowDropUp else Icons.Default.ArrowDropDown,
+                imageVector = if (expand) CustomIcons.Filled.ArrowDropUp else CustomIcons.Filled.ArrowDropDown,
                 contentDescription = if (expand) "Shrink genres" else "Expand genres",
                 tint = MaterialTheme.colorScheme.secondary
             )
@@ -673,6 +689,7 @@ private fun UppercaseLetterWithDivider(
     modifier: Modifier = Modifier,
     letter: Char,
 ) {
+
     Column(modifier = modifier.fillMaxWidth()) {
         Text(
             modifier = Modifier.padding(horizontal = 8.dp),

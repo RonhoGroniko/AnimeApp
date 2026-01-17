@@ -10,8 +10,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -32,6 +30,8 @@ import com.sharapov.core_ui.theme.composable.AnimeCardPlaceholder
 import com.sharapov.core_ui.theme.core.BasePane
 import com.sharapov.core_ui.theme.core.LceState
 import com.sharapov.core_ui.theme.core.SectionState
+import com.sharapov.core_ui.theme.icons.CustomIcons
+import com.sharapov.core_ui.theme.icons.Settings
 import com.sharapov.domain_anime.entity.list.AnimeListItem
 
 @Composable
@@ -184,7 +184,7 @@ private fun TopMainScreenBar(
                     .clickable {
                         onSettingsClick()
                     },
-                imageVector = Icons.Default.Settings,
+                imageVector = CustomIcons.Outlined.Settings,
                 contentDescription = "Setting button",
                 tint = MaterialTheme.colorScheme.secondary
             )

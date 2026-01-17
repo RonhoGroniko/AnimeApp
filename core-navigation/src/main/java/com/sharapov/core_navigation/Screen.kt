@@ -1,16 +1,12 @@
 package com.sharapov.core_navigation
 
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Bookmark
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.Search
-import androidx.compose.material.icons.outlined.BookmarkBorder
-import androidx.compose.material.icons.outlined.Home
-import androidx.compose.material.icons.outlined.Person
-import androidx.compose.material.icons.outlined.Search
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.navigation3.runtime.NavKey
+import com.sharapov.core_ui.theme.icons.Bookmark
+import com.sharapov.core_ui.theme.icons.CustomIcons
+import com.sharapov.core_ui.theme.icons.Home
+import com.sharapov.core_ui.theme.icons.Person
+import com.sharapov.core_ui.theme.icons.Search
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -18,15 +14,15 @@ sealed interface Screen : NavKey {
 
     @Serializable
     data object Main : Screen, BottomNavItem {
-        override val selectedIcon: ImageVector = Icons.Filled.Home
-        override val unselectedIcon: ImageVector = Icons.Outlined.Home
+        override val selectedIcon: ImageVector = CustomIcons.Filled.Home
+        override val unselectedIcon: ImageVector = CustomIcons.Outlined.Home
         override val title: String = "Home"
     }
 
     @Serializable
     data object Search : Screen, BottomNavItem {
-        override val selectedIcon: ImageVector = Icons.Filled.Search
-        override val unselectedIcon: ImageVector = Icons.Outlined.Search
+        override val selectedIcon: ImageVector = CustomIcons.Filled.Search
+        override val unselectedIcon: ImageVector = CustomIcons.Filled.Search
         override val title: String = "Search"
     }
 
@@ -35,15 +31,15 @@ sealed interface Screen : NavKey {
 
     @Serializable
     data object Favorites : Screen, BottomNavItem {
-        override val selectedIcon: ImageVector = Icons.Filled.Bookmark
-        override val unselectedIcon: ImageVector = Icons.Outlined.BookmarkBorder
+        override val selectedIcon: ImageVector = CustomIcons.Filled.Bookmark
+        override val unselectedIcon: ImageVector = CustomIcons.Outlined.Bookmark
         override val title: String = "Favorites"
     }
 
     @Serializable
     data object Profile : Screen, BottomNavItem {
-        override val selectedIcon: ImageVector = Icons.Filled.Person
-        override val unselectedIcon: ImageVector = Icons.Outlined.Person
+        override val selectedIcon: ImageVector = CustomIcons.Filled.Person
+        override val unselectedIcon: ImageVector = CustomIcons.Outlined.Person
         override val title: String = "Profile"
     }
 
@@ -77,10 +73,16 @@ fun String.toScreen(): Screen = when {
     this == PROFILE_ROUTE -> Screen.Profile
     startsWith(DETAILS_PREFIX) ->
         Screen.Details(substringAfter(DETAILS_PREFIX).toLong())
+
     this == FAVORITES_ROUTE -> Screen.Favorites
     this == SEARCH_ROUTE -> Screen.Search
     this == SETTINGS_ROUTE -> Screen.Settings
-    startsWith(SEARCH_WITH_GENRE_PREFIX) -> Screen.SearchWithGenre(substringAfter(SEARCH_WITH_GENRE_PREFIX))
+    startsWith(SEARCH_WITH_GENRE_PREFIX) -> Screen.SearchWithGenre(
+        substringAfter(
+            SEARCH_WITH_GENRE_PREFIX
+        )
+    )
+
     else -> Screen.Main
 }
 

@@ -116,5 +116,5 @@ class MainActivity : ComponentActivity() {
 // TODO : АНИМКА GENRES FILTER
 // TODO : CENSORED
 // TODO : РЕШИТЬ ВОПРОС С SECTION STATE
-// TODO : SUBCOMPOSEASYNCIMAGE
 // TODO : Stars cool animate
+// TODO : REMOVE MATERIAL ICONS
