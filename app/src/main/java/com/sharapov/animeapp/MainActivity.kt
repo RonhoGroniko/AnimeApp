@@ -117,4 +117,4 @@ class MainActivity : ComponentActivity() {
 // TODO : CENSORED
 // TODO : РЕШИТЬ ВОПРОС С SECTION STATE
 // TODO : SUBCOMPOSEASYNCIMAGE
-// TODO :
+// TODO : Stars cool animate

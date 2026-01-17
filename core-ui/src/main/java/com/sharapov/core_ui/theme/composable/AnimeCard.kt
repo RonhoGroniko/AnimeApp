@@ -20,6 +20,7 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -36,7 +37,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import coil3.compose.AsyncImage
+import coil3.compose.AsyncImagePainter
+import coil3.compose.SubcomposeAsyncImage
+import coil3.compose.SubcomposeAsyncImageContent
 import com.sharapov.core_ui.theme.CustomFonts
 import com.sharapov.domain_anime.entity.list.AnimeListItem
 
@@ -66,14 +69,24 @@ fun AnimeCard(
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
         Box {
-            AsyncImage(
+            SubcomposeAsyncImage(
                 model = anime.imageUrl,
                 contentDescription = "Anime image",
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
                     .fillMaxSize()
                     .clip(RoundedCornerShape(8.dp))
-            )
+            ) {
+                val painterState = painter.state.collectAsState()
+                when(painterState.value) {
+                    is AsyncImagePainter.State.Success -> {
+                        SubcomposeAsyncImageContent()
+                    }
+                    else -> {
+                        ShimmerBox()
+                    }
+                }
+            }
             Box(
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
@@ -128,13 +141,13 @@ fun AnimeCardPlaceholder(
                 .fillMaxSize()
                 .background(MaterialTheme.colorScheme.onPrimaryContainer)
         ) {
-            AnimeCardLoading()
+            ShimmerBox()
         }
     }
 }
 
 @Composable
-fun AnimeCardLoading(
+fun ShimmerBox(
     modifier: Modifier = Modifier
 ) {
     // light - dark - light

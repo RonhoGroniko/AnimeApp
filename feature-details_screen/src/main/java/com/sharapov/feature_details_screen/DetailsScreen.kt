@@ -35,7 +35,6 @@ import androidx.compose.material.icons.filled.BookmarkBorder
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ElevatedSuggestionChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -69,13 +68,13 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import coil3.compose.AsyncImage
 import coil3.compose.AsyncImagePainter
 import coil3.compose.SubcomposeAsyncImage
 import coil3.compose.SubcomposeAsyncImageContent
 import com.sharapov.core_ui.R
 import com.sharapov.core_ui.theme.CustomFonts
 import com.sharapov.core_ui.theme.composable.AnimeCard
+import com.sharapov.core_ui.theme.composable.ShimmerBox
 import com.sharapov.core_ui.theme.core.BasePane
 import com.sharapov.core_ui.theme.core.LceState
 import com.sharapov.domain_anime.entity.details.Character
@@ -354,8 +353,7 @@ fun HeaderCard(
                 .padding(8.dp)
         ) {
             Box() {
-
-                AsyncImage(
+                SubcomposeAsyncImage(
                     model = imageUrl,
                     contentDescription = "Image for selected card",
                     modifier = Modifier
@@ -363,7 +361,17 @@ fun HeaderCard(
                         .fillMaxWidth()
                         .clip(RoundedCornerShape(8.dp)),
                     contentScale = ContentScale.FillWidth
-                )
+                ) {
+                    val painter = painter.state.collectAsState()
+                    when(painter.value) {
+                        is AsyncImagePainter.State.Success -> {
+                            SubcomposeAsyncImageContent()
+                        }
+                        else -> {
+                            ShimmerBox()
+                        }
+                    }
+                }
 
                 IconButton(
                     onClick = {
@@ -786,19 +794,12 @@ fun ScreenshotRow(
             ) {
                 val painterState = painter.state.collectAsState()
                 when (painterState.value) {
-                    is AsyncImagePainter.State.Loading -> {
-                        Box(
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .background(Color(0xFFE6E6E6)),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            CircularProgressIndicator()
-                        }
+                    is AsyncImagePainter.State.Success-> {
+                        SubcomposeAsyncImageContent()
                     }
 
                     else -> {
-                        SubcomposeAsyncImageContent()
+                        ShimmerBox()
                     }
                 }
             }
@@ -822,7 +823,9 @@ private fun CharacterRow(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(
-                    modifier = Modifier.widthIn(max = 120.dp).height(32.dp),
+                    modifier = Modifier
+                        .widthIn(max = 120.dp)
+                        .height(32.dp),
                     text = character.roles[0],
                     textAlign = TextAlign.Center,
                     color = MaterialTheme.colorScheme.primary,
@@ -841,19 +844,12 @@ private fun CharacterRow(
                 ) {
                     val painterState = painter.state.collectAsState()
                     when (painterState.value) {
-                        is AsyncImagePainter.State.Loading -> {
-                            Box(
-                                modifier = Modifier
-                                    .fillMaxSize()
-                                    .background(Color(0xFFE6E6E6)),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                CircularProgressIndicator()
-                            }
+                        is AsyncImagePainter.State.Success -> {
+                            SubcomposeAsyncImageContent()
                         }
 
                         else -> {
-                            SubcomposeAsyncImageContent()
+                            ShimmerBox()
                         }
                     }
                 }
