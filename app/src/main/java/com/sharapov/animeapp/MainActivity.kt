@@ -113,7 +113,5 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-// TODO : CENSORED
 // TODO : РЕШИТЬ ВОПРОС С SECTION STATE
-// TODO : Stars cool animate
 // TODO : CHARACTER DETAILS

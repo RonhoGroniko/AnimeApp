@@ -39,12 +39,15 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.SheetState
+import androidx.compose.material3.Switch
+import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
@@ -66,6 +69,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -145,9 +150,16 @@ fun SearchScreen(
         },
         floatingActionButton = {
             FloatingActionButton(
+                modifier = Modifier.border(
+                    width = 1.dp,
+                    color = MaterialTheme.colorScheme.onSecondaryContainer,
+                    shape = FloatingActionButtonDefaults.shape
+                ),
                 onClick = {
                     showBottomSheet = true
-                }
+                },
+                contentColor = MaterialTheme.colorScheme.background,
+                containerColor = MaterialTheme.colorScheme.secondary
             ) {
                 Icon(imageVector = CustomIcons.Outlined.Filter, contentDescription = "Add filters")
             }
@@ -361,15 +373,17 @@ private fun FilterModalBottomSheet(
         var selectedStatus by remember { mutableStateOf<AnimeStatus?>(null) }
         var selectedType by remember { mutableStateOf<AnimeKind?>(null) }
         var selectedRating by remember { mutableStateOf<AnimeRating?>(null) }
+        var isCensored by remember { mutableStateOf<Boolean>(false) }
 
         val clearEnabled =
-            !(selectedGenres.isEmpty() && selectedStatus == null && selectedType == null && selectedRating == null)
+            !(selectedGenres.isEmpty() && selectedStatus == null && selectedType == null && selectedRating == null && isCensored == initialFilter.censored)
 
         LaunchedEffect(Unit) {
             selectedGenres.addAll(initialFilter.genre ?: listOf())
             selectedStatus = initialFilter.status
             selectedType = initialFilter.kind
             selectedRating = initialFilter.rating
+            isCensored = initialFilter.censored
         }
 
 
@@ -408,7 +422,10 @@ private fun FilterModalBottomSheet(
                         }
                     }
                 ) {
-                    Icon(imageVector = CustomIcons.Filled.Close, contentDescription = "Close filters")
+                    Icon(
+                        imageVector = CustomIcons.Filled.Close,
+                        contentDescription = "Close filters"
+                    )
                 }
                 Box(
                     modifier = Modifier
@@ -453,7 +470,8 @@ private fun FilterModalBottomSheet(
                             genre = selectedGenres,
                             status = selectedStatus,
                             kind = selectedType,
-                            rating = selectedRating
+                            rating = selectedRating,
+                            censored = isCensored
                         )
                         onApplyFilter(filter.toEntity())
                         onDismiss()
@@ -464,7 +482,10 @@ private fun FilterModalBottomSheet(
                     border = BorderStroke(1.dp, MaterialTheme.colorScheme.onSecondaryContainer)
                 ) {
 //                    Text(text = "Apply", fontFamily = CustomFonts.Poppins)
-                    Icon(imageVector = CustomIcons.Filled.Done, contentDescription = "Apply filters")
+                    Icon(
+                        imageVector = CustomIcons.Filled.Done,
+                        contentDescription = "Apply filters"
+                    )
                 }
             }
             LazyColumn() {
@@ -535,6 +556,21 @@ private fun FilterModalBottomSheet(
                         modifier = modifier.fillMaxWidth(),
                         color = MaterialTheme.colorScheme.onSecondaryContainer
                     )
+                }
+                item {
+                    FilterWithSwitch(
+                        text = "Censored",
+                        checked = isCensored,
+                        onCheck = {
+                            isCensored = it
+                        }
+                    )
+                }
+                item {
+                    HorizontalDivider(
+                        modifier = modifier.fillMaxWidth(),
+                        color = MaterialTheme.colorScheme.onSecondaryContainer
+                    )
                     Spacer(modifier = Modifier.height(16.dp))
                 }
             }
@@ -550,7 +586,8 @@ private fun GenresFilter(
 ) {
     var expandGenres by remember { mutableStateOf(false) }
     Column(
-        modifier = modifier.fillMaxWidth()
+        modifier = modifier
+            .fillMaxWidth()
             .animateContentSize(
                 animationSpec = tween(
                     durationMillis = 300,
@@ -703,5 +740,39 @@ private fun UppercaseLetterWithDivider(
             modifier = modifier.fillMaxWidth(),
             color = MaterialTheme.colorScheme.onSecondaryContainer
         )
+    }
+}
+
+@Composable
+private fun FilterWithSwitch(
+    modifier: Modifier = Modifier,
+    text: String,
+    checked: Boolean,
+    onCheck: (Boolean) -> Unit
+) {
+    Row(
+        modifier
+            .fillMaxWidth()
+            .height(48.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        FilterSubtitle(
+            text = text,
+            modifier = Modifier
+                .fillMaxHeight()
+                .weight(1f)
+        )
+        Switch(
+            modifier = Modifier
+                .padding(horizontal = 16.dp)
+                .semantics { contentDescription = "Check $text filter" },
+            checked = checked,
+            onCheckedChange = { onCheck(it) },
+            colors = SwitchDefaults.colors(
+                checkedTrackColor = MaterialTheme.colorScheme.secondary,
+                checkedBorderColor = MaterialTheme.colorScheme.onSecondaryContainer
+            )
+        )
+
     }
 }
