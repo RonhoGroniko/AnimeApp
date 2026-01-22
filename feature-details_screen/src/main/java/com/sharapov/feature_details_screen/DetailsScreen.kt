@@ -3,6 +3,7 @@ package com.sharapov.feature_details_screen
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -57,6 +58,7 @@ import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.graphics.graphicsLayer
@@ -65,13 +67,19 @@ import androidx.compose.ui.graphics.vector.VectorPainter
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.text.TextMeasurer
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.drawText
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.unit.times
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import coil3.compose.AsyncImagePainter
 import coil3.compose.SubcomposeAsyncImage
@@ -87,6 +95,7 @@ import com.sharapov.core_ui.theme.icons.CustomIcons
 import com.sharapov.core_ui.theme.icons.KeyboardArrowDown
 import com.sharapov.core_ui.theme.icons.Star
 import com.sharapov.domain_anime.entity.details.Character
+import com.sharapov.domain_anime.entity.details.ScoreStats
 import com.sharapov.domain_anime.entity.details.Screenshot
 import com.sharapov.domain_anime.entity.list.AnimeListItem
 import com.sharapov.feature_details_screen.mapper.episodesToUi
@@ -286,6 +295,15 @@ fun DetailsScreenContent(
                 }
                 item { Spacer(modifier = Modifier.height(8.dp)) }
             }
+            if (contentState.data.anime.scoreStats.isNotEmpty()) {
+                item {
+                    StatisticBarsColumn(
+                        scoreStatsList = contentState.data.anime.scoreStats,
+                        modifier = Modifier.padding(horizontal = 16.dp)
+                    )
+                }
+                item { Spacer(modifier = Modifier.height(16.dp)) }
+            }
         }
 
         OverlayTopAppBar(
@@ -361,7 +379,7 @@ fun HeaderCard(
             modifier = Modifier
                 .padding(8.dp)
         ) {
-            Box() {
+            Box {
                 SubcomposeAsyncImage(
                     model = imageUrl,
                     contentDescription = "Image for selected card",
@@ -613,7 +631,6 @@ private fun DrawScope.drawWithLayer(
         restoreToCount(checkpoint)
     }
 }
-
 
 
 @Composable
@@ -981,5 +998,119 @@ private fun AnimeCardsRowWithTitle(
             }
         }
     }
+}
+
+@Composable
+private fun StatisticBarsColumn(
+    modifier: Modifier = Modifier,
+    scoreStatsList: List<ScoreStats>,
+    color: Color = MaterialTheme.colorScheme.secondary,
+) {
+    val textMeasurer = rememberTextMeasurer()
+    val rowHeight = 32.dp
+    val countProportions = rememberProportions(scoreStatsList)
+
+    Canvas(
+        modifier = modifier
+            .fillMaxWidth()
+            .height(scoreStatsList.size * rowHeight)
+    ) {
+        scoreStatsList.forEachIndexed { index, stats ->
+            val lineY = rowHeight.toPx() * index + rowHeight.toPx() / 2f
+
+            drawStatisticBar(
+                score = stats.score,
+                count = stats.count,
+                countProportion = countProportions[index],
+                color = color,
+                textMeasurer = textMeasurer,
+                lineY = lineY,
+                strokeWidthPx = 8.dp.toPx()
+            )
+        }
+    }
+}
+
+@Composable
+private fun rememberProportions(
+    scoreStatsList: List<ScoreStats>
+): List<Float> {
+    val maxCount = scoreStatsList.maxOfOrNull { it.count } ?: 0
+
+    return scoreStatsList.map { stats ->
+        val target =
+            if (maxCount == 0) 0f
+            else stats.count.toFloat() / maxCount
+
+        target
+    }
+}
+
+private fun DrawScope.drawStatisticBar(
+    score: Int,
+    count: Int,
+    countProportion: Float,
+    color: Color,
+    textMeasurer: TextMeasurer,
+    lineY: Float,
+    strokeWidthPx: Float
+) {
+    val textLayoutResultScore = textMeasurer.measure(
+        text = score.toString(),
+        style = TextStyle(
+            fontSize = 12.sp,
+            fontFamily = CustomFonts.Poppins
+        )
+    )
+
+    val textLayoutResultCount = textMeasurer.measure(
+        text = count.toString(),
+        style = TextStyle(
+            fontSize = 12.sp,
+            fontFamily = CustomFonts.Poppins
+        )
+    )
+
+    drawLine(
+        color = Color.White,
+        start = Offset(0f, lineY),
+        end = Offset(size.width, lineY),
+        strokeWidth = strokeWidthPx,
+        cap = StrokeCap.Round
+    )
+
+    drawLine(
+        color = color,
+        start = Offset(0f, lineY),
+        end = Offset(size.width * countProportion, lineY),
+        strokeWidth = strokeWidthPx,
+        cap = StrokeCap.Round
+    )
+
+    drawText(
+        textLayoutResult = textLayoutResultScore,
+        topLeft = Offset(
+            x = 0f,
+            y = lineY - textLayoutResultScore.size.height - 4.dp.toPx()
+        ),
+        color = color
+    )
+
+    drawText(
+        textLayoutResult = textLayoutResultCount,
+        topLeft = Offset(
+            x = size.width - textLayoutResultCount.size.width,
+            y = lineY - textLayoutResultScore.size.height - 4.dp.toPx()
+        ),
+        color = color
+    )
+}
+
+@Preview
+@Composable
+fun StatisticBarsColumnPreview() {
+    StatisticBarsColumn(
+        scoreStatsList = listOf(ScoreStats(10, 2292299)),
+    )
 }
 
