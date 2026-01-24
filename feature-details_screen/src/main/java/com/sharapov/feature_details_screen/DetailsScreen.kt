@@ -1035,10 +1035,11 @@ private fun StatisticBarsColumn(
     modifier: Modifier = Modifier,
     labelList: List<String>,
     countList: List<Int>,
-    color: Color = MaterialTheme.colorScheme.secondary,
+    fillColor: Color = MaterialTheme.colorScheme.secondary,
+    emptyColor: Color = MaterialTheme.colorScheme.surfaceVariant
 ) {
     val textMeasurer = rememberTextMeasurer()
-    val rowHeight = 32.dp
+    val rowHeight = 36.dp
     val countProportions = countProportions(countList)
 
     Canvas(
@@ -1053,7 +1054,8 @@ private fun StatisticBarsColumn(
                 label = label,
                 count = countList[index],
                 countProportion = countProportions[index],
-                color = color,
+                fillColor = fillColor,
+                emptyColor = emptyColor,
                 textMeasurer = textMeasurer,
                 lineY = lineY,
                 strokeWidthPx = 8.dp.toPx()
@@ -1081,7 +1083,8 @@ private fun DrawScope.drawStatisticBar(
     label: String,
     count: Int,
     countProportion: Float,
-    color: Color,
+    fillColor: Color,
+    emptyColor: Color,
     textMeasurer: TextMeasurer,
     lineY: Float,
     strokeWidthPx: Float
@@ -1103,7 +1106,7 @@ private fun DrawScope.drawStatisticBar(
     )
 
     drawLine(
-        color = Color.White,
+        color = emptyColor,
         start = Offset(0f, lineY),
         end = Offset(size.width, lineY),
         strokeWidth = strokeWidthPx,
@@ -1111,7 +1114,7 @@ private fun DrawScope.drawStatisticBar(
     )
 
     drawLine(
-        color = color,
+        color = fillColor,
         start = Offset(0f, lineY),
         end = Offset(size.width * countProportion, lineY),
         strokeWidth = strokeWidthPx,
@@ -1124,7 +1127,7 @@ private fun DrawScope.drawStatisticBar(
             x = 0f,
             y = lineY - textLayoutResultScore.size.height - 4.dp.toPx()
         ),
-        color = color
+        color = fillColor
     )
 
     drawText(
@@ -1133,7 +1136,7 @@ private fun DrawScope.drawStatisticBar(
             x = size.width - textLayoutResultCount.size.width,
             y = lineY - textLayoutResultScore.size.height - 4.dp.toPx()
         ),
-        color = color
+        color = fillColor
     )
 }
 
