@@ -1,6 +1,10 @@
 package com.sharapov.feature_search_screen
 
-sealed interface SearchScreenCommand {
+import com.sharapov.domain_anime.entity.filter.AnimeFilter
 
-    data class ChangeQuery(val query: String): SearchScreenCommand
+interface SearchScreenCommand {
+
+    data class ChangeQuery(val query: String) : SearchScreenCommand
+
+    data class ApplyFilter(val filter: AnimeFilter) : SearchScreenCommand
 }

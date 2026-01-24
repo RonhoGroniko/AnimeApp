@@ -1,11 +1,13 @@
 package com.sharapov.data_anime.di
 
-import com.sharapov.data_anime.repository.DetailsAnimeRepositoryImpl
-import com.sharapov.data_anime.repository.ListAnimeRepositoryImpl
-import com.sharapov.data_anime.repository.SearchAnimeRepositoryImpl
-import com.sharapov.domain_anime.repository.DetailsAnimeRepository
-import com.sharapov.domain_anime.repository.ListAnimeRepository
-import com.sharapov.domain_anime.repository.SearchAnimeRepository
+import com.sharapov.data_anime.repository.AnimeDetailsRepositoryImpl
+import com.sharapov.data_anime.repository.AnimeFavoriteRepositoryImpl
+import com.sharapov.data_anime.repository.AnimeListRepositoryImpl
+import com.sharapov.data_anime.repository.AnimeSearchRepositoryImpl
+import com.sharapov.domain_anime.repository.AnimeDetailsRepository
+import com.sharapov.domain_anime.repository.AnimeFavoriteRepository
+import com.sharapov.domain_anime.repository.AnimeListRepository
+import com.sharapov.domain_anime.repository.AnimeSearchRepository
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -19,13 +21,17 @@ interface AnimeDataModule {
 
     @Binds
     @Singleton
-    fun bindListAnimeRepository(impl: ListAnimeRepositoryImpl): ListAnimeRepository
+    fun bindAnimeListRepository(impl: AnimeListRepositoryImpl): AnimeListRepository
 
     @Binds
     @Singleton
-    fun bindSearchAnimeRepository(impl: SearchAnimeRepositoryImpl): SearchAnimeRepository
+    fun bindAnimeDetailsRepository(impl: AnimeDetailsRepositoryImpl): AnimeDetailsRepository
 
     @Binds
     @Singleton
-    fun bindDetailsAnimeRepository(impl: DetailsAnimeRepositoryImpl): DetailsAnimeRepository
+    fun bindAnimeSearchRepository(impl: AnimeSearchRepositoryImpl): AnimeSearchRepository
+
+    @Binds
+    @Singleton
+    fun bindAnimeFavoriteRepository(impl: AnimeFavoriteRepositoryImpl): AnimeFavoriteRepository
 }

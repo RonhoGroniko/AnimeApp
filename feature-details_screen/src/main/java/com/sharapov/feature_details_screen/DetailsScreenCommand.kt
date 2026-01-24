@@ -1,6 +1,8 @@
 package com.sharapov.feature_details_screen
 
-interface DetailsScreenCommand {
+import com.sharapov.feature_details_screen.model.AnimeDetailsUiModel
 
-    data object ChangeFavoriteStatus: DetailsScreenCommand
+sealed interface DetailsScreenCommand {
+
+    data class ChangeFavoriteStatus(val anime: AnimeDetailsUiModel): DetailsScreenCommand
 }

@@ -55,9 +55,10 @@ dependencies {
 
     implementation(project(":core-ui"))
     implementation(project(":domain-anime"))
-    implementation(project(":network-anime"))
 
     implementation(libs.hilt.android)
+    implementation(libs.androidx.material3)
+    implementation(libs.androidx.compose.foundation)
     ksp(libs.hilt.android.compiler)
     implementation(libs.androidx.hilt.navigation.compose)
 

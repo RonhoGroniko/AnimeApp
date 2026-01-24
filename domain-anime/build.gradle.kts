@@ -46,6 +46,8 @@ kotlin {
 
 dependencies {
 
+    api(project(":core-domain"))
+
     api(libs.kotlinx.coroutines.core)
     compileOnly(libs.javax.inject)
 

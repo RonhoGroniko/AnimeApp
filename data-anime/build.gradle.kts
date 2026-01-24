@@ -51,6 +51,9 @@ dependencies {
     implementation(project(":domain-anime"))
     implementation(project(":database-anime"))
     implementation(project(":network-anime"))
+    
+    implementation(project(":core-network"))
+
 
     implementation(libs.kotlinx.coroutines.core)
     compileOnly(libs.javax.inject)

@@ -1,10 +1,13 @@
+@file:OptIn(ExperimentalMaterial3Api::class)
+
 package com.sharapov.feature_details_screen
 
-import android.util.Log
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
@@ -14,6 +17,8 @@ import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -21,102 +26,155 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.Bookmark
-import androidx.compose.material.icons.filled.BookmarkBorder
-import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ElevatedSuggestionChip
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.SheetState
 import androidx.compose.material3.SuggestionChipDefaults
 import androidx.compose.material3.Text
-import androidx.compose.material3.VerticalDivider
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.nativeCanvas
+import androidx.compose.ui.graphics.vector.VectorPainter
+import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextMeasurer
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.drawText
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.unit.times
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import coil3.compose.AsyncImage
-import com.sharapov.core_ui.R
+import coil3.compose.AsyncImagePainter
+import coil3.compose.SubcomposeAsyncImage
+import coil3.compose.SubcomposeAsyncImageContent
 import com.sharapov.core_ui.theme.CustomFonts
 import com.sharapov.core_ui.theme.composable.AnimeCard
-import com.sharapov.core_ui.theme.composable.BasePane
-import com.sharapov.domain_anime.entity.Anime
-import com.sharapov.domain_anime.entity.common.AnimeFilter
-import com.sharapov.feature_details_screen.model.AnimeWithDetailsUiModel
-import com.sharapov.feature_details_screen.model.RelatedAnimeUiModel
+import com.sharapov.core_ui.theme.composable.ErrorWithImage
+import com.sharapov.core_ui.theme.composable.FilterSubtitle
+import com.sharapov.core_ui.theme.composable.ShimmerBox
+import com.sharapov.core_ui.R
+import com.sharapov.core_ui.theme.core.BasePane
+import com.sharapov.core_ui.theme.core.LceState
+import com.sharapov.core_ui.theme.icons.ArrowBack
+import com.sharapov.core_ui.theme.icons.BarChart
+import com.sharapov.core_ui.theme.icons.Bookmark
+import com.sharapov.core_ui.theme.icons.Close
+import com.sharapov.core_ui.theme.icons.CustomIcons
+import com.sharapov.core_ui.theme.icons.KeyboardArrowDown
+import com.sharapov.core_ui.theme.icons.Star
+import com.sharapov.domain_anime.entity.details.Character
+import com.sharapov.domain_anime.entity.details.ScoreStats
+import com.sharapov.domain_anime.entity.details.Screenshot
+import com.sharapov.domain_anime.entity.details.StatusStats
+import com.sharapov.domain_anime.entity.list.AnimeListItem
+import com.sharapov.feature_details_screen.mapper.episodesToUi
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 
 @Composable
 fun DetailsScreen(
-    id: Int,
+    modifier: Modifier = Modifier,
+    animeId: Long,
     viewModel: DetailsViewModel = hiltViewModel { factory: DetailsViewModel.Factory ->
-        factory.create(id)
+        factory.create(animeId)
     },
     onBackClick: () -> Unit,
-    onCardClick: (Int) -> Unit,
-    onGenreClick: (AnimeFilter) -> Unit
+    onCardClick: (Long) -> Unit,
+    onGenreClick: (String) -> Unit,
 ) {
+    val state = viewModel.state.collectAsState()
+
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    val scope = rememberCoroutineScope()
+    var showBottomSheet by remember { mutableStateOf(false) }
+
     BasePane(
-        modifier = Modifier.background(MaterialTheme.colorScheme.background),
-    ) { innerPadding ->
-        val state = viewModel.state.collectAsState()
-        when (val currentState = state.value) {
-            is DetailsScreenState.Content -> {
+        modifier = modifier,
+        lceState = state.value,
+    ) { innerPadding, currentState ->
+        when (currentState) {
+            is LceState.Content<DetailsScreenContent> -> {
                 DetailsScreenContent(
+                    contentState = currentState,
                     innerPadding = innerPadding,
-                    anime = currentState.anime,
                     onBackClick = onBackClick,
                     onCardClick = onCardClick,
                     onGenreClick = onGenreClick,
-                    onChangeFavoriteStatus = { viewModel.processCommand(DetailsScreenCommand.ChangeFavoriteStatus) }
+                    onChangeFavoriteStatus = {
+                        viewModel.processCommand(
+                            DetailsScreenCommand.ChangeFavoriteStatus(
+                                anime = currentState.data.anime
+                            )
+                        )
+                    },
+                    onStatisticClick = {
+                        showBottomSheet = true
+                    },
+                    sheetState = sheetState,
+                    showBottomSheet = showBottomSheet,
+                    scope = scope,
+                    onDismiss = {
+                        showBottomSheet = false
+                    }
                 )
             }
 
-            is DetailsScreenState.Error -> {
-                Log.d("ERROR", currentState.message)
-            }
-
-            DetailsScreenState.Initial -> {}
-            DetailsScreenState.Loading -> {
+            is LceState.Error -> {
                 Box(
                     modifier = Modifier.fillMaxSize(),
                     contentAlignment = Alignment.Center
                 ) {
-                    CircularProgressIndicator(
-                        color = MaterialTheme.colorScheme.secondary
-                    )
+                    ErrorWithImage("Бака сервер потерял записи, хех", R.drawable.confused_anime_girl)
                 }
             }
+            LceState.Initial -> {}
+            LceState.Loading -> {}
         }
     }
 }
@@ -125,11 +183,16 @@ fun DetailsScreen(
 fun DetailsScreenContent(
     modifier: Modifier = Modifier,
     innerPadding: PaddingValues,
-    anime: AnimeWithDetailsUiModel,
+    contentState: LceState.Content<DetailsScreenContent>,
+    sheetState: SheetState,
+    scope: CoroutineScope,
+    showBottomSheet: Boolean,
     onBackClick: () -> Unit,
-    onCardClick: (Int) -> Unit,
-    onGenreClick: (AnimeFilter) -> Unit,
-    onChangeFavoriteStatus: () -> Unit
+    onCardClick: (Long) -> Unit,
+    onGenreClick: (String) -> Unit,
+    onChangeFavoriteStatus: () -> Unit,
+    onStatisticClick: () -> Unit,
+    onDismiss: () -> Unit
 ) {
     val listState = rememberLazyListState()
     val density = LocalDensity.current
@@ -146,7 +209,7 @@ fun DetailsScreenContent(
             1f
         } else {
             0f
-        }, label = "topbar_alpha"
+        }
     )
 
     Box(
@@ -160,109 +223,145 @@ fun DetailsScreenContent(
         ) {
             item {
                 HeaderCard(
-                    imageUrl = anime.mainPicture,
-                    title = anime.title,
-                    studios = anime.studios,
-                    releaseDate = anime.startDate,
-                    mean = anime.mean,
-                    isFavorite = anime.isFavorite,
+                    imageUrl = contentState.data.anime.imageUrl,
+                    title = contentState.data.anime.name,
+                    studios = contentState.data.anime.studios,
+                    releaseDate = contentState.data.anime.releasedOnDate,
+                    mean = contentState.data.anime.score,
+                    isFavorite = contentState.data.anime.isFavorite,
                     onBackClick = onBackClick,
-                    onChangeFavoriteStatus = onChangeFavoriteStatus
+                    onChangeFavoriteStatus = onChangeFavoriteStatus,
+                    onStatisticClick = onStatisticClick
                 )
             }
             item {
                 GenreChips(
-                    genres = anime.genres,
+                    genres = contentState.data.anime.genres,
                     onGenreClick = onGenreClick
                 )
             }
             item {
                 InfoRow(
-                    status = anime.status,
-                    rating = anime.rating,
-                    numEpisodes = anime.numEpisodes,
-                    episodeDuration = anime.averageEpisodeDuration,
-                    mediaType = anime.mediaType
+                    labelList = listOf(
+                        "Status",
+                        "Type",
+                        "Rating",
+                        "Episodes",
+                        "Duration"
+                    ),
+                    contentList = listOf(
+                        contentState.data.anime.status,
+                        contentState.data.anime.kind,
+                        contentState.data.anime.rating,
+                        episodesToUi(
+                            contentState.data.anime.episodesAired,
+                            contentState.data.anime.episodes
+                        ),
+                        contentState.data.anime.duration.toString()
+                    )
                 )
             }
-            if (anime.synopsis.isNotBlank()) {
-                item { Spacer(modifier = Modifier.height(16.dp)) }
+            if (contentState.data.anime.description.isNotBlank()) {
                 item {
                     Subtitle(
-                        modifier = Modifier.padding(horizontal = 16.dp),
+                        modifier = Modifier.padding(
+                            top = 16.dp,
+                            bottom = 8.dp,
+                            start = 16.dp,
+                            end = 16.dp
+                        ),
                         text = "Description"
                     )
                 }
-                item { Spacer(modifier = Modifier.height(8.dp)) }
                 item {
                     ExpandableDescription(
                         modifier = Modifier.padding(horizontal = 8.dp),
-                        text = anime.synopsis
-                    )
-                }
-            }
-            if (anime.pictures.isNotEmpty()) {
-                item { Spacer(modifier = Modifier.height(16.dp)) }
-                item {
-                    Subtitle(
-                        modifier = Modifier.padding(horizontal = 16.dp),
-                        text = "Pictures"
-                    )
-                }
-                item { Spacer(modifier = Modifier.height(4.dp)) }
-                item { PictureCardRow(pictureUrls = anime.pictures) }
-            }
-            if (anime.background.isNotBlank()) {
-                item { Spacer(modifier = Modifier.height(4.dp)) }
-                item {
-                    Subtitle(
-                        modifier = Modifier.padding(horizontal = 16.dp),
-                        text = "Background"
+                        text = contentState.data.anime.description
                     )
                 }
                 item { Spacer(modifier = Modifier.height(8.dp)) }
-                item {
-                    ExpandableDescription(
-                        modifier = Modifier.padding(horizontal = 8.dp),
-                        text = anime.background
-                    )
-                }
             }
-            if (anime.relatedAnime.isNotEmpty()) {
-                item { Spacer(modifier = Modifier.height(8.dp)) }
+            if (contentState.data.anime.screenshotsUrls.isNotEmpty()) {
                 item {
                     Subtitle(
-                        modifier = Modifier.padding(horizontal = 16.dp),
+                        modifier = Modifier.padding(
+                            top = 16.dp,
+                            bottom = 8.dp,
+                            start = 16.dp,
+                            end = 16.dp
+                        ),
+                        text = "Screenshots"
+                    )
+                }
+                item { ScreenshotRow(pictureUrls = contentState.data.anime.screenshotsUrls) }
+                item { Spacer(modifier = Modifier.height(8.dp)) }
+            }
+            if (contentState.data.anime.characters.isNotEmpty()) {
+                item {
+                    Subtitle(
+                        modifier = Modifier.padding(
+                            top = 16.dp,
+                            bottom = 8.dp,
+                            start = 16.dp,
+                            end = 16.dp
+                        ),
+                        text = "Characters"
+                    )
+                }
+                item { CharacterRow(characters = contentState.data.anime.characters) }
+                item { Spacer(modifier = Modifier.height(8.dp)) }
+            }
+            if (contentState.data.anime.relatedAnime.isNotEmpty()) {
+                item {
+                    Subtitle(
+                        modifier = Modifier.padding(
+                            top = 8.dp,
+                            bottom = 8.dp,
+                            start = 16.dp,
+                            end = 16.dp
+                        ),
                         text = "Related Anime"
                     )
                 }
-                item { Spacer(modifier = Modifier.height(8.dp)) }
                 item {
-                    RelatedAnimeCardsRow(
-                        relatedAnimeList = anime.relatedAnime,
+                    AnimeCardsRowWithTitle(
+                        animeList = contentState.data.anime.relatedAnime.map { it.animeListItem },
+                        titleList = contentState.data.anime.relatedAnime.map { it.relationKind.value },
                         onCardClick = onCardClick
                     )
                 }
+                item { Spacer(modifier = Modifier.height(8.dp)) }
             }
-            if (anime.recommendations.isNotEmpty()) {
+            if (contentState.data.anime.chronology.isNotEmpty()) {
                 item {
                     Subtitle(
-                        modifier = Modifier.padding(horizontal = 16.dp),
-                        text = "Recommendations"
+                        modifier = Modifier.padding(bottom = 8.dp, start = 16.dp, end = 16.dp),
+                        text = "Chronology"
                     )
                 }
-                item { Spacer(modifier = Modifier.height(8.dp)) }
                 item {
-                    AnimeCardsRow(
-                        animeList = anime.recommendations,
+                    AnimeCardsRowWithTitle(
+                        animeList = contentState.data.anime.chronology.map { it.animeListItem },
+                        titleList = contentState.data.anime.chronology.map { it.kind.value },
                         onCardClick = onCardClick
                     )
                 }
+                item { Spacer(modifier = Modifier.height(8.dp)) }
             }
         }
 
+        StatisticBottomSheet(
+            innerPadding = innerPadding,
+            onDismiss = onDismiss,
+            showBottomSheet = showBottomSheet,
+            sheetState = sheetState,
+            scope = scope,
+            statusStats = contentState.data.anime.statusStats,
+            scoreStats = contentState.data.anime.scoreStats
+        )
+
         OverlayTopAppBar(
-            title = anime.title,
+            title = contentState.data.anime.name,
             alpha = alpha,
             onBackClick = onBackClick,
             modifier = Modifier
@@ -291,7 +390,7 @@ private fun OverlayTopAppBar(
             enabled = alpha > 0.001f
         ) {
             Icon(
-                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                imageVector = CustomIcons.AutoMirrored.Filled.ArrowBack,
                 contentDescription = "Back",
                 tint = MaterialTheme.colorScheme.primary.copy(alpha = alpha)
             )
@@ -318,7 +417,8 @@ fun HeaderCard(
     mean: Double,
     isFavorite: Boolean,
     onBackClick: () -> Unit,
-    onChangeFavoriteStatus: () -> Unit
+    onChangeFavoriteStatus: () -> Unit,
+    onStatisticClick: () -> Unit
 ) {
     var backEnabled by remember { mutableStateOf(true) }
 
@@ -334,8 +434,8 @@ fun HeaderCard(
             modifier = Modifier
                 .padding(8.dp)
         ) {
-            Box() {
-                AsyncImage(
+            Box {
+                SubcomposeAsyncImage(
                     model = imageUrl,
                     contentDescription = "Image for selected card",
                     modifier = Modifier
@@ -343,7 +443,19 @@ fun HeaderCard(
                         .fillMaxWidth()
                         .clip(RoundedCornerShape(8.dp)),
                     contentScale = ContentScale.FillWidth
-                )
+                ) {
+                    val painter = painter.state.collectAsState()
+                    when (painter.value) {
+                        is AsyncImagePainter.State.Success -> {
+                            SubcomposeAsyncImageContent()
+                        }
+
+                        else -> {
+                            ShimmerBox()
+                        }
+                    }
+                }
+
                 IconButton(
                     onClick = {
                         if (backEnabled) {
@@ -360,13 +472,15 @@ fun HeaderCard(
                     shape = RoundedCornerShape(8.dp)
                 ) {
                     Icon(
-                        imageVector = Icons.AutoMirrored.Default.ArrowBack,
+                        imageVector = CustomIcons.AutoMirrored.Filled.ArrowBack,
                         contentDescription = "Back",
                         tint = MaterialTheme.colorScheme.primary
                     )
                 }
             }
+
             Spacer(modifier = Modifier.height(8.dp))
+
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
@@ -379,6 +493,22 @@ fun HeaderCard(
                     color = MaterialTheme.colorScheme.secondary,
                     fontSize = 24.sp
                 )
+
+                IconButton(
+                    onClick = { onStatisticClick() },
+                    colors = IconButtonDefaults.iconButtonColors(
+                        contentColor = MaterialTheme.colorScheme.secondary
+                    ),
+                    shape = RoundedCornerShape(8.dp)
+                ) {
+                    Icon(
+                        modifier = Modifier.size(36.dp),
+                        imageVector = CustomIcons.Filled.BarChart,
+                        contentDescription = "Open statistics",
+                        tint = MaterialTheme.colorScheme.secondary
+                    )
+                }
+
                 IconButton(
                     onClick = { onChangeFavoriteStatus() },
                     colors = IconButtonDefaults.iconButtonColors(
@@ -388,7 +518,7 @@ fun HeaderCard(
                 ) {
                     Icon(
                         modifier = Modifier.size(36.dp),
-                        imageVector = if (isFavorite) Icons.Default.Bookmark else Icons.Default.BookmarkBorder,
+                        imageVector = if (isFavorite) CustomIcons.Filled.Bookmark else CustomIcons.Outlined.Bookmark,
                         contentDescription = "Change isFavorite status",
                         tint = MaterialTheme.colorScheme.secondary
                     )
@@ -399,21 +529,27 @@ fun HeaderCard(
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Column(modifier = Modifier.weight(0.6f)) {
-                    Text(
-                        text = "Studios: ${studios.joinToString()}",
-                        fontFamily = CustomFonts.Poppins,
-                        color = MaterialTheme.colorScheme.primary,
-                        fontStyle = FontStyle.Italic,
-                        fontSize = 14.sp
-                    )
-                    Text(
-                        text = "Release date: $releaseDate",
-                        fontFamily = CustomFonts.Poppins,
-                        color = MaterialTheme.colorScheme.primary,
-                        fontStyle = FontStyle.Italic,
-                        fontSize = 14.sp
-                    )
+                    if (studios.isNotEmpty()) {
+                        Text(
+                            text = "Studios: ${studios.joinToString()}",
+                            fontFamily = CustomFonts.Poppins,
+                            color = MaterialTheme.colorScheme.primary,
+                            fontStyle = FontStyle.Italic,
+                            fontSize = 14.sp
+                        )
+                    }
+
+                    if (releaseDate.isNotBlank()) {
+                        Text(
+                            text = "Release date: $releaseDate",
+                            fontFamily = CustomFonts.Poppins,
+                            color = MaterialTheme.colorScheme.primary,
+                            fontStyle = FontStyle.Italic,
+                            fontSize = 14.sp
+                        )
+                    }
                 }
+
                 StarsRating(
                     modifier = Modifier.weight(0.4f),
                     mean = mean
@@ -428,7 +564,7 @@ private fun StarsRating(
     modifier: Modifier = Modifier,
     mean: Double
 ) {
-    val stars = calculateStars(mean)
+
     Column(
         modifier = modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.End
@@ -441,68 +577,137 @@ private fun StarsRating(
             textAlign = TextAlign.End,
             fontStyle = FontStyle.Italic
         )
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(4.dp)
-        ) {
-            repeat(stars.fullStars) {
-                Icon(
-                    modifier = Modifier.size(24.dp),
-                    painter = painterResource(R.drawable.ic_star),
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.secondary
+        RatingBar(
+            rating = mean.toFloat(),
+            backgroundColor = MaterialTheme.colorScheme.secondary.copy(alpha = 0.5f),
+            foregroundColor = MaterialTheme.colorScheme.secondary
+        )
+    }
+
+}
+
+@Composable
+private fun RatingBar(
+    modifier: Modifier = Modifier,
+    rating: Float,
+    spaceBetween: Dp = 0.dp,
+    backgroundColor: Color,
+    foregroundColor: Color
+) {
+    val normalizedRating = rating / 2
+    val background = rememberVectorPainter(CustomIcons.Filled.Star)
+    val foreground = rememberVectorPainter(CustomIcons.Filled.Star)
+
+    val density = LocalDensity.current
+    val spacePx = with(density) { spaceBetween.toPx() }
+
+    val starWidth = background.intrinsicSize.width
+    val starHeight = background.intrinsicSize.height
+
+    val totalCount = 5
+    val totalWidth =
+        starWidth * totalCount + spacePx * (totalCount - 1)
+
+    Box(
+        modifier = modifier
+            .width(with(density) { totalWidth.toDp() })
+            .height(with(density) { starHeight.toDp() })
+            .drawBehind {
+                drawRating(
+                    rating = normalizedRating,
+                    background = background,
+                    foreground = foreground,
+                    space = spacePx,
+                    starWidth = starWidth,
+                    starHeight = starHeight,
+                    backgroundColor = backgroundColor,
+                    foregroundColor = foregroundColor,
                 )
             }
+    )
+}
 
-            repeat(stars.halfStars) {
-                Icon(
-                    modifier = Modifier.size(24.dp),
-                    painter = painterResource(R.drawable.ic_star_half),
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.secondary
-                )
-            }
 
-            repeat(stars.emptyStars) {
-                Icon(
-                    modifier = Modifier.size(24.dp),
-                    painter = painterResource(R.drawable.ic_star),
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.secondary.copy(alpha = 0.5f)
+private fun DrawScope.drawRating(
+    rating: Float,
+    background: VectorPainter,
+    backgroundColor: Color,
+    foreground: VectorPainter,
+    foregroundColor: Color,
+    space: Float,
+    starWidth: Float,
+    starHeight: Float
+) {
+    val totalCount = 5
+    val clampedRating = rating.coerceIn(0f, totalCount.toFloat())
+
+    val fullStars = clampedRating.toInt()
+    val remainder = clampedRating - fullStars
+
+    for (i in 0 until totalCount) {
+        val startX = i * (starWidth + space)
+
+        translate(left = startX, top = 0f) {
+            with(background) {
+                draw(
+                    size = Size(starWidth, starHeight),
+                    colorFilter = ColorFilter.tint(
+                        backgroundColor
+                    )
                 )
             }
         }
     }
 
+    drawWithLayer {
+        for (i in 0 until totalCount) {
+            val startX = i * (starWidth + space)
+
+            translate(left = startX, top = 0f) {
+                with(foreground) {
+                    draw(
+                        size = Size(starWidth, starHeight),
+                        colorFilter = ColorFilter.tint(
+                            foregroundColor
+                        )
+
+                    )
+                }
+            }
+        }
+
+        val maskStart =
+            fullStars * (starWidth + space) +
+                    remainder * starWidth
+
+        val maskWidth =
+            size.width - maskStart
+
+        drawRect(
+            color = Color.Transparent,
+            topLeft = Offset(maskStart, 0f),
+            size = Size(maskWidth, starHeight),
+            blendMode = BlendMode.SrcIn
+        )
+    }
 }
 
-data class StarState(
-    val fullStars: Int,
-    val halfStars: Int,
-    val emptyStars: Int
-)
-
-private fun calculateStars(mean: Double): StarState {
-    val starValue = (mean / 2.0).coerceIn(0.0, 5.0)
-
-    val fullStars = starValue.toInt()
-    val hasHalfStar = (starValue - fullStars) >= 0.5
-
-    val halfStars = if (hasHalfStar) 1 else 0
-    val emptyStars = 5 - fullStars - halfStars
-
-    return StarState(
-        fullStars = fullStars,
-        halfStars = halfStars,
-        emptyStars = emptyStars
-    )
+private fun DrawScope.drawWithLayer(
+    block: DrawScope.() -> Unit
+) {
+    with(drawContext.canvas.nativeCanvas) {
+        val checkpoint = saveLayer(null, null)
+        block()
+        restoreToCount(checkpoint)
+    }
 }
+
 
 @Composable
 fun GenreChips(
     modifier: Modifier = Modifier,
     genres: List<String>,
-    onGenreClick: (AnimeFilter) -> Unit
+    onGenreClick: (String) -> Unit
 ) {
     LazyRow(
         modifier = modifier
@@ -515,7 +720,7 @@ fun GenreChips(
             item {
                 ElevatedSuggestionChip(
                     onClick = {
-                        onGenreClick(AnimeFilter.ByGenre(genre))
+                        onGenreClick(genre)
                     },
                     label = {
                         Text(
@@ -547,65 +752,25 @@ fun GenreChips(
 @Composable
 fun InfoRow(
     modifier: Modifier = Modifier,
-    status: String,
-    rating: String,
-    numEpisodes: String,
-    episodeDuration: String,
-    mediaType: String
+    labelList: List<String>,
+    contentList: List<String>
 ) {
+    require(labelList.size == contentList.size) { "Lists must have same size" }
     Row(
         modifier = modifier
             .padding(horizontal = 8.dp)
             .fillMaxWidth()
             .height(IntrinsicSize.Min),
-        horizontalArrangement = Arrangement.SpaceAround,
+        horizontalArrangement = Arrangement.spacedBy(4.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        InfoColumn(
-            modifier = Modifier.weight(1f),
-            label = "Status",
-            content = status
-        )
-        VerticalDivider(
-            modifier = Modifier.fillMaxHeight(),
-            thickness = 4.dp,
-            color = MaterialTheme.colorScheme.background
-        )
-        InfoColumn(
-            modifier = Modifier.weight(1f),
-            label = "Type",
-            content = mediaType
-        )
-        VerticalDivider(
-            modifier = Modifier.fillMaxHeight(),
-            thickness = 4.dp,
-            color = MaterialTheme.colorScheme.background
-        )
-        InfoColumn(
-            modifier = Modifier.weight(1f),
-            label = "Rating",
-            content = rating
-        )
-        VerticalDivider(
-            modifier = Modifier.fillMaxHeight(),
-            thickness = 4.dp,
-            color = MaterialTheme.colorScheme.background
-        )
-        InfoColumn(
-            modifier = Modifier.weight(1f),
-            label = "Episodes",
-            content = numEpisodes
-        )
-        VerticalDivider(
-            modifier = Modifier.fillMaxHeight(),
-            thickness = 4.dp,
-            color = MaterialTheme.colorScheme.background
-        )
-        InfoColumn(
-            modifier = Modifier.weight(1f),
-            label = "Duration",
-            content = episodeDuration
-        )
+        contentList.forEachIndexed { index, content ->
+            InfoColumn(
+                modifier = Modifier.weight(1f),
+                label = labelList[index],
+                content = content
+            )
+        }
     }
 }
 
@@ -714,7 +879,7 @@ fun ExpandableDescription(
             if (hasOverflow || expanded) {
                 val interaction = remember { MutableInteractionSource() }
                 Icon(
-                    imageVector = Icons.Default.KeyboardArrowDown,
+                    imageVector = CustomIcons.Filled.KeyboardArrowDown,
                     contentDescription = if (expanded) "Collapse" else "Expand",
                     tint = MaterialTheme.colorScheme.primary,
                     modifier = Modifier
@@ -733,56 +898,131 @@ fun ExpandableDescription(
 }
 
 @Composable
-fun PictureCardRow(
+fun ScreenshotRow(
     modifier: Modifier = Modifier,
-    pictureUrls: List<String>
+    pictureUrls: List<Screenshot>
+) {
+    LazyRow(
+        modifier = modifier
+            .fillMaxWidth()
+            .height(200.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        items(pictureUrls, key = { it.id }) { screenshot ->
+            SubcomposeAsyncImage(
+                modifier = Modifier
+                    .padding(horizontal = 8.dp)
+                    .aspectRatio(3 / 2f, true)
+                    .fillMaxHeight()
+                    .clip(RoundedCornerShape(8.dp)),
+                model = screenshot.imageUrl,
+                contentScale = ContentScale.Crop,
+                contentDescription = "Anime picture",
+            ) {
+                val painterState = painter.state.collectAsState()
+                when (painterState.value) {
+                    is AsyncImagePainter.State.Success -> {
+                        SubcomposeAsyncImageContent()
+                    }
+
+                    else -> {
+                        ShimmerBox()
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun CharacterRow(
+    modifier: Modifier = Modifier,
+    characters: List<Character>
 ) {
     LazyRow(
         modifier = modifier.fillMaxWidth(),
-        verticalAlignment = Alignment.CenterVertically
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        contentPadding = PaddingValues(horizontal = 8.dp)
     ) {
-        item {
-            pictureUrls.forEach { imageUrl ->
-                AsyncImage(
+        items(characters, key = { it.id }) { character ->
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(
                     modifier = Modifier
-                        .padding(horizontal = 8.dp)
-                        .fillMaxWidth()
-                        .clip(RoundedCornerShape(8.dp))
-                        .heightIn(max = 200.dp),
-                    model = imageUrl,
-                    contentDescription = "Anime picture",
+                        .widthIn(max = 120.dp)
+                        .height(32.dp),
+                    text = character.roles[0],
+                    textAlign = TextAlign.Center,
+                    color = MaterialTheme.colorScheme.primary,
+                    fontFamily = CustomFonts.Poppins,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis
+                )
+                SubcomposeAsyncImage(
+                    modifier = Modifier
+                        .height(160.dp)
+                        .width(120.dp)
+                        .clip(RoundedCornerShape(40.dp)),
+                    model = character.imageUrl,
+                    contentScale = ContentScale.Crop,
+                    contentDescription = "Character picture"
+                ) {
+                    val painterState = painter.state.collectAsState()
+                    when (painterState.value) {
+                        is AsyncImagePainter.State.Success -> {
+                            SubcomposeAsyncImageContent()
+                        }
+
+                        else -> {
+                            ShimmerBox()
+                        }
+                    }
+                }
+                Text(
+                    modifier = Modifier.widthIn(max = 120.dp),
+                    text = character.name,
+                    textAlign = TextAlign.Center,
+                    color = MaterialTheme.colorScheme.primary,
+                    fontFamily = CustomFonts.Poppins,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
                 )
             }
-
         }
     }
 }
 
 
 @Composable
-private fun RelatedAnimeCardsRow(
+private fun AnimeCardsRowWithTitle(
     modifier: Modifier = Modifier,
-    relatedAnimeList: List<RelatedAnimeUiModel>,
-    onCardClick: (Int) -> Unit
+    animeList: List<AnimeListItem>,
+    titleList: List<String>,
+    onCardClick: (Long) -> Unit
 ) {
     LazyRow(
         modifier = modifier.fillMaxWidth()
     ) {
-        relatedAnimeList.forEach { relatedAnime ->
-            item(key = relatedAnime.anime.id) {
+        animeList.forEachIndexed { index, anime ->
+            item(key = anime.id) {
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Text(
-                        text = relatedAnime.relation,
+                        modifier = Modifier.widthIn(160.dp),
+                        text = titleList[index],
                         textAlign = TextAlign.Center,
                         color = MaterialTheme.colorScheme.primary,
-                        fontFamily = CustomFonts.Poppins
+                        fontFamily = CustomFonts.Poppins,
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis
                     )
                     AnimeCard(
                         modifier = Modifier.padding(8.dp),
-                        anime = relatedAnime.anime,
-                        onCardClick = { onCardClick(relatedAnime.anime.id) }
+                        anime = anime,
+                        onCardClick = { onCardClick(anime.id) }
                     )
                 }
             }
@@ -791,21 +1031,228 @@ private fun RelatedAnimeCardsRow(
 }
 
 @Composable
-fun AnimeCardsRow(
+private fun StatisticBarsColumn(
     modifier: Modifier = Modifier,
-    animeList: List<Anime>,
-    onCardClick: (Int) -> Unit
+    labelList: List<String>,
+    countList: List<Int>,
+    fillColor: Color = MaterialTheme.colorScheme.secondary,
+    emptyColor: Color = MaterialTheme.colorScheme.surfaceVariant
 ) {
-    LazyRow(
-        modifier = modifier.fillMaxWidth(),
+    val textMeasurer = rememberTextMeasurer()
+    val rowHeight = 36.dp
+    val countProportions = countProportions(countList)
+
+    Canvas(
+        modifier = modifier
+            .fillMaxWidth()
+            .height(labelList.size * rowHeight)
     ) {
-        animeList.forEach { anime ->
-            item(key = anime.id) {
-                AnimeCard(
-                    modifier = Modifier.padding(8.dp),
-                    anime = anime,
-                    onCardClick = { onCardClick(anime.id) }
-                )
+        labelList.forEachIndexed { index, label ->
+            val lineY = rowHeight.toPx() * index + rowHeight.toPx() / 2f
+
+            drawStatisticBar(
+                label = label,
+                count = countList[index],
+                countProportion = countProportions[index],
+                fillColor = fillColor,
+                emptyColor = emptyColor,
+                textMeasurer = textMeasurer,
+                lineY = lineY,
+                strokeWidthPx = 8.dp.toPx()
+            )
+        }
+    }
+}
+
+@Composable
+private fun countProportions(
+    countList: List<Int>
+): List<Float> {
+    val maxCount = countList.maxOfOrNull { it } ?: 0
+
+    return countList.map { count ->
+        val target =
+            if (maxCount == 0) 0f
+            else count.toFloat() / maxCount
+
+        target
+    }
+}
+
+private fun DrawScope.drawStatisticBar(
+    label: String,
+    count: Int,
+    countProportion: Float,
+    fillColor: Color,
+    emptyColor: Color,
+    textMeasurer: TextMeasurer,
+    lineY: Float,
+    strokeWidthPx: Float
+) {
+    val textLayoutResultScore = textMeasurer.measure(
+        text = label,
+        style = TextStyle(
+            fontSize = 12.sp,
+            fontFamily = CustomFonts.Poppins
+        )
+    )
+
+    val textLayoutResultCount = textMeasurer.measure(
+        text = count.toString(),
+        style = TextStyle(
+            fontSize = 12.sp,
+            fontFamily = CustomFonts.Poppins
+        )
+    )
+
+    drawLine(
+        color = emptyColor,
+        start = Offset(0f, lineY),
+        end = Offset(size.width, lineY),
+        strokeWidth = strokeWidthPx,
+        cap = StrokeCap.Round
+    )
+
+    drawLine(
+        color = fillColor,
+        start = Offset(0f, lineY),
+        end = Offset(size.width * countProportion, lineY),
+        strokeWidth = strokeWidthPx,
+        cap = StrokeCap.Round
+    )
+
+    drawText(
+        textLayoutResult = textLayoutResultScore,
+        topLeft = Offset(
+            x = 0f,
+            y = lineY - textLayoutResultScore.size.height - 4.dp.toPx()
+        ),
+        color = fillColor
+    )
+
+    drawText(
+        textLayoutResult = textLayoutResultCount,
+        topLeft = Offset(
+            x = size.width - textLayoutResultCount.size.width,
+            y = lineY - textLayoutResultScore.size.height - 4.dp.toPx()
+        ),
+        color = fillColor
+    )
+}
+
+
+@Composable
+private fun StatisticBottomSheet(
+    modifier: Modifier = Modifier,
+    innerPadding: PaddingValues,
+    statusStats: List<StatusStats>,
+    scoreStats: List<ScoreStats>,
+    onDismiss: () -> Unit,
+    showBottomSheet: Boolean,
+    scope: CoroutineScope,
+    sheetState: SheetState
+) {
+    if (showBottomSheet) {
+        ModalBottomSheet(
+            modifier = modifier
+                .fillMaxHeight()
+                .windowInsetsPadding(
+                    WindowInsets(top = innerPadding.calculateTopPadding())
+                ),
+            onDismissRequest = {
+                onDismiss()
+            },
+            dragHandle = null,
+            sheetState = sheetState,
+            shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp)
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(MaterialTheme.colorScheme.surfaceVariant)
+                    .border(
+                        1.dp,
+                        color = MaterialTheme.colorScheme.onSecondaryContainer,
+                        shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp)
+                    )
+                    .padding(horizontal = 8.dp)
+                    .height(IntrinsicSize.Min),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                IconButton(
+                    onClick = {
+                        scope.launch { sheetState.hide() }.invokeOnCompletion {
+                            if (!sheetState.isVisible) {
+                                onDismiss()
+                            }
+                        }
+                    }
+                ) {
+                    Icon(
+                        imageVector = CustomIcons.Filled.Close,
+                        contentDescription = "Close filters"
+                    )
+                }
+                Box(
+                    modifier = Modifier
+                        .weight(1f)
+                        .fillMaxHeight(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = "Statistics",
+                        fontFamily = CustomFonts.Poppins,
+                        fontSize = 16.sp,
+                        color = MaterialTheme.colorScheme.secondary,
+                        fontStyle = FontStyle.Italic,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+            }
+            LazyColumn() {
+                item {
+                    FilterSubtitle(modifier = Modifier.padding(vertical = 8.dp), text = "Rating")
+                    if (scoreStats.isNotEmpty()) {
+                        StatisticBarsColumn(
+                            modifier = Modifier.padding(horizontal = 16.dp),
+                            labelList = scoreStats.map { it.score.toString() },
+                            countList = scoreStats.map { it.count }
+                        )
+                    } else {
+                        Box(
+                            modifier = Modifier.fillMaxWidth(),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            ErrorWithImage("Бака сервер потерял записи, хех", R.drawable.confused_anime_girl)
+                        }
+                    }
+                    HorizontalDivider(
+                        modifier = modifier.fillMaxWidth(),
+                        color = MaterialTheme.colorScheme.onSecondaryContainer
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                }
+                item {
+                    FilterSubtitle(modifier = Modifier.padding(bottom = 8.dp), text = "Lists")
+                    if (statusStats.isNotEmpty()) {
+                        StatisticBarsColumn(
+                            modifier = Modifier.padding(horizontal = 16.dp),
+                            labelList = statusStats.map { it.kind.value },
+                            countList = statusStats.map { it.count }
+                        )
+                    } else {
+                        Box(
+                            modifier = Modifier.fillMaxWidth(),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            ErrorWithImage("Бака сервер потерял записи, хех", R.drawable.confused_anime_girl)
+                        }
+                    }
+                    HorizontalDivider(
+                        modifier = modifier.fillMaxWidth(),
+                        color = MaterialTheme.colorScheme.onSecondaryContainer
+                    )
+                }
             }
         }
     }

@@ -1,3 +1,7 @@
 package com.sharapov.domain_anime.entity
 
-data class Studio(val name: String)
+data class Studio(
+    val id: Long,
+    val name: String,
+    val imageUrl: String
+)

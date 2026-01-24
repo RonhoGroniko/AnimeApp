@@ -6,6 +6,7 @@ plugins {
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.hilt.android)
     alias(libs.plugins.ksp)
+    alias(libs.plugins.apollo)
 }
 
 private val keystorePropertiesFile = rootProject.file("keystore.properties")
@@ -16,6 +17,15 @@ private val keystoreProperties = keystorePropertiesFile.inputStream().use { inpu
 }
 
 private val apiKey = keystoreProperties.getProperty("MAL_CLIENT_ID")
+
+apollo {
+    service("service") {
+        packageName.set("com.sharapov.network_anime")
+        schemaFile.set(
+            rootProject.file("core-network/src/main/graphql/schema.graphqls")
+        )
+    }
+}
 
 android {
     namespace = "com.sharapov.network_anime"
@@ -66,15 +76,11 @@ kotlin {
 dependencies {
 
     implementation(project(":domain-anime"))
+    implementation(project(":core-network"))
     implementation(libs.kotlinx.coroutines.core)
     compileOnly(libs.javax.inject)
 
     implementation(libs.kotlinx.serialization.json)
-
-    implementation(libs.retrofit)
-    implementation(libs.converter.kotlinx.serialization)
-
-    implementation(libs.logging.interceptor)
 
     implementation(libs.hilt.android)
     ksp(libs.hilt.android.compiler)

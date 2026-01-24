@@ -1,14 +1,11 @@
 package com.sharapov.feature_search_screen
 
-import com.sharapov.domain_anime.entity.Anime
+import com.sharapov.core_ui.theme.core.LceState
+import com.sharapov.domain_anime.entity.filter.AnimeFilter
 
-sealed interface SearchScreenState {
+data class SearchScreenContent(
+    val query: String = "",
+    val filter: AnimeFilter
+)
 
-    data object Initial: SearchScreenState
-    data object Loading: SearchScreenState
-    data class Error(val message: String): SearchScreenState
-    data class Content(
-        val query: String,
-        val animeList: List<Anime>
-    ): SearchScreenState
-}
+typealias SearchScreenState = LceState<SearchScreenContent>

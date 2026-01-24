@@ -1,0 +1,8 @@
+fragment AnimeFields on Anime {
+    id
+    name
+    score
+    poster {
+        originalUrl
+    }
+}

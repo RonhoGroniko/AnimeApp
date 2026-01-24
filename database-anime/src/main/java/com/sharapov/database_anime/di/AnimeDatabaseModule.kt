@@ -3,10 +3,7 @@ package com.sharapov.database_anime.di
 import android.content.Context
 import androidx.room.Room
 import com.sharapov.database_anime.AnimeDatabase
-import com.sharapov.database_anime.dao.AnimeCoreDao
-import com.sharapov.database_anime.dao.AnimeDetailsDao
-import com.sharapov.database_anime.dao.AnimeListDao
-import com.sharapov.database_anime.dao.AnimeSearchDao
+import com.sharapov.database_anime.dao.AnimeDao
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -33,33 +30,9 @@ object AnimeDatabaseModule {
 
     @Provides
     @Singleton
-    fun provideAnimeListDao(
-        database: AnimeDatabase
-    ): AnimeListDao {
-        return database.animeListDao()
-    }
-
-    @Provides
-    @Singleton
-    fun provideAnimeDetailsDao(
-        database: AnimeDatabase
-    ): AnimeDetailsDao {
-        return database.animeDetailsDao()
-    }
-
-    @Provides
-    @Singleton
-    fun provideAnimeCoreDao(
-        database: AnimeDatabase
-    ): AnimeCoreDao {
-        return database.animeCoreDao()
-    }
-
-    @Provides
-    @Singleton
-    fun provideAnimeSearchDao(
-        database: AnimeDatabase
-    ): AnimeSearchDao {
-        return database.animeSearchDao()
+    fun provideAnimeDao(
+        db: AnimeDatabase
+    ): AnimeDao {
+        return db.animeDao()
     }
 }
