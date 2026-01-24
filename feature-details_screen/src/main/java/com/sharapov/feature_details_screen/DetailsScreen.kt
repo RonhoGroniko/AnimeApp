@@ -95,8 +95,10 @@ import coil3.compose.SubcomposeAsyncImage
 import coil3.compose.SubcomposeAsyncImageContent
 import com.sharapov.core_ui.theme.CustomFonts
 import com.sharapov.core_ui.theme.composable.AnimeCard
+import com.sharapov.core_ui.theme.composable.ErrorWithImage
 import com.sharapov.core_ui.theme.composable.FilterSubtitle
 import com.sharapov.core_ui.theme.composable.ShimmerBox
+import com.sharapov.core_ui.R
 import com.sharapov.core_ui.theme.core.BasePane
 import com.sharapov.core_ui.theme.core.LceState
 import com.sharapov.core_ui.theme.icons.ArrowBack
@@ -114,7 +116,6 @@ import com.sharapov.domain_anime.entity.list.AnimeListItem
 import com.sharapov.feature_details_screen.mapper.episodesToUi
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
-
 
 @Composable
 fun DetailsScreen(
@@ -164,7 +165,14 @@ fun DetailsScreen(
                 )
             }
 
-            is LceState.Error -> {}
+            is LceState.Error -> {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    ErrorWithImage("Бака сервер потерял записи, хех", R.drawable.confused_anime_girl)
+                }
+            }
             LceState.Initial -> {}
             LceState.Loading -> {}
         }
@@ -1208,7 +1216,12 @@ private fun StatisticBottomSheet(
                             countList = scoreStats.map { it.count }
                         )
                     } else {
-                        // TODO("SHOW :( NO STATS ")
+                        Box(
+                            modifier = Modifier.fillMaxWidth(),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            ErrorWithImage("Бака сервер потерял записи, хех", R.drawable.confused_anime_girl)
+                        }
                     }
                     HorizontalDivider(
                         modifier = modifier.fillMaxWidth(),
@@ -1225,7 +1238,12 @@ private fun StatisticBottomSheet(
                             countList = statusStats.map { it.count }
                         )
                     } else {
-                        // TODO("SHOW :( NO STATS ")
+                        Box(
+                            modifier = Modifier.fillMaxWidth(),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            ErrorWithImage("Бака сервер потерял записи, хех", R.drawable.confused_anime_girl)
+                        }
                     }
                     HorizontalDivider(
                         modifier = modifier.fillMaxWidth(),

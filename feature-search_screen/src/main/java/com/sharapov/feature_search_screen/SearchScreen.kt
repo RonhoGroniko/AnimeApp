@@ -81,8 +81,10 @@ import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.itemKey
+import com.sharapov.core_ui.R
 import com.sharapov.core_ui.theme.CustomFonts
 import com.sharapov.core_ui.theme.composable.AnimeCard
+import com.sharapov.core_ui.theme.composable.ErrorWithImage
 import com.sharapov.core_ui.theme.composable.FilterSubtitle
 import com.sharapov.core_ui.theme.core.BasePane
 import com.sharapov.core_ui.theme.core.LceState
@@ -187,7 +189,14 @@ fun SearchScreen(
                 )
             }
 
-            is LceState.Error -> {}
+            is LceState.Error -> {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    ErrorWithImage("Бака сервер потерял записи, хех", R.drawable.confused_anime_girl)
+                }
+            }
             LceState.Initial -> {}
             LceState.Loading -> {}
         }
