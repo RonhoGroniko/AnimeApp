@@ -83,6 +83,7 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.itemKey
 import com.sharapov.core_ui.theme.CustomFonts
 import com.sharapov.core_ui.theme.composable.AnimeCard
+import com.sharapov.core_ui.theme.composable.FilterSubtitle
 import com.sharapov.core_ui.theme.core.BasePane
 import com.sharapov.core_ui.theme.core.LceState
 import com.sharapov.core_ui.theme.icons.ArrowDropDown
@@ -659,26 +660,6 @@ private fun <T> FilterPart(
                 )
             }
         }
-    }
-}
-
-@Composable
-private fun FilterSubtitle(
-    modifier: Modifier = Modifier,
-    text: String
-) {
-    Box(
-        modifier = modifier.padding(horizontal = 16.dp),
-        contentAlignment = Alignment.CenterStart
-    ) {
-        Text(
-            text = text,
-            fontFamily = CustomFonts.Poppins,
-            fontSize = 16.sp,
-            color = MaterialTheme.colorScheme.secondary,
-            fontStyle = FontStyle.Normal,
-            fontWeight = FontWeight.Bold
-        )
     }
 }
 

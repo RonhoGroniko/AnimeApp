@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalMaterial3Api::class)
+
 package com.sharapov.feature_details_screen
 
 import androidx.compose.animation.animateContentSize
@@ -5,6 +7,7 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
@@ -14,6 +17,7 @@ import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
@@ -24,6 +28,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
@@ -32,19 +37,24 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedSuggestionChip
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.SheetState
 import androidx.compose.material3.SuggestionChipDefaults
 import androidx.compose.material3.Text
-import androidx.compose.material3.VerticalDivider
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -75,7 +85,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -86,19 +95,26 @@ import coil3.compose.SubcomposeAsyncImage
 import coil3.compose.SubcomposeAsyncImageContent
 import com.sharapov.core_ui.theme.CustomFonts
 import com.sharapov.core_ui.theme.composable.AnimeCard
+import com.sharapov.core_ui.theme.composable.FilterSubtitle
 import com.sharapov.core_ui.theme.composable.ShimmerBox
 import com.sharapov.core_ui.theme.core.BasePane
 import com.sharapov.core_ui.theme.core.LceState
 import com.sharapov.core_ui.theme.icons.ArrowBack
+import com.sharapov.core_ui.theme.icons.BarChart
 import com.sharapov.core_ui.theme.icons.Bookmark
+import com.sharapov.core_ui.theme.icons.Close
 import com.sharapov.core_ui.theme.icons.CustomIcons
 import com.sharapov.core_ui.theme.icons.KeyboardArrowDown
 import com.sharapov.core_ui.theme.icons.Star
 import com.sharapov.domain_anime.entity.details.Character
 import com.sharapov.domain_anime.entity.details.ScoreStats
 import com.sharapov.domain_anime.entity.details.Screenshot
+import com.sharapov.domain_anime.entity.details.StatusStats
 import com.sharapov.domain_anime.entity.list.AnimeListItem
 import com.sharapov.feature_details_screen.mapper.episodesToUi
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
+
 
 @Composable
 fun DetailsScreen(
@@ -112,6 +128,11 @@ fun DetailsScreen(
     onGenreClick: (String) -> Unit,
 ) {
     val state = viewModel.state.collectAsState()
+
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    val scope = rememberCoroutineScope()
+    var showBottomSheet by remember { mutableStateOf(false) }
+
     BasePane(
         modifier = modifier,
         lceState = state.value,
@@ -130,6 +151,15 @@ fun DetailsScreen(
                                 anime = currentState.data.anime
                             )
                         )
+                    },
+                    onStatisticClick = {
+                        showBottomSheet = true
+                    },
+                    sheetState = sheetState,
+                    showBottomSheet = showBottomSheet,
+                    scope = scope,
+                    onDismiss = {
+                        showBottomSheet = false
                     }
                 )
             }
@@ -146,10 +176,15 @@ fun DetailsScreenContent(
     modifier: Modifier = Modifier,
     innerPadding: PaddingValues,
     contentState: LceState.Content<DetailsScreenContent>,
+    sheetState: SheetState,
+    scope: CoroutineScope,
+    showBottomSheet: Boolean,
     onBackClick: () -> Unit,
     onCardClick: (Long) -> Unit,
     onGenreClick: (String) -> Unit,
-    onChangeFavoriteStatus: () -> Unit
+    onChangeFavoriteStatus: () -> Unit,
+    onStatisticClick: () -> Unit,
+    onDismiss: () -> Unit
 ) {
     val listState = rememberLazyListState()
     val density = LocalDensity.current
@@ -187,7 +222,8 @@ fun DetailsScreenContent(
                     mean = contentState.data.anime.score,
                     isFavorite = contentState.data.anime.isFavorite,
                     onBackClick = onBackClick,
-                    onChangeFavoriteStatus = onChangeFavoriteStatus
+                    onChangeFavoriteStatus = onChangeFavoriteStatus,
+                    onStatisticClick = onStatisticClick
                 )
             }
             item {
@@ -198,14 +234,23 @@ fun DetailsScreenContent(
             }
             item {
                 InfoRow(
-                    status = contentState.data.anime.status,
-                    rating = contentState.data.anime.rating,
-                    numEpisodes = episodesToUi(
-                        contentState.data.anime.episodesAired,
-                        contentState.data.anime.episodes
+                    labelList = listOf(
+                        "Status",
+                        "Type",
+                        "Rating",
+                        "Episodes",
+                        "Duration"
                     ),
-                    episodeDuration = contentState.data.anime.duration.toString(),
-                    animeKind = contentState.data.anime.kind
+                    contentList = listOf(
+                        contentState.data.anime.status,
+                        contentState.data.anime.kind,
+                        contentState.data.anime.rating,
+                        episodesToUi(
+                            contentState.data.anime.episodesAired,
+                            contentState.data.anime.episodes
+                        ),
+                        contentState.data.anime.duration.toString()
+                    )
                 )
             }
             if (contentState.data.anime.description.isNotBlank()) {
@@ -295,16 +340,17 @@ fun DetailsScreenContent(
                 }
                 item { Spacer(modifier = Modifier.height(8.dp)) }
             }
-            if (contentState.data.anime.scoreStats.isNotEmpty()) {
-                item {
-                    StatisticBarsColumn(
-                        scoreStatsList = contentState.data.anime.scoreStats,
-                        modifier = Modifier.padding(horizontal = 16.dp)
-                    )
-                }
-                item { Spacer(modifier = Modifier.height(16.dp)) }
-            }
         }
+
+        StatisticBottomSheet(
+            innerPadding = innerPadding,
+            onDismiss = onDismiss,
+            showBottomSheet = showBottomSheet,
+            sheetState = sheetState,
+            scope = scope,
+            statusStats = contentState.data.anime.statusStats,
+            scoreStats = contentState.data.anime.scoreStats
+        )
 
         OverlayTopAppBar(
             title = contentState.data.anime.name,
@@ -363,7 +409,8 @@ fun HeaderCard(
     mean: Double,
     isFavorite: Boolean,
     onBackClick: () -> Unit,
-    onChangeFavoriteStatus: () -> Unit
+    onChangeFavoriteStatus: () -> Unit,
+    onStatisticClick: () -> Unit
 ) {
     var backEnabled by remember { mutableStateOf(true) }
 
@@ -438,6 +485,21 @@ fun HeaderCard(
                     color = MaterialTheme.colorScheme.secondary,
                     fontSize = 24.sp
                 )
+
+                IconButton(
+                    onClick = { onStatisticClick() },
+                    colors = IconButtonDefaults.iconButtonColors(
+                        contentColor = MaterialTheme.colorScheme.secondary
+                    ),
+                    shape = RoundedCornerShape(8.dp)
+                ) {
+                    Icon(
+                        modifier = Modifier.size(36.dp),
+                        imageVector = CustomIcons.Filled.BarChart,
+                        contentDescription = "Open statistics",
+                        tint = MaterialTheme.colorScheme.secondary
+                    )
+                }
 
                 IconButton(
                     onClick = { onChangeFavoriteStatus() },
@@ -682,65 +744,25 @@ fun GenreChips(
 @Composable
 fun InfoRow(
     modifier: Modifier = Modifier,
-    status: String,
-    rating: String,
-    numEpisodes: String,
-    episodeDuration: String,
-    animeKind: String
+    labelList: List<String>,
+    contentList: List<String>
 ) {
+    require(labelList.size == contentList.size) { "Lists must have same size" }
     Row(
         modifier = modifier
             .padding(horizontal = 8.dp)
             .fillMaxWidth()
             .height(IntrinsicSize.Min),
-        horizontalArrangement = Arrangement.SpaceAround,
+        horizontalArrangement = Arrangement.spacedBy(4.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        InfoColumn(
-            modifier = Modifier.weight(1f),
-            label = "Status",
-            content = status
-        )
-        VerticalDivider(
-            modifier = Modifier.fillMaxHeight(),
-            thickness = 4.dp,
-            color = MaterialTheme.colorScheme.background
-        )
-        InfoColumn(
-            modifier = Modifier.weight(1f),
-            label = "Type",
-            content = animeKind
-        )
-        VerticalDivider(
-            modifier = Modifier.fillMaxHeight(),
-            thickness = 4.dp,
-            color = MaterialTheme.colorScheme.background
-        )
-        InfoColumn(
-            modifier = Modifier.weight(1f),
-            label = "Rating",
-            content = rating
-        )
-        VerticalDivider(
-            modifier = Modifier.fillMaxHeight(),
-            thickness = 4.dp,
-            color = MaterialTheme.colorScheme.background
-        )
-        InfoColumn(
-            modifier = Modifier.weight(1f),
-            label = "Episodes",
-            content = numEpisodes
-        )
-        VerticalDivider(
-            modifier = Modifier.fillMaxHeight(),
-            thickness = 4.dp,
-            color = MaterialTheme.colorScheme.background
-        )
-        InfoColumn(
-            modifier = Modifier.weight(1f),
-            label = "Duration",
-            content = episodeDuration
-        )
+        contentList.forEachIndexed { index, content ->
+            InfoColumn(
+                modifier = Modifier.weight(1f),
+                label = labelList[index],
+                content = content
+            )
+        }
     }
 }
 
@@ -1003,24 +1025,25 @@ private fun AnimeCardsRowWithTitle(
 @Composable
 private fun StatisticBarsColumn(
     modifier: Modifier = Modifier,
-    scoreStatsList: List<ScoreStats>,
+    labelList: List<String>,
+    countList: List<Int>,
     color: Color = MaterialTheme.colorScheme.secondary,
 ) {
     val textMeasurer = rememberTextMeasurer()
     val rowHeight = 32.dp
-    val countProportions = rememberProportions(scoreStatsList)
+    val countProportions = countProportions(countList)
 
     Canvas(
         modifier = modifier
             .fillMaxWidth()
-            .height(scoreStatsList.size * rowHeight)
+            .height(labelList.size * rowHeight)
     ) {
-        scoreStatsList.forEachIndexed { index, stats ->
+        labelList.forEachIndexed { index, label ->
             val lineY = rowHeight.toPx() * index + rowHeight.toPx() / 2f
 
             drawStatisticBar(
-                score = stats.score,
-                count = stats.count,
+                label = label,
+                count = countList[index],
                 countProportion = countProportions[index],
                 color = color,
                 textMeasurer = textMeasurer,
@@ -1032,22 +1055,22 @@ private fun StatisticBarsColumn(
 }
 
 @Composable
-private fun rememberProportions(
-    scoreStatsList: List<ScoreStats>
+private fun countProportions(
+    countList: List<Int>
 ): List<Float> {
-    val maxCount = scoreStatsList.maxOfOrNull { it.count } ?: 0
+    val maxCount = countList.maxOfOrNull { it } ?: 0
 
-    return scoreStatsList.map { stats ->
+    return countList.map { count ->
         val target =
             if (maxCount == 0) 0f
-            else stats.count.toFloat() / maxCount
+            else count.toFloat() / maxCount
 
         target
     }
 }
 
 private fun DrawScope.drawStatisticBar(
-    score: Int,
+    label: String,
     count: Int,
     countProportion: Float,
     color: Color,
@@ -1056,7 +1079,7 @@ private fun DrawScope.drawStatisticBar(
     strokeWidthPx: Float
 ) {
     val textLayoutResultScore = textMeasurer.measure(
-        text = score.toString(),
+        text = label,
         style = TextStyle(
             fontSize = 12.sp,
             fontFamily = CustomFonts.Poppins
@@ -1106,11 +1129,110 @@ private fun DrawScope.drawStatisticBar(
     )
 }
 
-@Preview
-@Composable
-fun StatisticBarsColumnPreview() {
-    StatisticBarsColumn(
-        scoreStatsList = listOf(ScoreStats(10, 2292299)),
-    )
-}
 
+@Composable
+private fun StatisticBottomSheet(
+    modifier: Modifier = Modifier,
+    innerPadding: PaddingValues,
+    statusStats: List<StatusStats>,
+    scoreStats: List<ScoreStats>,
+    onDismiss: () -> Unit,
+    showBottomSheet: Boolean,
+    scope: CoroutineScope,
+    sheetState: SheetState
+) {
+    if (showBottomSheet) {
+        ModalBottomSheet(
+            modifier = modifier
+                .fillMaxHeight()
+                .windowInsetsPadding(
+                    WindowInsets(top = innerPadding.calculateTopPadding())
+                ),
+            onDismissRequest = {
+                onDismiss()
+            },
+            dragHandle = null,
+            sheetState = sheetState,
+            shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp)
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(MaterialTheme.colorScheme.surfaceVariant)
+                    .border(
+                        1.dp,
+                        color = MaterialTheme.colorScheme.onSecondaryContainer,
+                        shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp)
+                    )
+                    .padding(horizontal = 8.dp)
+                    .height(IntrinsicSize.Min),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                IconButton(
+                    onClick = {
+                        scope.launch { sheetState.hide() }.invokeOnCompletion {
+                            if (!sheetState.isVisible) {
+                                onDismiss()
+                            }
+                        }
+                    }
+                ) {
+                    Icon(
+                        imageVector = CustomIcons.Filled.Close,
+                        contentDescription = "Close filters"
+                    )
+                }
+                Box(
+                    modifier = Modifier
+                        .weight(1f)
+                        .fillMaxHeight(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = "Statistics",
+                        fontFamily = CustomFonts.Poppins,
+                        fontSize = 16.sp,
+                        color = MaterialTheme.colorScheme.secondary,
+                        fontStyle = FontStyle.Italic,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+            }
+            LazyColumn() {
+                item {
+                    FilterSubtitle(modifier = Modifier.padding(vertical = 8.dp), text = "Rating")
+                    if (scoreStats.isNotEmpty()) {
+                        StatisticBarsColumn(
+                            modifier = Modifier.padding(horizontal = 16.dp),
+                            labelList = scoreStats.map { it.score.toString() },
+                            countList = scoreStats.map { it.count }
+                        )
+                    } else {
+                        // TODO("SHOW :( NO STATS ")
+                    }
+                    HorizontalDivider(
+                        modifier = modifier.fillMaxWidth(),
+                        color = MaterialTheme.colorScheme.onSecondaryContainer
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                }
+                item {
+                    FilterSubtitle(modifier = Modifier.padding(bottom = 8.dp), text = "Lists")
+                    if (statusStats.isNotEmpty()) {
+                        StatisticBarsColumn(
+                            modifier = Modifier.padding(horizontal = 16.dp),
+                            labelList = statusStats.map { it.kind.value },
+                            countList = statusStats.map { it.count }
+                        )
+                    } else {
+                        // TODO("SHOW :( NO STATS ")
+                    }
+                    HorizontalDivider(
+                        modifier = modifier.fillMaxWidth(),
+                        color = MaterialTheme.colorScheme.onSecondaryContainer
+                    )
+                }
+            }
+        }
+    }
+}

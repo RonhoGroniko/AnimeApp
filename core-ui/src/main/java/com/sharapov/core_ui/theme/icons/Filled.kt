@@ -399,3 +399,55 @@ private var _LucideStar: ImageVector? = null
 
 
 
+val CustomIcons.Filled.BarChart: ImageVector
+    get() {
+        if (_BarChart != null) return _BarChart!!
+
+        _BarChart = ImageVector.Builder(
+            name = "bar-chart-2",
+            defaultWidth = 24.dp,
+            defaultHeight = 24.dp,
+            viewportWidth = 24f,
+            viewportHeight = 24f
+        ).apply {
+            path(
+                fill = SolidColor(Color.Transparent),
+                stroke = SolidColor(Color.Black),
+                strokeLineWidth = 2f,
+                strokeLineCap = StrokeCap.Round,
+                strokeLineJoin = StrokeJoin.Round
+            ) {
+                moveTo(18f, 20f)
+                lineTo(18f, 10f)
+            }
+            path(
+                fill = SolidColor(Color.Transparent),
+                stroke = SolidColor(Color.Black),
+                strokeLineWidth = 2f,
+                strokeLineCap = StrokeCap.Round,
+                strokeLineJoin = StrokeJoin.Round
+            ) {
+                moveTo(12f, 20f)
+                lineTo(12f, 4f)
+            }
+            path(
+                fill = SolidColor(Color.Transparent),
+                stroke = SolidColor(Color.Black),
+                strokeLineWidth = 2f,
+                strokeLineCap = StrokeCap.Round,
+                strokeLineJoin = StrokeJoin.Round
+            ) {
+                moveTo(6f, 20f)
+                lineTo(6f, 14f)
+            }
+        }.build()
+
+        return _BarChart!!
+    }
+
+private var _BarChart: ImageVector? = null
+
+
+
+
+
