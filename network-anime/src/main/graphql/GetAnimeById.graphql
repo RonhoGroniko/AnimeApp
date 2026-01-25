@@ -40,7 +40,7 @@ query GetAnimeById($id : String!) {
             relationKind
         }
 
-        videos { id name kind playerUrl imageUrl }
+        videos { id name kind url imageUrl }
         screenshots { id originalUrl }
 
         scoresStats { score count }

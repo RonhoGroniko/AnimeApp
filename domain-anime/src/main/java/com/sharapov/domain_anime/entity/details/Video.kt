@@ -4,7 +4,7 @@ data class Video(
     val id: Long,
     val name: String,
     val kind: VideoKind,
-    val playerUrl: String,
+    val url: String,
     val imageUrl: String
 )
 

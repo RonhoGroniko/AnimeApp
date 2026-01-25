@@ -164,10 +164,10 @@ fun RelationKindEnum.toEntity() : RelationKind = when(this) {
 fun GetAnimeByIdQuery.Video.toEntity(): Video {
     return Video(
         id = id.toLong(),
-        name = name ?: "",
+        name = name.formatNumberNameToEmpty(),
         kind = kind.toEntity(),
-        playerUrl = playerUrl,
-        imageUrl = imageUrl
+        url = url,
+        imageUrl = imageUrl.formatToUrl()
     )
 }
 
