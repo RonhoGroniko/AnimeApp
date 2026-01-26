@@ -303,12 +303,29 @@ fun DetailsScreenContent(
                 item { ScreenshotRow(pictureUrls = contentState.data.anime.screenshotsUrls) }
                 item { Spacer(modifier = Modifier.height(8.dp)) }
             }
+            if (contentState.data.anime.videos.isNotEmpty()) {
+                item {
+                    Subtitle(
+                        modifier = Modifier.padding(start = 16.dp, end = 16.dp),
+                        text = "Videos"
+                    )
+                }
+                item {
+                    VideosRow(
+                        videos = contentState.data.anime.videos,
+                        onVideoClick = { uri ->
+                            val intent = Intent(Intent.ACTION_VIEW, uri)
+                            context.startActivity(intent)
+                        }
+                    )
+                }
+                item { Spacer(modifier = Modifier.height(8.dp)) }
+            }
             if (contentState.data.anime.characters.isNotEmpty()) {
                 item {
                     Subtitle(
                         modifier = Modifier.padding(
                             top = 16.dp,
-                            bottom = 8.dp,
                             start = 16.dp,
                             end = 16.dp
                         ),
@@ -323,7 +340,6 @@ fun DetailsScreenContent(
                     Subtitle(
                         modifier = Modifier.padding(
                             top = 8.dp,
-                            bottom = 8.dp,
                             start = 16.dp,
                             end = 16.dp
                         ),
@@ -342,7 +358,7 @@ fun DetailsScreenContent(
             if (contentState.data.anime.chronology.isNotEmpty()) {
                 item {
                     Subtitle(
-                        modifier = Modifier.padding(bottom = 8.dp, start = 16.dp, end = 16.dp),
+                        modifier = Modifier.padding(start = 16.dp, end = 16.dp),
                         text = "Chronology"
                     )
                 }
@@ -355,25 +371,6 @@ fun DetailsScreenContent(
                 }
                 item { Spacer(modifier = Modifier.height(8.dp)) }
             }
-            if (contentState.data.anime.videos.isNotEmpty()) {
-                item {
-                    Subtitle(
-                        modifier = Modifier.padding(bottom = 8.dp, start = 16.dp, end = 16.dp),
-                        text = "Videos"
-                    )
-                }
-                item {
-                    VideosRow(
-                        videos = contentState.data.anime.videos,
-                        onVideoClick = { uri ->
-                            val intent = Intent(Intent.ACTION_VIEW, uri)
-                            context.startActivity(intent)
-                        }
-                    )
-                }
-                item { Spacer(modifier = Modifier.height(16.dp)) }
-            }
-
         }
 
         StatisticBottomSheet(
@@ -1064,7 +1061,7 @@ private fun VideosRow(
     LazyRow(
         modifier = modifier
             .fillMaxWidth()
-            .height(200.dp),
+            .height(210.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         items(videos, key = { it.id }) { video ->
@@ -1079,18 +1076,22 @@ private fun VideosRow(
                     textAlign = TextAlign.Center,
                     color = MaterialTheme.colorScheme.primary,
                     fontFamily = CustomFonts.Poppins,
-                    maxLines = 1,
+                    maxLines = 2,
                     overflow = TextOverflow.Ellipsis,
                 )
-                Box {
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Box(
+                    modifier = Modifier.clip(RoundedCornerShape(8.dp))
+                ) {
                     SubcomposeAsyncImage(
                         modifier = Modifier
                             .aspectRatio(3 / 2f, true)
                             .fillMaxHeight()
                             .clickable {
                                 onVideoClick(video.url.toUri())
-                            }
-                            .clip(RoundedCornerShape(8.dp)),
+                            },
                         model = video.imageUrl,
                         contentScale = ContentScale.Crop,
                         contentDescription = "Video ${video.kind.value}",
