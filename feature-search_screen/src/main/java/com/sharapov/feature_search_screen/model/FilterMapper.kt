@@ -1,5 +1,6 @@
 package com.sharapov.feature_search_screen.model
 
+import com.sharapov.domain_anime.entity.AnimeStatus
 import com.sharapov.domain_anime.entity.filter.AnimeFilter
 import com.sharapov.domain_anime.entity.filter.genre.Genre
 
@@ -7,7 +8,7 @@ fun AnimeFilter.toUi(): AnimeFilterUiModel =
     AnimeFilterUiModel(
         order = order,
         kind = kind,
-        status = status,
+        status = status?.toUi(),
         season = season,
         rating = rating,
         origin = origin,
@@ -22,7 +23,7 @@ fun AnimeFilterUiModel.toEntity(): AnimeFilter =
     AnimeFilter(
         order = order,
         kind = kind,
-        status = status,
+        status = status?.toEntity(),
         season = season,
         rating = rating,
         origin = origin,
@@ -33,3 +34,18 @@ fun AnimeFilterUiModel.toEntity(): AnimeFilter =
         franchise = franchise,
         censored = censored
     )
+
+
+fun AnimeStatus.toUi() : AnimeStatusUiModel = when(this) {
+    AnimeStatus.ANONS -> AnimeStatusUiModel.ANONS
+    AnimeStatus.ONGOING -> AnimeStatusUiModel.ONGOING
+    AnimeStatus.RELEASED -> AnimeStatusUiModel.RELEASED
+    AnimeStatus.UNKNOWN -> AnimeStatusUiModel.UNKNOWN
+}
+
+fun AnimeStatusUiModel.toEntity() : AnimeStatus = when(this) {
+    AnimeStatusUiModel.ANONS -> AnimeStatus.ANONS
+    AnimeStatusUiModel.ONGOING -> AnimeStatus.ONGOING
+    AnimeStatusUiModel.RELEASED -> AnimeStatus.RELEASED
+    AnimeStatusUiModel.UNKNOWN -> AnimeStatus.UNKNOWN
+}

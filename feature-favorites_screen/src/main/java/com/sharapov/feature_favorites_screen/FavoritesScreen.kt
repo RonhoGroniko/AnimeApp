@@ -11,26 +11,20 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.sharapov.core_ui.R
-import com.sharapov.core_ui.theme.CustomFonts
 import com.sharapov.core_ui.theme.composable.AnimeCard
 import com.sharapov.core_ui.theme.composable.ErrorWithImage
 import com.sharapov.core_ui.theme.core.BasePane
 import com.sharapov.core_ui.theme.core.LceState
 import com.sharapov.domain_anime.entity.list.AnimeListItem
+import com.sharapov.feature_favorites_screen.composables.TopFavoritesAppBar
 
 @Composable
 fun FavoritesScreen(
@@ -41,7 +35,7 @@ fun FavoritesScreen(
     val state = viewModel.state.collectAsState()
 
     BasePane(
-        topBar = { TopFavoritesBar() },
+        topBar = { TopFavoritesAppBar() },
         lceState = state.value
     ) { innerPadding, currentState ->
         when (currentState) {
@@ -70,7 +64,7 @@ fun FavoritesScreen(
 }
 
 @Composable
-fun FavoriteScreenContent(
+private fun FavoriteScreenContent(
     modifier: Modifier = Modifier,
     innerPadding: PaddingValues,
     animeList: List<AnimeListItem>,
@@ -95,24 +89,4 @@ fun FavoriteScreenContent(
             )
         }
     }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-private fun TopFavoritesBar() {
-    TopAppBar(
-        title = {
-            Text(
-                modifier = Modifier.padding(start = 16.dp),
-                text = "Favorites",
-                color = MaterialTheme.colorScheme.secondary,
-                fontSize = 24.sp,
-                fontFamily = CustomFonts.Poppins,
-                fontWeight = FontWeight.ExtraBold
-            )
-        },
-        colors = TopAppBarDefaults.topAppBarColors(
-            containerColor = MaterialTheme.colorScheme.background
-        )
-    )
 }
