@@ -2,6 +2,8 @@
 
 package com.sharapov.feature_details_screen
 
+import android.content.Intent
+import android.net.Uri
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.BorderStroke
@@ -76,6 +78,7 @@ import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.graphics.vector.VectorPainter
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.TextMeasurer
 import androidx.compose.ui.text.TextStyle
@@ -89,16 +92,17 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.unit.times
+import androidx.core.net.toUri
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import coil3.compose.AsyncImagePainter
 import coil3.compose.SubcomposeAsyncImage
 import coil3.compose.SubcomposeAsyncImageContent
+import com.sharapov.core_ui.R
 import com.sharapov.core_ui.theme.CustomFonts
 import com.sharapov.core_ui.theme.composable.AnimeCard
 import com.sharapov.core_ui.theme.composable.ErrorWithImage
 import com.sharapov.core_ui.theme.composable.FilterSubtitle
 import com.sharapov.core_ui.theme.composable.ShimmerBox
-import com.sharapov.core_ui.R
 import com.sharapov.core_ui.theme.core.BasePane
 import com.sharapov.core_ui.theme.core.LceState
 import com.sharapov.core_ui.theme.icons.ArrowBack
@@ -112,6 +116,7 @@ import com.sharapov.domain_anime.entity.details.Character
 import com.sharapov.domain_anime.entity.details.ScoreStats
 import com.sharapov.domain_anime.entity.details.Screenshot
 import com.sharapov.domain_anime.entity.details.StatusStats
+import com.sharapov.domain_anime.entity.details.Video
 import com.sharapov.domain_anime.entity.list.AnimeListItem
 import com.sharapov.feature_details_screen.mapper.episodesToUi
 import kotlinx.coroutines.CoroutineScope
@@ -212,6 +217,8 @@ fun DetailsScreenContent(
         }
     )
 
+    val context = LocalContext.current
+
     Box(
         modifier = modifier
             .fillMaxSize()
@@ -296,12 +303,29 @@ fun DetailsScreenContent(
                 item { ScreenshotRow(pictureUrls = contentState.data.anime.screenshotsUrls) }
                 item { Spacer(modifier = Modifier.height(8.dp)) }
             }
+            if (contentState.data.anime.videos.isNotEmpty()) {
+                item {
+                    Subtitle(
+                        modifier = Modifier.padding(start = 16.dp, end = 16.dp),
+                        text = "Videos"
+                    )
+                }
+                item {
+                    VideosRow(
+                        videos = contentState.data.anime.videos,
+                        onVideoClick = { uri ->
+                            val intent = Intent(Intent.ACTION_VIEW, uri)
+                            context.startActivity(intent)
+                        }
+                    )
+                }
+                item { Spacer(modifier = Modifier.height(8.dp)) }
+            }
             if (contentState.data.anime.characters.isNotEmpty()) {
                 item {
                     Subtitle(
                         modifier = Modifier.padding(
                             top = 16.dp,
-                            bottom = 8.dp,
                             start = 16.dp,
                             end = 16.dp
                         ),
@@ -316,7 +340,6 @@ fun DetailsScreenContent(
                     Subtitle(
                         modifier = Modifier.padding(
                             top = 8.dp,
-                            bottom = 8.dp,
                             start = 16.dp,
                             end = 16.dp
                         ),
@@ -335,7 +358,7 @@ fun DetailsScreenContent(
             if (contentState.data.anime.chronology.isNotEmpty()) {
                 item {
                     Subtitle(
-                        modifier = Modifier.padding(bottom = 8.dp, start = 16.dp, end = 16.dp),
+                        modifier = Modifier.padding(start = 16.dp, end = 16.dp),
                         text = "Chronology"
                     )
                 }
@@ -745,7 +768,6 @@ fun GenreChips(
                 )
             }
         }
-
     }
 }
 
@@ -1029,6 +1051,98 @@ private fun AnimeCardsRowWithTitle(
         }
     }
 }
+
+@Composable
+private fun VideosRow(
+    modifier: Modifier = Modifier,
+    videos: List<Video>,
+    onVideoClick: (Uri) -> Unit
+) {
+    LazyRow(
+        modifier = modifier
+            .fillMaxWidth()
+            .height(210.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        items(videos, key = { it.id }) { video ->
+            Column(
+                modifier = Modifier
+                    .width(280.dp)
+                    .padding(horizontal = 8.dp)
+            ) {
+                Text(
+                    modifier = Modifier.fillMaxWidth(),
+                    text = video.kind.value,
+                    textAlign = TextAlign.Center,
+                    color = MaterialTheme.colorScheme.primary,
+                    fontFamily = CustomFonts.Poppins,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis,
+                )
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Box(
+                    modifier = Modifier.clip(RoundedCornerShape(8.dp))
+                ) {
+                    SubcomposeAsyncImage(
+                        modifier = Modifier
+                            .aspectRatio(3 / 2f, true)
+                            .fillMaxHeight()
+                            .clickable {
+                                onVideoClick(video.url.toUri())
+                            },
+                        model = video.imageUrl,
+                        contentScale = ContentScale.Crop,
+                        contentDescription = "Video ${video.kind.value}",
+                    ) {
+                        val painterState = painter.state.collectAsState()
+                        when (painterState.value) {
+                            is AsyncImagePainter.State.Success -> {
+                                SubcomposeAsyncImageContent()
+                            }
+
+                            else -> {
+                                ShimmerBox()
+                            }
+                        }
+                    }
+                    Box(
+                        modifier = Modifier
+                            .align(Alignment.BottomCenter)
+                            .fillMaxWidth()
+                            .background(
+                                Brush.verticalGradient(
+                                    colors = listOf(
+                                        Color.Transparent,
+                                        MaterialTheme.colorScheme.scrim
+                                    )
+                                )
+                            )
+                            .padding(8.dp)
+                    ) {
+                        Column(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Text(
+                                text = video.name,
+                                color = MaterialTheme.colorScheme.onPrimary,
+                                fontFamily = CustomFonts.Poppins,
+                                fontSize = 12.sp,
+                                textAlign = TextAlign.Center,
+                                fontWeight = FontWeight.SemiBold,
+                                overflow = TextOverflow.Ellipsis,
+                                maxLines = 3
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
 
 @Composable
 private fun StatisticBarsColumn(
