@@ -49,7 +49,6 @@ kotlin {
 
 dependencies {
 
-    implementation(project(":domain-anime"))
     implementation(libs.kotlinx.coroutines.core)
     compileOnly(libs.javax.inject)
 

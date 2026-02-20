@@ -16,12 +16,12 @@ import com.sharapov.core_navigation.BaseBottomBar
 import com.sharapov.core_navigation.Screen
 import com.sharapov.core_navigation.TopLevelBackStack
 import com.sharapov.core_ui.theme.AnimeAppTheme
-import com.sharapov.core_domain.entity.filter.AnimeFilter
-import com.sharapov.core_domain.entity.filter.genre.Genre
+import com.sharapov.feature_search_screen.domain.entity.AnimeFilter
+import com.sharapov.feature_search_screen.domain.entity.genre.Genre
 import com.sharapov.feature_details_screen.ui.DetailsScreen
 import com.sharapov.feature_favorites_screen.ui.FavoritesScreen
 import com.sharapov.feature_main_screen.ui.MainScreen
-import com.sharapov.feature_search_screen.SearchScreen
+import com.sharapov.feature_search_screen.ui.SearchScreen
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint

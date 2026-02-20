@@ -4,7 +4,16 @@ plugins {
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.hilt.android)
     alias(libs.plugins.ksp)
+    alias(libs.plugins.apollo)
 }
+
+apollo {
+    service("service") {
+        packageName.set("feature-search_screen")
+        dependsOn(project(":core-network"))
+    }
+}
+
 
 android {
     namespace = "com.sharapov.feature_search_screen"
@@ -54,7 +63,8 @@ kotlin {
 dependencies {
 
     implementation(project(":core-ui"))
-    implementation(project(":domain-anime"))
+    implementation(project(":core-network"))
+    implementation(project(":core-domain"))
 
     implementation(libs.hilt.android)
     ksp(libs.hilt.android.compiler)
