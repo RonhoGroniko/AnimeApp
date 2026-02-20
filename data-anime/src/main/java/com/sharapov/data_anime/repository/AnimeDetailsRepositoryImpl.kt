@@ -5,7 +5,7 @@ import com.sharapov.core_domain.Result
 import com.sharapov.domain_anime.entity.details.AnimeDetails
 import com.sharapov.domain_anime.repository.AnimeDetailsRepository
 import com.sharapov.network_anime.GetAnimeByIdQuery
-import com.sharapov.network_anime.mapper.toEntity
+import com.sharapov.core_network.mapper.toEntity
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow

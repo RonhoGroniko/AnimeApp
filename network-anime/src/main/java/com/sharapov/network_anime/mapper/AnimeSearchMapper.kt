@@ -1,5 +1,6 @@
 package com.sharapov.network_anime.mapper
 
+import com.sharapov.core_network.mapper.toEntity
 import com.sharapov.domain_anime.entity.AnimeKind
 import com.sharapov.domain_anime.entity.AnimeRating
 import com.sharapov.domain_anime.entity.AnimeStatus
