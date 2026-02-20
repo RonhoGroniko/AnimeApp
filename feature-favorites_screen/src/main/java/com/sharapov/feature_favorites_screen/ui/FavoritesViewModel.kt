@@ -1,10 +1,10 @@
-package com.sharapov.feature_favorites_screen
+package com.sharapov.feature_favorites_screen.ui
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.sharapov.core_ui.theme.core.LceState
 import com.sharapov.core_ui.theme.core.toLceState
-import com.sharapov.domain_anime.usecases.favorites.GetFavoriteAnimeListUseCase
+import com.sharapov.feature_favorites_screen.domain.usecases.GetFavoriteAnimeListUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow

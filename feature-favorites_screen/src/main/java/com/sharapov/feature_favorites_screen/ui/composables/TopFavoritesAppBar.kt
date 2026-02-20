@@ -1,4 +1,4 @@
-package com.sharapov.feature_favorites_screen.composables
+package com.sharapov.feature_favorites_screen.ui.composables
 
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api

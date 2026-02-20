@@ -1,8 +1,6 @@
-package com.sharapov.domain_anime.usecases.search
+package com.sharapov.domain_anime.usecases
 
 import androidx.paging.Pager
-import com.sharapov.domain_anime.entity.filter.AnimeFilter
-import com.sharapov.domain_anime.entity.list.AnimeListItem
 import com.sharapov.domain_anime.repository.AnimeSearchRepository
 import javax.inject.Inject
 

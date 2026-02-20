@@ -9,7 +9,7 @@ import com.sharapov.core_ui.theme.core.toErrorType
 import com.sharapov.core_ui.theme.core.toUiMessage
 import com.sharapov.domain_anime.entity.filter.AnimeFilter
 import com.sharapov.domain_anime.entity.list.AnimeListItem
-import com.sharapov.domain_anime.usecases.search.SearchAnimeUseCase
+import com.sharapov.domain_anime.usecases.SearchAnimeUseCase
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject

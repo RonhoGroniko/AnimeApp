@@ -1,4 +1,4 @@
-package com.sharapov.feature_favorites_screen
+package com.sharapov.feature_favorites_screen.ui
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -18,13 +18,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import com.sharapov.core_domain.entity.list.AnimeListItem
 import com.sharapov.core_ui.R
 import com.sharapov.core_ui.theme.composable.AnimeCard
 import com.sharapov.core_ui.theme.composable.ErrorWithImage
 import com.sharapov.core_ui.theme.core.BasePane
 import com.sharapov.core_ui.theme.core.LceState
-import com.sharapov.domain_anime.entity.list.AnimeListItem
-import com.sharapov.feature_favorites_screen.composables.TopFavoritesAppBar
+import com.sharapov.feature_favorites_screen.ui.composables.TopFavoritesAppBar
 
 @Composable
 fun FavoritesScreen(

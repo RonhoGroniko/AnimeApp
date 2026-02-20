@@ -19,7 +19,7 @@ import com.sharapov.core_ui.theme.AnimeAppTheme
 import com.sharapov.core_domain.entity.filter.AnimeFilter
 import com.sharapov.core_domain.entity.filter.genre.Genre
 import com.sharapov.feature_details_screen.ui.DetailsScreen
-import com.sharapov.feature_favorites_screen.FavoritesScreen
+import com.sharapov.feature_favorites_screen.ui.FavoritesScreen
 import com.sharapov.feature_main_screen.ui.MainScreen
 import com.sharapov.feature_search_screen.SearchScreen
 import dagger.hilt.android.AndroidEntryPoint

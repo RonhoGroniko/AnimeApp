@@ -1,12 +1,10 @@
-package com.sharapov.data_anime.repository
+package com.sharapov.feature_favorites_screen.data.repository
 
 import com.sharapov.core_domain.Result
+import com.sharapov.core_domain.entity.list.AnimeListItem
 import com.sharapov.database_anime.dao.AnimeDao
-import com.sharapov.database_anime.mapper.toDbModel
 import com.sharapov.database_anime.mapper.toEntities
-import com.sharapov.domain_anime.entity.list.AnimeListItem
-import com.sharapov.domain_anime.repository.AnimeFavoriteRepository
-import kotlinx.coroutines.CancellationException
+import com.sharapov.feature_favorites_screen.domain.repository.AnimeFavoriteRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.map
