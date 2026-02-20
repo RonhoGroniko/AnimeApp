@@ -1,7 +1,7 @@
 package com.sharapov.database_anime.mapper
 
+import com.sharapov.core_domain.entity.list.AnimeListItem
 import com.sharapov.database_anime.model.AnimeDbModel
-import com.sharapov.domain_anime.entity.list.AnimeListItem
 
 fun AnimeDbModel.toEntity(): AnimeListItem {
     return AnimeListItem(
