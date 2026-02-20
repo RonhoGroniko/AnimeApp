@@ -33,37 +33,4 @@ class AnimeFavoriteRepositoryImpl @Inject constructor(
                     )
                 )
             }
-
-    override suspend fun changeFavoriteStatus(
-        anime: AnimeListItem,
-        makeFavorite: Boolean
-    ): Result<Unit> {
-        try {
-            if (makeFavorite) {
-                animeDao.addFavoriteAnime(anime.toDbModel())
-            } else {
-                animeDao.removeFromFavorites(anime.id)
-            }
-            return Result.Success(Unit)
-        } catch (e: CancellationException) {
-            throw e
-        } catch (e: Exception) {
-            return Result.Error(
-                exception = e,
-                message = e.message
-            )
-        }
-    }
-
-    override fun getFavoriteStatus(animeId: Long): Flow<Result<Boolean>> =
-        animeDao.getFavoriteStatus(animeId)
-            .map { Result.Success(it) as Result<Boolean> }
-            .catch { e ->
-                emit(
-                    Result.Error(
-                        exception = e,
-                        message = e.message
-                    )
-                )
-            }
 }

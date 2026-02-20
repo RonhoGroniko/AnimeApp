@@ -4,6 +4,14 @@ plugins {
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.hilt.android)
     alias(libs.plugins.ksp)
+    alias(libs.plugins.apollo)
+}
+
+apollo {
+    service("service") {
+        packageName.set("feature-details_screen")
+        dependsOn(project(":core-network"))
+    }
 }
 
 android {
@@ -54,7 +62,9 @@ kotlin {
 dependencies {
 
     implementation(project(":core-ui"))
-    implementation(project(":domain-anime"))
+    implementation(project(":core-domain"))
+    implementation(project(":core-network"))
+    implementation(project(":database-anime"))
 
     implementation(libs.hilt.android)
     implementation(libs.androidx.material3)
