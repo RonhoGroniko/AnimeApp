@@ -48,8 +48,8 @@ kotlin {
 
 dependencies {
 
-    implementation(project(":domain-anime"))
     implementation(project(":core-network"))
+    implementation(project(":core-domain"))
 
     api(platform(libs.androidx.compose.bom))
     api(libs.androidx.compose.ui)

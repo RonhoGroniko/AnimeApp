@@ -40,8 +40,8 @@ import androidx.compose.ui.unit.sp
 import coil3.compose.AsyncImagePainter
 import coil3.compose.SubcomposeAsyncImage
 import coil3.compose.SubcomposeAsyncImageContent
+import com.sharapov.core_domain.entity.list.AnimeListItem
 import com.sharapov.core_ui.theme.CustomFonts
-import com.sharapov.domain_anime.entity.list.AnimeListItem
 
 @Composable
 fun AnimeCard(

@@ -1,4 +1,4 @@
-plugins {
+    plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.serialization)
@@ -9,7 +9,8 @@ plugins {
 
 apollo {
     service("service") {
-        packageName.set("com.sharapov.core_network")
+        packageName.set("schema")
+        generateApolloMetadata.set(true)
         introspection {
             endpointUrl.set("https://shikimori.one/api/graphql")
             schemaFile.set(file("src/main/graphql/schema.graphqls"))
@@ -60,6 +61,8 @@ kotlin {
 }
 
 dependencies {
+
+    implementation(project(":core-domain"))
 
     implementation(libs.kotlinx.coroutines.core)
     compileOnly(libs.javax.inject)
