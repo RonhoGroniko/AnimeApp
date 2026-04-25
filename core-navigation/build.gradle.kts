@@ -54,7 +54,6 @@ dependencies {
 
 
     implementation(project(":core-ui"))
-    implementation(project(":domain-anime"))
 
     implementation(libs.kotlinx.serialization.json)
 

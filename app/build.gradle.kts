@@ -57,13 +57,8 @@ kotlin {
 dependencies {
 
     implementation(project(":core-ui"))
-    implementation(project(":core-network"))
     implementation(project(":core-domain"))
     implementation(project(":core-navigation"))
-    implementation(project(":domain-anime"))
-    implementation(project(":network-anime"))
-    implementation(project(":data-anime"))
-    implementation(project(":database-anime"))
     implementation(project(":feature-main_screen"))
     implementation(project(":feature-details_screen"))
     implementation(project(":feature-search_screen"))
