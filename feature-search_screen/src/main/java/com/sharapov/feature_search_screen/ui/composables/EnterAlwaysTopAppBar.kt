@@ -87,24 +87,19 @@ private fun SearchBar(
         },
         singleLine = true,
         trailingIcon = {
-            if (query.isBlank()) {
+            IconButton(
+                onClick = {
+                    if (query.isNotBlank()) {
+                        onClearQuery()
+                    }
+                },
+                enabled = query.isNotBlank()
+            ) {
                 Icon(
-                    imageVector = CustomIcons.Filled.Search,
-                    contentDescription = "Search button",
+                    imageVector = if (query.isBlank()) CustomIcons.Filled.Search else CustomIcons.Filled.Close,
+                    contentDescription = if (query.isBlank()) "Search icon" else "Clear query",
                     tint = MaterialTheme.colorScheme.secondary
                 )
-            } else {
-                IconButton(
-                    onClick = {
-                        onClearQuery()
-                    },
-                ) {
-                    Icon(
-                        imageVector = CustomIcons.Filled.Close,
-                        contentDescription = "Clear query",
-                        tint = MaterialTheme.colorScheme.secondary
-                    )
-                }
             }
         },
         colors = TextFieldDefaults.colors(
