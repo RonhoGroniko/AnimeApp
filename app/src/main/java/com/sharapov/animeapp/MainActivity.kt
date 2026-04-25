@@ -115,3 +115,4 @@ class MainActivity : ComponentActivity() {
 
 // TODO : РЕШИТЬ ВОПРОС С SECTION STATE
 // TODO : CHARACTER DETAILS
+// TODO : ПОИСК - ДЕТАЛИ - ОБРАТНО - КРЕСТ ПО QUERY - ИКОНКА УЕХАЛА ВАТАХЕЛИ

@@ -1,5 +1,6 @@
 package com.sharapov.feature_details_screen.ui
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.sharapov.core_domain.Result
@@ -35,6 +36,7 @@ class DetailsViewModel @AssistedInject constructor(
     val state = _state.asStateFlow()
 
     init {
+        Log.d("ID", animeId.toString())
         loadAnimeById(animeId)
     }
 
