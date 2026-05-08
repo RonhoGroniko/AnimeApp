@@ -21,4 +21,7 @@ interface AnimeDao {
 
     @Query("SELECT EXISTS(SELECT 1 FROM favorites WHERE id = :animeId)")
     fun getFavoriteStatus(animeId: Long) : Flow<Boolean>
+
+    @Query("SELECT id FROM FAVORITES ")
+    suspend fun getFavoriteIds(): List<Long>
 }

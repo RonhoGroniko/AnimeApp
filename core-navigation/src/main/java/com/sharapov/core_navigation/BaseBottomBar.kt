@@ -12,7 +12,7 @@ fun BaseBottomBar(
     topLevelBackStack: TopLevelBackStack<Screen>
 ) {
     val navItems = listOf(
-        Screen.Main, Screen.Search, Screen.Favorites, Screen.Profile
+        Screen.Main, Screen.Search, Screen.Favorites, Screen.Recommendations
     )
 
     ShortNavigationBar(
