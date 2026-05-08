@@ -27,8 +27,7 @@ object NetworkModule {
             .readTimeout(10, TimeUnit.SECONDS)
             .writeTimeout(10, TimeUnit.SECONDS)
             .addInterceptor(HttpLoggingInterceptor().apply {
-                level =
-                    HttpLoggingInterceptor.Level.BODY
+                level = HttpLoggingInterceptor.Level.BODY
             })
             .build()
     }
@@ -37,7 +36,7 @@ object NetworkModule {
     @Singleton
     fun provideApolloClient(client: OkHttpClient): ApolloClient {
         return ApolloClient.Builder()
-            .serverUrl("https://shikimori.one/api/graphql")
+            .serverUrl("https://shiki.one/api/graphql")
             .addHttpHeader("User-Agent", "AnimeAndroidApp")
             .okHttpClient(client)
             .build()
