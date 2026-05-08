@@ -37,10 +37,10 @@ sealed interface Screen : NavKey {
     }
 
     @Serializable
-    data object Profile : Screen, BottomNavItem {
+    data object Recommendations : Screen, BottomNavItem {
         override val selectedIcon: ImageVector = CustomIcons.Filled.Person
         override val unselectedIcon: ImageVector = CustomIcons.Outlined.Person
-        override val title: String = "Profile"
+        override val title: String = "For you"
     }
 
     @Serializable
@@ -60,7 +60,7 @@ private const val FAVORITES_ROUTE = "favorites"
 
 fun Screen.toRoute(): String = when (this) {
     is Screen.Details -> "$DETAILS_PREFIX$id"
-    Screen.Profile -> PROFILE_ROUTE
+    Screen.Recommendations -> PROFILE_ROUTE
     Screen.Favorites -> FAVORITES_ROUTE
     Screen.Main -> MAIN_ROUTE
     Screen.Search -> SEARCH_ROUTE
@@ -70,7 +70,7 @@ fun Screen.toRoute(): String = when (this) {
 
 fun String.toScreen(): Screen = when {
     this == MAIN_ROUTE -> Screen.Main
-    this == PROFILE_ROUTE -> Screen.Profile
+    this == PROFILE_ROUTE -> Screen.Recommendations
     startsWith(DETAILS_PREFIX) ->
         Screen.Details(substringAfter(DETAILS_PREFIX).toLong())
 

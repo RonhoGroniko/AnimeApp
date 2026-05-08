@@ -18,7 +18,7 @@ import javax.inject.Singleton
 
 
 private const val BASE_URL = "https://shiki.one/api/graphql"
-private const val MY_SERVER_BASE_URL = "http://192.168.0.19/"
+private const val MY_SERVER_BASE_URL = "https://rehab-email-entity.ngrok-free.dev/"
 
 @Module
 @InstallIn(SingletonComponent::class)

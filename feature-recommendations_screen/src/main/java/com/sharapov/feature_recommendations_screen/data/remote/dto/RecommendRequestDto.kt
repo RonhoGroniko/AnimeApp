@@ -6,8 +6,8 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class RecommendRequestDto(
     @SerialName("anime_ids")
-    val animeIds: List<Int>,
+    val animeIds: List<Long>,
 
     @SerialName("limit")
-    val limit: Int = 40
+    val limit: Int = 100
 )

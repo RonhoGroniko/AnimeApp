@@ -1,4 +1,4 @@
-package com.sharapov.feature_recommendations_screen.domain
+package com.sharapov.feature_recommendations_screen.domain.repository
 
 import com.sharapov.core_domain.Result
 import com.sharapov.core_domain.entity.list.AnimeListItem
