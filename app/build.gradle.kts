@@ -63,6 +63,7 @@ dependencies {
     implementation(project(":feature-details_screen"))
     implementation(project(":feature-search_screen"))
     implementation(project(":feature-favorites_screen"))
+    implementation(project(":feature-recommendations_screen"))
 
 
     // Hilt

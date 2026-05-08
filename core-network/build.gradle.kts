@@ -64,6 +64,9 @@ dependencies {
 
     implementation(project(":core-domain"))
 
+    api(libs.retrofit)
+    implementation(libs.converter.kotlinx.serialization)
+
     implementation(libs.kotlinx.coroutines.core)
     compileOnly(libs.javax.inject)
 
