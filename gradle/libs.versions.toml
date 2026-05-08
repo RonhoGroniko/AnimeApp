@@ -12,7 +12,7 @@ espressoCore = "3.7.0"
 kotlinxSerializationJson = "1.11.0"
 lifecycleRuntimeKtx = "2.10.0"
 activityCompose = "1.13.0"
-composeBom = "2026.04.01"
+composeBom = "2026.05.00"
 loggingInterceptor = "5.3.2"
 roomRuntime = "2.8.4"
 ksp = "2.3.4"
@@ -20,8 +20,8 @@ kotlinx-coroutines = "1.10.2"
 javax-inject = "1"
 coreSplashscreen = "1.2.0"
 
-pagingRuntime = "3.4.2"
-pagingCompose = "3.4.2"
+pagingRuntime = "3.5.0"
+pagingCompose = "3.5.0"
 
 
 apollo = "4.4.3"
@@ -29,8 +29,10 @@ apollo = "4.4.3"
 nav3Core = "1.1.1"
 lifecycleViewmodelNav3 = "2.10.0"
 material3 = "1.4.0"
-foundation = "1.11.0"
-uiGraphics = "1.11.0"
+foundation = "1.11.1"
+uiGraphics = "1.11.1"
+appcompat = "1.7.1"
+material = "1.13.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -73,6 +75,8 @@ androidx-lifecycle-viewmodel-navigation3 = { module = "androidx.lifecycle:lifecy
 androidx-material3 = { group = "androidx.compose.material3", name = "material3", version.ref = "material3" }
 androidx-compose-foundation = { group = "androidx.compose.foundation", name = "foundation", version.ref = "foundation" }
 androidx-ui-graphics = { group = "androidx.compose.ui", name = "ui-graphics", version.ref = "uiGraphics" }
+androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
+material = { group = "com.google.android.material", name = "material", version.ref = "material" }
 
 
 [plugins]
