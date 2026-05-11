@@ -5,8 +5,10 @@ import com.sharapov.core_domain.entity.list.AnimeListItem
 import com.sharapov.database_anime.dao.AnimeDao
 import com.sharapov.database_anime.mapper.toEntities
 import com.sharapov.feature_favorites_screen.domain.repository.AnimeFavoriteRepository
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onStart
 import javax.inject.Inject
@@ -30,5 +32,5 @@ class AnimeFavoriteRepositoryImpl @Inject constructor(
                         message = e.message
                     )
                 )
-            }
+            }.flowOn(Dispatchers.IO)
 }
