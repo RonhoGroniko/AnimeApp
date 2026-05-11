@@ -9,8 +9,10 @@ import com.sharapov.feature_recommendations_screen.data.remote.RecommendationApi
 import com.sharapov.feature_recommendations_screen.data.remote.dto.RecommendRequestDto
 import com.sharapov.feature_recommendations_screen.domain.repository.RecommendationRepository
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOn
 import javax.inject.Inject
 
 class RecommendationRepositoryImpl @Inject constructor(
@@ -37,5 +39,5 @@ class RecommendationRepositoryImpl @Inject constructor(
                 message = e.message
             ))
         }
-    }
+    }.flowOn(Dispatchers.IO)
 }

@@ -10,10 +10,13 @@ import com.sharapov.feature_details_screen.domain.entity.AnimeDetails
 import com.sharapov.feature_details_screen.domain.repository.AnimeDetailsRepository
 import `feature-details_screen`.GetAnimeByIdQuery
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 class AnimeDetailsRepositoryImpl @Inject constructor(
@@ -34,23 +37,24 @@ class AnimeDetailsRepositoryImpl @Inject constructor(
         } catch (e: Exception) {
             emit(Result.Error(e, e.message))
         }
-    }
+    }.flowOn(Dispatchers.IO)
 
     override suspend fun changeFavoriteStatus(
         anime: AnimeListItem,
         makeFavorite: Boolean
-    ): Result<Unit> {
+    ): Result<Unit> = withContext(Dispatchers.IO) {
         try {
             if (makeFavorite) {
                 animeDao.addFavoriteAnime(anime.toDbModel())
             } else {
                 animeDao.removeFromFavorites(anime.id)
             }
-            return Result.Success(Unit)
+
+            Result.Success(Unit)
         } catch (e: CancellationException) {
             throw e
         } catch (e: Exception) {
-            return Result.Error(
+            Result.Error(
                 exception = e,
                 message = e.message
             )
@@ -59,7 +63,7 @@ class AnimeDetailsRepositoryImpl @Inject constructor(
 
     override fun getFavoriteStatus(animeId: Long): Flow<Result<Boolean>> =
         animeDao.getFavoriteStatus(animeId)
-            .map { Result.Success(it) as Result<Boolean> }
+            .map<Boolean, Result<Boolean>> { Result.Success(it)  }
             .catch { e ->
                 emit(
                     Result.Error(
@@ -67,5 +71,5 @@ class AnimeDetailsRepositoryImpl @Inject constructor(
                         message = e.message
                     )
                 )
-            }
+            }.flowOn(Dispatchers.IO)
 }
